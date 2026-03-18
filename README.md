@@ -33,22 +33,44 @@ data quality by managing metadata and moderating discussions.
 
 ### User Levels
 
-| Level | Role Name | Permissions & Capabilities |
-| :--- | :--- | :--- |
-| **0** | **Public User** | **Unauthorized:** Can browse the movie database, view ratings, and read discussion threads. |
-| **1** | **Basic User** | **Authenticated:** Can participate in the community by voting on movies and adding comments to discussions. |
-| **2** | **Editor** | **Medium-tier:** Responsible for data quality. Can register new movies and edit metadata (e.g., descriptions) for existing entries. |
-| **3** | **Admin** | **Moderator:** Full CRUD power over movie postings and comments (delete only). Ability to ban problematic users. |
+| Level | Role Name      | Permissions & Capabilities |
+| :--- |:---------------| :--- |
+| **0** | **Guest**      | **Unauthorized:** Can browse the movie database, view ratings, and read discussion threads. |
+| **1** | **User** | **Authenticated:** Can participate in the community by voting on movies and adding comments to discussions. |
+| **2** | **Editor**     | **Medium-tier:** Responsible for data quality. Can register new movies and edit metadata (e.g., descriptions) for existing entries. |
+| **3** | **Admin**      | **Moderator:** Full CRUD power over movie postings and comments (delete only). Ability to ban problematic users. |
 | **4** | **Superadmin** | **System Owner:** Absolute CRUD power over all entities, including the ability to manage admin accounts and system-wide configurations. |
 
 ### User Stories (To be extended)
-1. **As an [Admin]**, I want to have a Web app so that I can use it on different mobile devices and on desktop computers.
-2. **As an [Admin]**, I want to see a consistent visual appearance so that I can navigate easily.
-3. **As an [Admin]**, I want to use list views so that I can explore and read my business data.
-4. **As an [Admin]**, I want to use edit and create views so that I can maintain my business data.
-5. **As an [Admin]**, I want to log-in so that I can authenticate myself.
-6. **As a [User]**, I want to use list views so that I can access public pages.
-7. **As a [User]**, I want to authenticate myself so that I can read my personal and confidential data.
+1. **As a [Guest]**, I want to see the main page so that I can access the platform without logging in.
+2. **As a [Guest]**, I want to use filters to search for a specific movie so that I can find movies more efficiently.
+3. **As a [Guest]**, I want to browse a subset of the movie library so that I can explore available movies.
+4. **As a [Guest]**, I want to open a specific movie page so that I can see its details.
+5. **As a [Guest]**, I want to read comments and ratings for a movie so that I can understand other users’ opinions.
+6. **As a [Guest]**, I want to register an account so that I can participate in the platform.
+7. **As a [Guest]**, I want to flag a movie post for incorrect information so that editors or admins can review it.
+8. **As a [Guest]**, I want to report vulgar or inappropriate comments so that the discussion stays respectful.
+
+9. **As a [User]**, I want to log in so that I can access authenticated features.
+10. **As a [User]**, I want to log out so that I can securely end my session.
+11. **As a [User]**, I want to rate and comment on a specific movie so that I can share my opinion with others.
+12. **As a [User]**, I want to edit my own comments so that I can correct or improve them later.
+13. **As a [User]**, I want to delete my own comments so that I can remove content I no longer want to share.
+14. **As a [User]**, I want to edit my account details so that I can keep my profile information up to date.
+15. **As a [User]**, I want to use all guest features so that registration does not limit my browsing experience.
+
+16. **As an [Editor]**, I want to use all user features so that I can also participate in the platform as a normal user.
+17. **As an [Editor]**, I want to create a new movie record so that new movies can be added to the library.
+18. **As an [Editor]**, I want to edit an existing movie record so that incorrect or incomplete information can be fixed.
+
+19. **As an [Admin]**, I want to use all editor features so that I can manage both content and community moderation.
+20. **As an [Admin]**, I want to create, read, update, and delete movie records so that I can fully maintain the movie database.
+21. **As an [Admin]**, I want to delete inappropriate user comments so that I can enforce community standards.
+22. **As an [Admin]**, I want to ban problematic users so that I can protect the platform from abuse.
+
+23. **As a [Superadmin]**, I want to use all admin features so that I have full platform control.
+24. **As a [Superadmin]**, I want full CRUD access over all entities so that I can manage the entire system.
+25. **As a [Superadmin]**, I want to access the admin view so that I can supervise and configure the platform at the highest level.
 
 ### Use Case
 The following use cases define the core functional requirements of the MoviePulse platform:
