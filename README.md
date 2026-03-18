@@ -161,6 +161,83 @@ This application uses a server-rendered web frontend with lightweight client-sid
 - **Form-based interaction:** The frontend communicates with the backend primarily through Django views, forms, and rendered templates.
 ---
 
+## Local Setup and Run
+
+Follow these steps to run the MoviePulse project locally.
+
+### 1. Clone the repository
+```bash
+git clone <your-repository-url>
+cd <your-project-folder>
+```
+### 2. Create a virtual environment
+On Windows:
+```bash
+py -m venv .venv
+```
+
+On macOS/Linux:
+```bash
+python3 -m venv .venv
+```
+
+### 3. Activate the virtual environment
+On Windows PowerShell:
+```bash
+.\.venv\Scripts\Activate.ps1
+```
+
+On macOS/Linux:
+```bash
+source .venv/bin/activate
+```
+
+### 4. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Apply database migrations
+```bash
+python manage.py migrate
+```
+
+### 6. Create a superuser
+```bash
+python manage.py createsuperuser
+```
+
+### 7. Run the development server
+```bash
+python manage.py runserver
+```
+
+The application will then be available at:
+```
+http://127.0.0.1:8000/
+```
+
+The Django admin panel will be available at:
+```
+http://127.0.0.1:8000/admin/
+```
+
+### 8. Optional: create new migrations after model changes
+If the data model changes, generate and apply new migrations:
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### Notes
+- Make sure the virtual environment is activated before running Django commands.
+- `manage.py` is the standard Django project command-line entry point used for migrations, superuser creation, and starting the development server.
+- Once dependencies are finalized, generate a `requirements.txt` file for easier collaboration and reproducibility:
+```bash
+pip freeze > requirements.txt
+```
+___
+
 ## Project Management
 
 ### Roles 
