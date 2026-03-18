@@ -1,10 +1,10 @@
 # MoviePulse: Tiered Movie Rating & Discussion Platform
 
 MoviePulse is a centralized web application for movie enthusiasts to discover, rate, and discuss films.
-This project follows a 3-tier architecture and implements a sophisticated permission system ranging 
-from public viewers to "Superadmins".
+The platform is implemented as a database-driven web application using Django and follows a layered architecture
+with role-based access control ranging from guests to superadmins.
 
-[![License](https://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 #### Contents:
 - [Analysis](#analysis)
@@ -146,27 +146,27 @@ For authentication and authorization, the system will rely on Django’s built-i
 ## Implementation
 
 ### Backend Technology
-The backend is implemented using an enterprise-grade framework:
-- **Spring Boot 3.0** & **Java 17**.
-- **Spring Data JPA** for Object-Relational Mapping (ORM).
-- **H2 Database** for in-memory demonstration purposes.
-- **OpenAPI 3.0 (Swagger)** for API endpoint documentation.
-- **Basic Authentication** for API-level security.
+The backend is implemented using a Python-based web framework:
+- **Django** for the core backend architecture, routing, views, templates, authentication, and administrative functionality.
+- **Django ORM** for object-relational mapping and database interaction.
+- **SQLite** for development and demonstration purposes, with the option to switch to another relational database later if needed.
+- **Django Authentication and Authorization System** for login, user groups, and permission management.
+- **Django Admin** for internal administrative and moderation functionality.
 
 ### Frontend Technology
-This application utilizes a **hybrid approach** for the presentation layer:
-- **HTML, CSS, and Vanilla JavaScript** for core movie interaction and custom discussion logic to ensure a tailored User Experience (UX).
-- **Budibase** for rapid prototyping of administrative list views and internal data management screens.
-- **RESTful API:** The frontend communicates with the backend via a standardized REST architecture.
-
+This application uses a server-rendered web frontend with lightweight client-side enhancements:
+- **HTML, CSS, and JavaScript** for the user interface and interactive behavior.
+- **Django Templates** for dynamic rendering of pages such as movie lists, detail views, forms, and account-related screens.
+- **Responsive Design Principles** to support both desktop and mobile usage.
+- **Form-based interaction:** The frontend communicates with the backend primarily through Django views, forms, and rendered templates.
 ---
 
 ## Project Management
 
 ### Roles 
-- **Backend Developer:** Vávra Kryštof; ??? (Spring Boot architecture, Security, SQL Integration).
-- **Frontend Developer:** Vávra Kryštof; ??? (UI/UX Design, Vanilla JS, Budibase views).
-- **Project Lead:** Vávra Kryštof; ??? (Documentation, API Design, Milestone tracking).
+- **Backend Developer:** Vávra Kryštof (Spring Boot architecture, Security, SQL Integration).
+- **Frontend Developer:** Vávra Kryštof (UI/UX Design, Vanilla JS, Budibase views).
+- **Project Lead:** Vávra Kryštof (Documentation, API Design, Milestone tracking).
 
 ### Milestones
 - [x] **1. Decide use case; Team finalized:** Initial scenario ideation.
@@ -183,9 +183,6 @@ This application utilizes a **hybrid approach** for the presentation layer:
 
 #### Maintainer
 - Vávra Kryštof
-- Marti Asia
-- Lantos Marc
-- Honegger Nils
 
 #### License
-- [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
+- [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)
