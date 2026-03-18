@@ -101,8 +101,20 @@ For authentication and authorization, the system will rely on Django’s built-i
 * **UserProfile** (`profile_id`, `user_id`, `role`, `status`, `created_at`, `updated_at`)  
   Stores application-specific user information that extends the built-in Django user model. It contains the role of the user within the platform (User, Editor, Admin, Superadmin) and can later be extended with additional profile-related data if needed.
 
-* **Movie** (`movie_id`, `title`, `description`, `release_year`, `genre`, `director`, `created_at`, `updated_at`, `created_by`)  
-  Represents a movie entry in the platform. It stores the main metadata for each movie and acts as the central entity around which ratings, comments, and reports are organized.
+* **Movie** (`movie_id`, `title`, `description`, `release_year`, `created_at`, `updated_at`, `created_by`)  
+  Represents a movie entry in the platform. It stores the core metadata for each movie and acts as the central entity around which ratings, comments, and reports are organized. Relationships to genres and authors are handled through separate junction entities, allowing each movie to have multiple genres and multiple authors.
+
+* **Genre** (`genre_id`, `name`)  
+  Represents a movie genre such as Action, Fantasy, or Horror. A genre can be associated with many movies.
+
+* **Author** (`author_id`, `full_name`)  
+  Represents a creator associated with a movie. A movie may have one or more authors, and one author may be linked to multiple movies.
+
+* **MovieGenre** (`movie_id`, `genre_id`)  
+  Junction entity used to implement the many-to-many relationship between movies and genres.
+
+* **MovieAuthor** (`movie_id`, `author_id`)  
+  Junction entity used to implement the many-to-many relationship between movies and authors.
 
 * **Rating** (`rating_id`, `user_id`, `movie_id`, `score`, `created_at`, `updated_at`)  
   Links users to movies through a numeric score. This entity supports the business rule that one registered user may submit only one rating per movie.
@@ -131,15 +143,21 @@ For authentication and authorization, the system will rely on Django’s built-i
 * One **Admin** can review many **Reports**.
 * One **Admin** can issue many **Bans**.
 * One **User** can receive zero or many **Bans**.
+* One **Movie** can have one or many **Genres**.
+* One **Genre** can belong to one or many **Movies**.
+* One **Movie** can have one or many **Authors**.
+* One **Author** can belong to one or many **Movies**.
 * One **UserProfile** role maps to one corresponding Django permission group.
 
 #### Business Rules Reflected in the Domain
-* A registered user may submit only **one rating per movie**.
+* A registered user may submit only **one rating per movie**, but may later update or delete their own rating.
 * Guests may browse and report content, but only registered users may rate and comment.
-* Editors may create and update movie data.
+* Editors may create and update movie data, including assigning one or more authors and genres to a movie.
 * Admins may moderate comments, review reports, and ban users.
 * Superadmins have full authority over all entities and privileged permissions.
 * A permanent ban has `is_permanent = true` and no required `end_date`.
+* A movie must belong to at least one genre and may belong to multiple genres.
+* A movie must have at least one author and may have multiple authors.
 * User permissions must remain consistent with the assigned platform role.
 ---
 
