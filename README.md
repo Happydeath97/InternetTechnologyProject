@@ -34,71 +34,113 @@ data quality by managing metadata and moderating discussions.
 ### User Levels
 
 | Level | Role Name      | Permissions & Capabilities |
-| :--- |:---------------| :--- |
-| **0** | **Guest**      | **Unauthorized:** Can browse the movie database, view ratings, and read discussion threads. |
-| **1** | **User** | **Authenticated:** Can participate in the community by voting on movies and adding comments to discussions. |
-| **2** | **Editor**     | **Medium-tier:** Responsible for data quality. Can register new movies and edit metadata (e.g., descriptions) for existing entries. |
-| **3** | **Admin**      | **Moderator:** Full CRUD power over movie postings and comments (delete only). Ability to ban problematic users. |
-| **4** | **Superadmin** | **System Owner:** Absolute CRUD power over all entities, including the ability to manage admin accounts and system-wide configurations. |
+| :---: | :------------- | :--- |
+| **0** | **Guest**      | **Unauthorized:** Can access the main page, browse a public subset of the movie library, use filters, open movie detail pages, read ratings and comments, register an account, and report incorrect movie information or inappropriate comments. |
+| **1** | **User**       | **Authenticated:** Includes all Guest permissions. Can log in and log out, rate movies, add comments, edit or delete own comments, and update account details. Limited to one rating per movie. |
+| **2** | **Editor**     | **Content Curator:** Includes all User permissions. Can create new movie records, edit existing movie records, and review reported movie information to maintain data quality. |
+| **3** | **Admin**      | **Moderator:** Includes all Editor permissions. Can delete inappropriate comments, review reported comments, ban users, and manage movie records with full CRUD functionality when necessary. |
+| **4** | **Superadmin** | **System Owner:** Includes all Admin permissions. Has full CRUD authority over all entities, can manage privileged accounts and permissions, and can access protected administrative views and system-level controls. |
 
 ### User Stories (To be extended)
-1. **As a [Guest]**, I want to see the main page so that I can access the platform without logging in.
-2. **As a [Guest]**, I want to use filters to search for a specific movie so that I can find movies more efficiently.
-3. **As a [Guest]**, I want to browse a subset of the movie library so that I can explore available movies.
-4. **As a [Guest]**, I want to open a specific movie page so that I can see its details.
-5. **As a [Guest]**, I want to read comments and ratings for a movie so that I can understand other users’ opinions.
-6. **As a [Guest]**, I want to register an account so that I can participate in the platform.
-7. **As a [Guest]**, I want to flag a movie post for incorrect information so that editors or admins can review it.
-8. **As a [Guest]**, I want to report vulgar or inappropriate comments so that the discussion stays respectful.
+1. **As a [Guest]**, I want to access the main page without logging in so that I can immediately use the platform.
+2. **As a [Guest]**, I want to browse a public list of movies so that I can discover available content.
+3. **As a [Guest]**, I want to filter movies by attributes such as title, genre, or year so that I can find specific movies more efficiently.
+4. **As a [Guest]**, I want to open a movie detail page so that I can view detailed information about a selected movie.
+5. **As a [Guest]**, I want to see ratings and comments for a movie so that I can understand community opinions before deciding to watch it.
+6. **As a [Guest]**, I want to register an account so that I can participate in rating and discussion features.
+7. **As a [Guest]**, I want to report incorrect movie information so that editors or admins can review possible errors.
+8. **As a [Guest]**, I want to report vulgar or inappropriate comments so that the platform remains respectful and useful.
+9. **As a [Guest]**, I want to use the application on desktop and mobile devices so that I can access it comfortably from different devices.
 
-9. **As a [User]**, I want to log in so that I can access authenticated features.
-10. **As a [User]**, I want to log out so that I can securely end my session.
-11. **As a [User]**, I want to rate and comment on a specific movie so that I can share my opinion with others.
-12. **As a [User]**, I want to edit my own comments so that I can correct or improve them later.
-13. **As a [User]**, I want to delete my own comments so that I can remove content I no longer want to share.
-14. **As a [User]**, I want to edit my account details so that I can keep my profile information up to date.
-15. **As a [User]**, I want to use all guest features so that registration does not limit my browsing experience.
+10. **As a [User]**, I want to log in securely so that I can access authenticated features.
+11. **As a [User]**, I want to log out so that I can safely end my session on a shared or personal device.
+12. **As a [User]**, I want to rate a movie so that I can express my opinion numerically.
+13. **As a [User]**, I want to comment on a movie so that I can share my thoughts with other users.
+14. **As a [User]**, I want to edit my own comments so that I can correct mistakes or improve my contribution.
+15. **As a [User]**, I want to delete my own comments so that I can remove content I no longer want to publish.
+16. **As a [User]**, I want to edit my account details so that my profile information stays current.
+17. **As a [User]**, I want the system to allow only one rating per movie per account so that ratings remain fair and consistent.
 
-16. **As an [Editor]**, I want to use all user features so that I can also participate in the platform as a normal user.
-17. **As an [Editor]**, I want to create a new movie record so that new movies can be added to the library.
-18. **As an [Editor]**, I want to edit an existing movie record so that incorrect or incomplete information can be fixed.
+18. **As an [Editor]**, I want to create new movie records so that newly released or missing movies can be added to the platform.
+19. **As an [Editor]**, I want to edit existing movie records so that wrong or incomplete movie information can be corrected.
+20. **As an [Editor]**, I want to review reported movie entries so that flagged content can be checked and improved.
 
-19. **As an [Admin]**, I want to use all editor features so that I can manage both content and community moderation.
-20. **As an [Admin]**, I want to create, read, update, and delete movie records so that I can fully maintain the movie database.
-21. **As an [Admin]**, I want to delete inappropriate user comments so that I can enforce community standards.
-22. **As an [Admin]**, I want to ban problematic users so that I can protect the platform from abuse.
+21. **As an [Admin]**, I want to delete inappropriate comments so that community rules can be enforced.
+22. **As an [Admin]**, I want to review reported comments so that harmful or vulgar discussion content can be moderated.
+23. **As an [Admin]**, I want to ban users who repeatedly violate platform rules so that abuse of the system is reduced.
+24. **As an [Admin]**, I want to manage movie records with full CRUD functionality so that I can maintain content quality when needed.
 
-23. **As a [Superadmin]**, I want to use all admin features so that I have full platform control.
-24. **As a [Superadmin]**, I want full CRUD access over all entities so that I can manage the entire system.
-25. **As a [Superadmin]**, I want to access the admin view so that I can supervise and configure the platform at the highest level.
+25. **As a [Superadmin]**, I want to manage all system entities so that I have full control over the platform.
+26. **As a [Superadmin]**, I want to manage privileged accounts and permissions so that the authorization hierarchy remains secure and correct.
+27. **As a [Superadmin]**, I want to access a protected admin view so that I can supervise platform data and administration functions.
+28. **As a [Superadmin]**, I want the system to enforce role hierarchy rules so that lower-level users cannot perform actions above their authority.
 
-### Use Case
+### Use Cases
 The following use cases define the core functional requirements of the MoviePulse platform:
 
-* **UC-1 [Public Browse]:** Allows unauthorized users to access the movie catalog and view existing discussion threads without logging in.
-* **UC-2 [Rate & Comment]:** Enables authenticated Basic Users to interact with content by submitting numeric ratings and text comments.
-* **UC-3 [Curate Data]:** Provides Editors with the tools to register new movie entries and update metadata to maintain database accuracy.
-* **UC-4 [Moderation]:** Empowers Admins to maintain community standards by deleting comments and managing user bans.
-* **UC-5 [System Administration]:** Grants Superadmins full CRUD (Create, Read, Update, Delete) authority over the entire system, including user and admin account management.
+* **UC-1 [Browse Movies]:** Allows guests to access the main page, browse a public subset of the movie library, use filters to search for specific movies, open movie detail pages, and read ratings and comments without logging in.
+* **UC-2 [Account Management]:** Enables guests to register accounts and allows authenticated users to log in, log out, and edit their account details.
+* **UC-3 [Rate and Comment]:** Enables authenticated users to submit one rating per movie, add comments to movies, edit their own comments, and delete their own comments.
+* **UC-4 [Report Content]:** Allows guests and users to report incorrect movie information and flag vulgar or inappropriate comments for review.
+* **UC-5 [Movie Curation]:** Provides editors with the ability to create new movie records, edit existing movie records, and review flagged movie entries to maintain content quality.
+* **UC-6 [Community Moderation]:** Empowers admins to review reported comments, delete inappropriate comments, manage user bans, and maintain movie records with full CRUD functionality where necessary.
+* **UC-7 [System Administration]:** Grants superadmins full CRUD authority over all system entities, including privileged account and permission management, as well as access to the protected admin view.
 ---
 
 ## Design
 
-### Domain Design (To be implemented)
+### Domain Design
 
-The `itassignment.internettechnologyproject.data.domain` package contains the following four entities, meeting the minimum project requirements:
+The MoviePulse platform is centered around several core domain entities that reflect the functional requirements, user roles, moderation workflows, and technical architecture of the system. The domain design serves as the conceptual foundation for the later ER/EER model and database schema.
 
-* **User:** Stores credentials and role-based access levels (Public, Basic, Editor, Admin, Superadmin).
-* **Movie:** Contains film metadata such as Title, Description, Year, and Genre.
-* **Rating:** Links Users to Movies with a numeric score to ensure data integrity and track community sentiment.
-* **Comment:** Stores text-based discussion data associated with specific films and users.
+For authentication and authorization, the system will rely on Django’s built-in user model and permission framework. Platform-specific user data will be stored in a related profile entity, while role-based access will be represented through a role attribute and synchronized Django permission groups.
 
-### Business Logic
-The service layer implements the following enterprise business rules to ensure data integrity:
-- **Uniqueness Rule:** The system prevents duplicate movie entries by checking the Title and Release Year.
-- **Integrity Rule:** A user is restricted to one rating per movie.
-- **Hierarchy Rule:** Users can only manage accounts or content within their designated permission tier.
+* **User** (`id`, `username`, `email`, `password`, `is_active`, `is_staff`, `is_superuser`, `date_joined`, `last_login`)  
+  Represents the built-in Django authentication entity used for login, logout, and access control. It stores the core credentials and authentication-related data of registered users. Guests are not stored as persistent records and are treated as unauthorized visitors.
 
+* **UserProfile** (`profile_id`, `user_id`, `role`, `status`, `created_at`, `updated_at`)  
+  Stores application-specific user information that extends the built-in Django user model. It contains the role of the user within the platform (User, Editor, Admin, Superadmin) and can later be extended with additional profile-related data if needed.
+
+* **Movie** (`movie_id`, `title`, `description`, `release_year`, `genre`, `director`, `created_at`, `updated_at`, `created_by`)  
+  Represents a movie entry in the platform. It stores the main metadata for each movie and acts as the central entity around which ratings, comments, and reports are organized.
+
+* **Rating** (`rating_id`, `user_id`, `movie_id`, `score`, `created_at`, `updated_at`)  
+  Links users to movies through a numeric score. This entity supports the business rule that one registered user may submit only one rating per movie.
+
+* **Comment** (`comment_id`, `user_id`, `movie_id`, `content`, `created_at`, `updated_at`, `status`)  
+  Stores text-based discussion entries written by users for specific movies. Comments may later be edited by their authors and reviewed or deleted by administrators if they violate platform rules.
+
+* **Report** (`report_id`, `reporter_id`, `target_type`, `target_id`, `reason`, `description`, `status`, `reviewed_by`, `created_at`, `reviewed_at`)  
+  Represents reports submitted to flag incorrect movie information or vulgar/inappropriate comments. This entity supports the moderation and review workflow of the platform.
+
+* **Ban** (`ban_id`, `user_id`, `admin_id`, `reason`, `start_date`, `end_date`, `is_permanent`, `status`)  
+  Stores administrative bans imposed on users who repeatedly violate platform rules. For permanent bans, `end_date` may remain empty. This entity supports traceable moderation decisions and restriction handling.
+
+* **Group / Permission Mapping**  
+  At the application level, Django groups will represent permission bundles such as Editor, Admin, and Superadmin. These groups are linked to Django’s permission system and will be assigned automatically based on the role stored in the `UserProfile` entity. This ensures consistency between the business role of a user and the effective permissions granted by the framework.
+
+#### Main Relationships
+* One **User** has exactly one **UserProfile**.
+* One **User** can create many **Ratings**.
+* One **User** can create many **Comments**.
+* One **User** can create many **Reports**.
+* One **Movie** can have many **Ratings**.
+* One **Movie** can have many **Comments**.
+* One **Movie** can be referenced by many **Reports**.
+* One **Comment** can be referenced by many **Reports**.
+* One **Admin** can review many **Reports**.
+* One **Admin** can issue many **Bans**.
+* One **User** can receive zero or many **Bans**.
+* One **UserProfile** role maps to one corresponding Django permission group.
+
+#### Business Rules Reflected in the Domain
+* A registered user may submit only **one rating per movie**.
+* Guests may browse and report content, but only registered users may rate and comment.
+* Editors may create and update movie data.
+* Admins may moderate comments, review reports, and ban users.
+* Superadmins have full authority over all entities and privileged permissions.
+* A permanent ban has `is_permanent = true` and no required `end_date`.
+* User permissions must remain consistent with the assigned platform role.
 ---
 
 ## Implementation
