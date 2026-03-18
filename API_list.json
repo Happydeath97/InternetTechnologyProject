@@ -1,0 +1,1447 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MoviePulse API",
+    "description": "API for MoviePulse, a tiered movie rating and discussion platform where guests can browse movies and registered users can rate, comment, and report content. Editors, admins, and superadmins have extended moderation and management capabilities.",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8000/api/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Authentication and account access"
+    },
+    {
+      "name": "users",
+      "description": "User account and profile management"
+    },
+    {
+      "name": "movies",
+      "description": "Movie browsing and movie management"
+    },
+    {
+      "name": "ratings",
+      "description": "Movie ratings"
+    },
+    {
+      "name": "comments",
+      "description": "Movie comments"
+    },
+    {
+      "name": "reports",
+      "description": "Reporting incorrect movie data or inappropriate comments"
+    },
+    {
+      "name": "bans",
+      "description": "Administrative ban management"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Register a new user account",
+        "description": "Allows a guest to create a new MoviePulse account.",
+        "operationId": "registerUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid registration data"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Log in user",
+        "description": "Authenticates a registered user.",
+        "operationId": "loginUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Log out user",
+        "description": "Logs out the currently authenticated user.",
+        "operationId": "logoutUser",
+        "responses": {
+          "200": {
+            "description": "Logout successful"
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Get current user profile",
+        "description": "Returns the profile of the authenticated user.",
+        "operationId": "getCurrentUserProfile",
+        "responses": {
+          "200": {
+            "description": "Profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      },
+      "put": {
+        "tags": ["users"],
+        "summary": "Update current user profile",
+        "description": "Allows a user to update their own account details.",
+        "operationId": "updateCurrentUserProfile",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserProfileUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/movies": {
+      "get": {
+        "tags": ["movies"],
+        "summary": "Get list of movies",
+        "description": "Returns a public list of movies. Supports filtering by title, genre, and release year.",
+        "operationId": "getMovies",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "description": "Filter by movie title",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "genre",
+            "in": "query",
+            "description": "Filter by genre",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "release_year",
+            "in": "query",
+            "description": "Filter by release year",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of movies retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Movie"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["movies"],
+        "summary": "Create a new movie",
+        "description": "Allows an Editor, Admin, or Superadmin to create a new movie record.",
+        "operationId": "createMovie",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MovieCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Movie created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Movie"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid movie data"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          }
+        }
+      }
+    },
+    "/movies/{movieId}": {
+      "get": {
+        "tags": ["movies"],
+        "summary": "Get movie details",
+        "description": "Returns detailed information about a selected movie.",
+        "operationId": "getMovieById",
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Movie details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Movie"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Movie not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["movies"],
+        "summary": "Update movie",
+        "description": "Allows Editors, Admins, and Superadmins to update an existing movie.",
+        "operationId": "updateMovie",
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MovieUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Movie updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Movie"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid movie data"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Movie not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["movies"],
+        "summary": "Delete movie",
+        "description": "Allows Admins and Superadmins to delete a movie record.",
+        "operationId": "deleteMovie",
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Movie deleted successfully"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Movie not found"
+          }
+        }
+      }
+    },
+    "/movies/{movieId}/ratings": {
+      "get": {
+        "tags": ["ratings"],
+        "summary": "Get ratings for a movie",
+        "description": "Returns ratings associated with a movie.",
+        "operationId": "getRatingsForMovie",
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ratings retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Rating"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Movie not found"
+          }
+        }
+      },
+      "post": {
+        "tags": ["ratings"],
+        "summary": "Create rating for a movie",
+        "description": "Allows an authenticated user to create one rating for a movie.",
+        "operationId": "createRating",
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RatingCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rating created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Rating"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid rating data or user has already rated this movie"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Movie not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["ratings"],
+        "summary": "Update own rating for a movie",
+        "description": "Allows an authenticated user to update their own existing rating for a movie.",
+        "operationId": "updateRating",
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RatingCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rating updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Rating"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid rating data"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Movie or rating not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["ratings"],
+        "summary": "Delete own rating for a movie",
+        "description": "Allows an authenticated user to delete their own rating for a movie.",
+        "operationId": "deleteRating",
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Rating deleted successfully"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Movie or rating not found"
+          }
+        }
+      }
+    },
+    "/movies/{movieId}/comments": {
+      "get": {
+        "tags": ["comments"],
+        "summary": "Get comments for a movie",
+        "description": "Returns comments associated with a movie.",
+        "operationId": "getCommentsForMovie",
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comments retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Comment"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Movie not found"
+          }
+        }
+      },
+      "post": {
+        "tags": ["comments"],
+        "summary": "Create comment for a movie",
+        "description": "Allows an authenticated user to comment on a movie.",
+        "operationId": "createComment",
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Comment created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid comment data"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Movie not found"
+          }
+        }
+      }
+    },
+    "/comments/{commentId}": {
+      "put": {
+        "tags": ["comments"],
+        "summary": "Update comment",
+        "description": "Allows the author to edit their own comment, or admins to moderate it if needed.",
+        "operationId": "updateComment",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the comment",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comment updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Comment not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["comments"],
+        "summary": "Delete comment",
+        "description": "Allows the author to delete their own comment, or admins to remove inappropriate comments.",
+        "operationId": "deleteComment",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the comment",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Comment deleted successfully"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Comment not found"
+          }
+        }
+      }
+    },
+    "/reports": {
+      "get": {
+        "tags": ["reports"],
+        "summary": "Get all reports",
+        "description": "Allows Editors, Admins, or Superadmins to review submitted reports.",
+        "operationId": "getReports",
+        "responses": {
+          "200": {
+            "description": "Reports retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Report"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          }
+        }
+      },
+      "post": {
+        "tags": ["reports"],
+        "summary": "Create report",
+        "description": "Allows a guest or authenticated user to report incorrect movie information or inappropriate comments.",
+        "operationId": "createReport",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Report submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid report data"
+          }
+        }
+      }
+    },
+    "/reports/{reportId}": {
+      "get": {
+        "tags": ["reports"],
+        "summary": "Get report details",
+        "description": "Returns details of a specific report.",
+        "operationId": "getReportById",
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the report",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Report not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["reports"],
+        "summary": "Review or update report status",
+        "description": "Allows Editors, Admins, or Superadmins to update report review status.",
+        "operationId": "updateReport",
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the report",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Report not found"
+          }
+        }
+      }
+    },
+    "/bans": {
+      "get": {
+        "tags": ["bans"],
+        "summary": "Get all bans",
+        "description": "Returns a list of user bans. Restricted to admins and superadmins.",
+        "operationId": "getBans",
+        "responses": {
+          "200": {
+            "description": "Bans retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Ban"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          }
+        }
+      },
+      "post": {
+        "tags": ["bans"],
+        "summary": "Create user ban",
+        "description": "Allows an admin or superadmin to ban a user.",
+        "operationId": "createBan",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BanCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ban created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ban"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ban data"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          }
+        }
+      }
+    },
+    "/bans/{banId}": {
+      "get": {
+        "tags": ["bans"],
+        "summary": "Get ban details",
+        "description": "Returns details of a specific ban.",
+        "operationId": "getBanById",
+        "parameters": [
+          {
+            "name": "banId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the ban",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ban retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ban"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Ban not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["bans"],
+        "summary": "Update ban",
+        "description": "Allows an admin or superadmin to update a ban status.",
+        "operationId": "updateBan",
+        "parameters": [
+          {
+            "name": "banId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the ban",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BanUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ban updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ban"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Ban not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "profile_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "username": {
+            "type": "string",
+            "example": "krystofv"
+          },
+          "email": {
+            "type": "string",
+            "example": "krystof@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["USER", "EDITOR", "ADMIN", "SUPERADMIN"],
+            "example": "USER"
+          },
+          "status": {
+            "type": "string",
+            "example": "ACTIVE"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-18T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-18T12:00:00Z"
+          }
+        }
+      },
+      "Movie": {
+        "type": "object",
+        "properties": {
+          "movie_id": {
+            "type": "integer",
+            "example": 101
+          },
+          "title": {
+            "type": "string",
+            "example": "Interstellar"
+          },
+          "description": {
+            "type": "string",
+            "example": "A science fiction film about space exploration and time."
+          },
+          "release_year": {
+            "type": "integer",
+            "example": 2014
+          },
+          "genre": {
+            "type": "string",
+            "example": "Sci-Fi"
+          },
+          "director": {
+            "type": "string",
+            "example": "Christopher Nolan"
+          },
+          "created_by": {
+            "type": "integer",
+            "example": 2
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-18T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-18T12:00:00Z"
+          }
+        }
+      },
+      "Rating": {
+        "type": "object",
+        "properties": {
+          "rating_id": {
+            "type": "integer",
+            "example": 501
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "movie_id": {
+            "type": "integer",
+            "example": 101
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "example": 9
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-18T12:15:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-18T12:15:00Z"
+          }
+        }
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "comment_id": {
+            "type": "integer",
+            "example": 801
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "movie_id": {
+            "type": "integer",
+            "example": 101
+          },
+          "content": {
+            "type": "string",
+            "example": "Amazing movie with a great soundtrack."
+          },
+          "status": {
+            "type": "string",
+            "example": "VISIBLE"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-18T12:20:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-18T12:25:00Z"
+          }
+        }
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "report_id": {
+            "type": "integer",
+            "example": 901
+          },
+          "reporter_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 10
+          },
+          "target_type": {
+            "type": "string",
+            "enum": ["MOVIE", "COMMENT"],
+            "example": "COMMENT"
+          },
+          "target_id": {
+            "type": "integer",
+            "example": 801
+          },
+          "reason": {
+            "type": "string",
+            "example": "Inappropriate language"
+          },
+          "description": {
+            "type": "string",
+            "example": "This comment contains vulgar language."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PENDING", "REVIEWED", "RESOLVED", "REJECTED"],
+            "example": "PENDING"
+          },
+          "reviewed_by": {
+            "type": "integer",
+            "nullable": true,
+            "example": 3
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-18T13:00:00Z"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-03-18T15:00:00Z"
+          }
+        }
+      },
+      "Ban": {
+        "type": "object",
+        "properties": {
+          "ban_id": {
+            "type": "integer",
+            "example": 1001
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "admin_id": {
+            "type": "integer",
+            "example": 3
+          },
+          "reason": {
+            "type": "string",
+            "example": "Repeated abuse of comment section"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-03-18"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2026-04-18"
+          },
+          "is_permanent": {
+            "type": "boolean",
+            "example": false
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "EXPIRED", "REVOKED"],
+            "example": "ACTIVE"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["username", "email", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "krystofv"
+          },
+          "email": {
+            "type": "string",
+            "example": "krystof@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "StrongPassword123!"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "krystofv"
+          },
+          "password": {
+            "type": "string",
+            "example": "StrongPassword123!"
+          }
+        }
+      },
+      "UserProfileUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "newmail@example.com"
+          }
+        }
+      },
+      "MovieCreateRequest": {
+        "type": "object",
+        "required": ["title", "description", "release_year", "genre", "director"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Interstellar"
+          },
+          "description": {
+            "type": "string",
+            "example": "A science fiction film about space exploration and time."
+          },
+          "release_year": {
+            "type": "integer",
+            "example": 2014
+          },
+          "genre": {
+            "type": "string",
+            "example": "Sci-Fi"
+          },
+          "director": {
+            "type": "string",
+            "example": "Christopher Nolan"
+          }
+        }
+      },
+      "MovieUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Interstellar"
+          },
+          "description": {
+            "type": "string",
+            "example": "Updated description"
+          },
+          "release_year": {
+            "type": "integer",
+            "example": 2014
+          },
+          "genre": {
+            "type": "string",
+            "example": "Sci-Fi"
+          },
+          "director": {
+            "type": "string",
+            "example": "Christopher Nolan"
+          }
+        }
+      },
+      "RatingCreateRequest": {
+        "type": "object",
+        "required": ["score"],
+        "properties": {
+          "score": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "example": 8
+          }
+        }
+      },
+      "CommentCreateRequest": {
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+          "content": {
+            "type": "string",
+            "example": "Really enjoyable movie."
+          }
+        }
+      },
+      "CommentUpdateRequest": {
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+          "content": {
+            "type": "string",
+            "example": "Edited version of my comment."
+          }
+        }
+      },
+      "ReportCreateRequest": {
+        "type": "object",
+        "required": ["target_type", "target_id", "reason"],
+        "properties": {
+          "target_type": {
+            "type": "string",
+            "enum": ["MOVIE", "COMMENT"],
+            "example": "MOVIE"
+          },
+          "target_id": {
+            "type": "integer",
+            "example": 101
+          },
+          "reason": {
+            "type": "string",
+            "example": "Incorrect release year"
+          },
+          "description": {
+            "type": "string",
+            "example": "The listed year seems wrong."
+          }
+        }
+      },
+      "ReportUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["PENDING", "REVIEWED", "RESOLVED", "REJECTED"],
+            "example": "RESOLVED"
+          }
+        }
+      },
+      "BanCreateRequest": {
+        "type": "object",
+        "required": ["user_id", "reason", "start_date", "is_permanent"],
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "reason": {
+            "type": "string",
+            "example": "Repeated abusive behavior"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-03-18"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2026-04-18"
+          },
+          "is_permanent": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "BanUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2026-04-18"
+          },
+          "is_permanent": {
+            "type": "boolean",
+            "example": false
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "EXPIRED", "REVOKED"],
+            "example": "REVOKED"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sessionid"
+      }
+    }
+  },
+  "security": [
+    {
+      "cookieAuth": []
+    }
+  ]
+}
