@@ -230,6 +230,10 @@ The MoviePulse platform is centered around several core domain entities that ref
 
 For authentication and authorization, the system will rely on Django’s built-in user model and permission framework. Platform-specific user data will be stored in a related profile entity, while role-based access will be represented through a role attribute and synchronized Django permission groups.
 
+### ER Diagram
+
+![ER Diagram](extra_documentation/movie_pulse_EER.drawio.png)
+
 * **User** (`id`, `username`, `email`, `password`, `is_active`, `is_staff`, `is_superuser`, `date_joined`, `last_login`)  
   Represents the built-in Django authentication entity used for login, logout, and access control. It stores the core credentials and authentication-related data of registered users. Guests are not stored as persistent records and are treated as unauthorized visitors.
 
