@@ -32,3 +32,17 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### python ###
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+
+# Django
+
+# IDE
+.idea/
