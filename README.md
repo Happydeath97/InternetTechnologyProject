@@ -241,7 +241,7 @@ It combines custom application entities with Django’s built-in authentication 
 * **Django User** (`id`, `username`, `email`, `password`, `is_active`, `is_staff`, `is_superuser`, `date_joined`, `last_login`)  
   Represents Django’s built-in authentication entity used for login, logout, and access control. It stores the core credentials and authentication-related data of registered users. Guests are not stored as persistent records and are treated as unauthorized visitors.
 
-* **UserProfile** (`id`, `user_id`, `permission_group_id`, `status`, `created_at`, `updated_at`)  
+* **UserProfile** (`id`, `user_id`, `permission_group_id`, `role`, `status`, `created_at`, `updated_at`)  
   Stores application-specific user information extending Django’s built-in `User` model. It contains platform-specific data such as account status and timestamps. The `permission_group_id` field represents the user’s assigned authorization group in the Django permission system.
 
 * **Django Group** (`id`, `name`)  
@@ -282,6 +282,7 @@ It combines custom application entities with Django’s built-in authentication 
 * One **UserProfile** can create zero or many **Comments**.
 * One **UserProfile** can create zero or many **Reports**.
 * One **UserProfile** can review zero or many **Reports**.
+* **UserProfile** connects specific `permission_group_id` with specific `role`
 * One **Movie** can have zero or many **Ratings**.
 * One **Movie** can have zero or many **Comments**.
 * One **Movie** can be referenced by zero or many **Reports**.
