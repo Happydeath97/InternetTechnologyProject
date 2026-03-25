@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MoviePulse{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav>
+            <div>
+                <a href="{% url 'index' %}">MoviePulse</a>
+            </div>
+
+            <div>
+                <ul>
+                    <li><a href="{% url 'index' %}">Home</a></li>
+
+                    {% if user.is_authenticated %}
+                        <li><a href="#">Movies</a></li>
+                        <li><a href="#">Genres</a></li>
+                        <li><a href="#">Authors</a></li>
+                        <li><a href="#">Profile</a></li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}">Login</a></li>
+                        <li><a href="{% url 'register' %}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div>
+                {% if user.is_authenticated %}
+                    <span>Logged in as {{ user.username }}</span>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                    </form>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div>
+            <p>&copy; 2026 MoviePulse</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
