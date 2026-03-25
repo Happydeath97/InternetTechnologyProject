@@ -13,6 +13,7 @@ with role-based access control ranging from guests to superadmins.
     - [Use Case](#use-case)
 - [Design](#design)
     - [Domain Design](#domain-design)
+    - [ER Diagram](#er-diagram)
     - [Business Logic](#business-logic)
 - [Implementation](#implementation)
     - [Backend Technology](#backend-technology)
