@@ -235,59 +235,67 @@ For authentication and authorization, the system will rely on Django’s built-i
 
 ![ER Diagram](extra_documentation/movie_pulse_EER.drawio.png)
 
-* **User** (`id`, `username`, `email`, `password`, `is_active`, `is_staff`, `is_superuser`, `date_joined`, `last_login`)  
-  Represents the built-in Django authentication entity used for login, logout, and access control. It stores the core credentials and authentication-related data of registered users. Guests are not stored as persistent records and are treated as unauthorized visitors.
+The ER diagram below reflects the current database structure of the MoviePulse platform.  
+It combines custom application entities with Django’s built-in authentication and authorization entities.
 
-* **UserProfile** (`profile_id`, `user_id`, `role`, `status`, `created_at`, `updated_at`)  
-  Stores application-specific user information that extends the built-in Django user model. It contains the role of the user within the platform (User, Editor, Admin, Superadmin) and can later be extended with additional profile-related data if needed.
+* **Django User** (`id`, `username`, `email`, `password`, `is_active`, `is_staff`, `is_superuser`, `date_joined`, `last_login`)  
+  Represents Django’s built-in authentication entity used for login, logout, and access control. It stores the core credentials and authentication-related data of registered users. Guests are not stored as persistent records and are treated as unauthorized visitors.
 
-* **Movie** (`movie_id`, `title`, `description`, `release_year`, `created_at`, `updated_at`, `created_by`)  
-  Represents a movie entry in the platform. It stores the core metadata for each movie and acts as the central entity around which ratings, comments, and reports are organized. Relationships to genres and authors are handled through separate junction entities, allowing each movie to have multiple genres and multiple authors.
+* **UserProfile** (`id`, `user_id`, `permission_group_id`, `status`, `created_at`, `updated_at`)  
+  Stores application-specific user information extending Django’s built-in `User` model. It contains platform-specific data such as account status and timestamps. The `permission_group_id` field represents the user’s assigned authorization group in the Django permission system.
 
-* **Genre** (`genre_id`, `name`)  
-  Represents a movie genre such as Action, Fantasy, or Horror. A genre can be associated with many movies.
+* **Django Group** (`id`, `name`)  
+  Represents Django’s built-in group model used for role-based authorization. In the application, groups are used to represent permission bundles such as User, Editor, Admin, and Superadmin. This is not a custom domain entity, but a framework-managed authorization structure.
 
-* **Author** (`author_id`, `full_name`)  
-  Represents a creator associated with a movie. A movie may have one or more authors, and one author may be linked to multiple movies.
+* **Django Permission** (`id`, `name`, `content_type_id`, `codename`)  
+  Represents Django’s built-in permission model. Permissions define what actions are allowed within the system and are assigned to groups through Django’s authorization framework. This is also a framework-managed entity rather than a custom application entity.
 
-* **MovieGenre** (`movie_id`, `genre_id`)  
-  Junction entity used to implement the many-to-many relationship between movies and genres.
+* **Genre** (`id`, `name`)  
+  Represents a movie genre such as Action, Fantasy, Comedy, or Horror.
 
-* **MovieAuthor** (`movie_id`, `author_id`)  
-  Junction entity used to implement the many-to-many relationship between movies and authors.
+* **Author** (`id`, `full_name`, `date_of_birth`)  
+  Represents an author associated with a movie. It stores the author’s full name and date of birth.
 
-* **Rating** (`rating_id`, `user_id`, `movie_id`, `score`, `created_at`, `updated_at`)  
-  Links users to movies through a numeric score. This entity supports the business rule that one registered user may submit only one rating per movie.
+* **Movie** (`id`, `genre_id`, `author_id`, `title`, `description`, `release_year`, `created_at`, `updated_at`, `created_by`)  
+  Represents a movie entry in the platform. It stores the core metadata of the movie and links it to one genre, one author, and the user profile that created the record.
 
-* **Comment** (`comment_id`, `user_id`, `movie_id`, `content`, `created_at`, `updated_at`, `status`)  
-  Stores text-based discussion entries written by users for specific movies. Comments may later be edited by their authors and reviewed or deleted by administrators if they violate platform rules.
+* **Rating** (`id`, `user_id`, `movie_id`, `score`, `created_at`, `updated_at`)  
+  Represents a numeric rating submitted by a user profile for a movie.
 
-* **Report** (`report_id`, `reporter_id`, `target_type`, `target_id`, `reason`, `description`, `status`, `reviewed_by`, `created_at`, `reviewed_at`)  
-  Represents reports submitted to flag incorrect movie information or vulgar/inappropriate comments. This entity supports the moderation and review workflow of the platform.
+* **Comment** (`id`, `user_id`, `movie_id`, `content`, `created_at`, `updated_at`)  
+  Represents a text comment written by a user profile for a movie.
 
-* **Ban** (`ban_id`, `user_id`, `admin_id`, `reason`, `start_date`, `end_date`, `is_permanent`, `status`)  
-  Stores administrative bans imposed on users who repeatedly violate platform rules. For permanent bans, `end_date` may remain empty. This entity supports traceable moderation decisions and restriction handling.
+* **Report** (`id`, `user_id`, `movie_id`, `comment_id`, `reason`, `status`, `created_at`, `reviewed_at`, `reviewed_by`)  
+  Represents a moderation report created by a user profile. A report can reference a movie, a comment, or both depending on the use case. It also stores the reason, review status, creation timestamp, review timestamp, and the reviewing user profile.
 
-* **Group / Permission Mapping**  
-  At the application level, Django groups will represent permission bundles such as Editor, Admin, and Superadmin. These groups are linked to Django’s permission system and will be assigned automatically based on the role stored in the `UserProfile` entity. This ensures consistency between the business role of a user and the effective permissions granted by the framework.
+* **Ban** (`id`, `user_id`, `admin_id`, `reason`, `start_date`, `end_date`, `is_permanent`)  
+  Represents a ban issued against a user profile by another user profile acting with administrative authority. It stores the reason, validity period, and whether the ban is permanent.
 
 #### Main Relationships
 * One **User** has exactly one **UserProfile**.
-* One **User** can create many **Ratings**.
-* One **User** can create many **Comments**.
-* One **User** can create many **Reports**.
-* One **Movie** can have many **Ratings**.
-* One **Movie** can have many **Comments**.
-* One **Movie** can be referenced by many **Reports**.
-* One **Comment** can be referenced by many **Reports**.
-* One **Admin** can review many **Reports**.
-* One **Admin** can issue many **Bans**.
-* One **User** can receive zero or many **Bans**.
-* One **Movie** can have one or many **Genres**.
-* One **Genre** can belong to one or many **Movies**.
-* One **Movie** can have one or many **Authors**.
-* One **Author** can belong to one or many **Movies**.
-* One **UserProfile** role maps to one corresponding Django permission group.
+* One **Django Group** can be assigned to zero or many **UserProfiles**.
+* One **Django Group** can contain zero or many **Django Permissions** through Django’s built-in authorization system.
+* One **Genre** can be linked to zero or many **Movies**.
+* One **Author** can be linked to zero or many **Movies**.
+* One **UserProfile** can create zero or many **Movies**.
+* One **UserProfile** can create zero or many **Ratings**.
+* One **UserProfile** can create zero or many **Comments**.
+* One **UserProfile** can create zero or many **Reports**.
+* One **UserProfile** can review zero or many **Reports**.
+* One **Movie** can have zero or many **Ratings**.
+* One **Movie** can have zero or many **Comments**.
+* One **Movie** can be referenced by zero or many **Reports**.
+* One **Comment** can be referenced by zero or many **Reports**.
+* One **UserProfile** can receive zero or many **Bans**.
+* One **UserProfile** acting as an administrator can issue zero or many **Bans**.
+
+#### Note on Django Auth Entities
+Although the ER diagram includes authorization-related structures, 
+the project does not implement custom `PermissionGroup` or `Permission` entities. 
+Instead, it relies on Django’s built-in `User`, `Group`, and `Permission` models. 
+These are shown in the model at a conceptual level because they are part of the actual 
+database structure and are required for access control, but they are framework-provided 
+rather than custom MoviePulse domain entities.
 
 ### Business Logic
 #### Business Rules Reflected in the Domain
