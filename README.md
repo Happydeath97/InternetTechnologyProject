@@ -13,6 +13,7 @@ with role-based access control ranging from guests to superadmins.
     - [Use Case](#use-case)
 - [Design](#design)
     - [Domain Design](#domain-design)
+    - [ER Diagram](#er-diagram)
     - [Business Logic](#business-logic)
 - [Implementation](#implementation)
     - [Backend Technology](#backend-technology)
@@ -76,15 +77,150 @@ data quality by managing metadata and moderating discussions.
 28. **As a [Superadmin]**, I want the system to enforce role hierarchy rules so that lower-level users cannot perform actions above their authority.
 
 ### Use Cases
-The following use cases define the core functional requirements of the MoviePulse platform:
 
-* **UC-1 [Browse Movies]:** Allows guests to access the main page, browse a public subset of the movie library, use filters to search for specific movies, open movie detail pages, and read ratings and comments without logging in.
-* **UC-2 [Account Management]:** Enables guests to register accounts and allows authenticated users to log in, log out, and edit their account details.
-* **UC-3 [Rate and Comment]:** Enables authenticated users to submit one rating per movie, add comments to movies, edit their own comments, and delete their own comments.
-* **UC-4 [Report Content]:** Allows guests and users to report incorrect movie information and flag vulgar or inappropriate comments for review.
-* **UC-5 [Movie Curation]:** Provides editors with the ability to create new movie records, edit existing movie records, and review flagged movie entries to maintain content quality.
-* **UC-6 [Community Moderation]:** Empowers admins to review reported comments, delete inappropriate comments, manage user bans, and maintain movie records with full CRUD functionality where necessary.
-* **UC-7 [System Administration]:** Grants superadmins full CRUD authority over all system entities, including privileged account and permission management, as well as access to the protected admin view.
+The following use cases define the functional requirements of the MoviePulse platform.  
+They are grouped by business area to reflect the main responsibilities of the system: account and access management, movie and community interaction, and moderation and enforcement workflows.
+
+---
+
+#### 100 – Account and Access Management
+
+- **UC-100 [Account Management Overview]:**  
+  Covers all functionality related to user registration, authentication, session handling, account profile maintenance, account status, and role and permission administration. It includes both self-service account actions performed by guests or authenticated users and privileged account-management actions performed by superadmins.
+
+- **UC-101 [Register Account]:**  
+  Allows a guest to create a new MoviePulse account by providing the required registration data such as username, email, and password. The system validates the input, creates a user together with a related user profile, assigns the default role **USER**, and stores the account in active status if registration succeeds.
+
+- **UC-102 [Log In]:**  
+  Allows a registered user to authenticate using valid credentials. After successful authentication, the system creates a session and grants access to authenticated features according to the user’s assigned role and permissions.
+
+- **UC-103 [Log Out]:**  
+  Allows an authenticated user to terminate their active session. The system invalidates the session and returns the user to guest-level access.
+
+- **UC-104 [View Own Profile]:**  
+  Allows an authenticated user to access their own account and profile information. The system returns the currently stored account-related information such as username, email, role, status, and profile metadata.
+
+- **UC-105 [Update Own Account Details]:**  
+  Allows an authenticated user to edit their own account information, such as email and other permitted profile details. The system validates the new values and updates the related user and profile records while preserving role integrity and access constraints.
+
+- **UC-106 [Restrict Account Access]:**  
+  Allows the system or privileged administrators to restrict a user’s effective access through status changes such as bans or inactive states. This use case does not necessarily delete the account but prevents the user from using protected functionality according to moderation outcomes.
+
+- **UC-107 [Assign or Change User Role]:**  
+  Allows a superadmin to change a user’s platform role, for example promoting a normal user to **EDITOR**, **ADMIN**, or **SUPERADMIN**, or demoting privileged users when required. The system must ensure that role changes remain consistent with the corresponding permission groups and authorization hierarchy.
+
+- **UC-108 [Synchronize Permissions]:**  
+  Ensures that a user’s effective permissions match their assigned platform role. When a role is created, updated, promoted, or reduced, the system synchronizes the linked group or permission set so that authorization remains consistent across the platform.
+
+- **UC-109 [Access Protected Administrative Views]:**  
+  Allows privileged users, especially superadmins, to access protected administrative views and system-level controls. The system checks role and permission requirements before granting access to internal administration areas.
+
+- **UC-110 [Validate Account Rules]:**  
+  Ensures that account-related rules are enforced across all account actions. Examples include preventing invalid registrations, rejecting invalid login credentials, denying protected operations to guests, and ensuring banned or restricted users cannot use features beyond their allowed scope.
+
+---
+
+#### 200 – Movie and Community Interaction
+
+- **UC-200 [Movie and Community Interaction Overview]:**  
+  Covers all core platform interaction with movie records and community contributions. It includes public browsing, viewing details, filtering and searching, and authenticated user interactions such as ratings and comments, as well as privileged movie maintenance actions.
+
+- **UC-201 [Browse Movie Catalog]:**  
+  Allows guests and authenticated users to access the public movie list. The system displays a browseable subset or public catalog of movies and makes it possible to discover available titles without requiring login.
+
+- **UC-202 [Filter and Search Movies]:**  
+  Allows guests and authenticated users to narrow the movie list using supported search and filter criteria such as title, genre, and release year. The system returns only the movies that match the requested conditions.
+
+- **UC-203 [View Movie Details]:**  
+  Allows guests and authenticated users to open a specific movie detail page. The system shows the stored movie metadata and associated community content such as ratings and comments.
+
+- **UC-204 [View Ratings for a Movie]:**  
+  Allows guests and authenticated users to view ratings associated with a movie. The system retrieves the rating entries and presents the rating information linked to the selected movie.
+
+- **UC-205 [View Comments for a Movie]:**  
+  Allows guests and authenticated users to view the discussion associated with a movie. The system retrieves visible comments connected to the selected movie and displays them as part of the movie community area.
+
+- **UC-206 [Create Movie Record]:**  
+  Allows an **Editor**, **Admin**, or **Superadmin** to create a new movie entry in the platform. The system validates the submitted movie data and stores a new movie record including required metadata such as title, description, release year, genre information, and creator-related data.
+
+- **UC-207 [Update Movie Record]:**  
+  Allows an **Editor**, **Admin**, or **Superadmin** to edit an existing movie record in order to correct or enrich movie information. This includes maintaining movie metadata and related classification or creator information where applicable.
+
+- **UC-208 [Delete Movie Record]:**  
+  Allows an **Admin** or **Superadmin** to remove a movie record from the platform when deletion is necessary. The system restricts this action to sufficiently privileged roles and applies the deletion to the selected movie entity.
+
+- **UC-209 [Create Rating]:**  
+  Allows an authenticated **User**, **Editor**, **Admin**, or **Superadmin** to submit a numeric rating for a movie. The system creates the rating only if the user has not already rated that movie, thereby enforcing the one-rating-per-user-per-movie business rule.
+
+- **UC-210 [Update Own Rating]:**  
+  Allows an authenticated user to change their own previously submitted rating for a movie. The system updates only the rating belonging to the currently authenticated user.
+
+- **UC-211 [Delete Own Rating]:**  
+  Allows an authenticated user to remove their own existing rating from a movie. The system ensures that users may delete only their own rating entry.
+
+- **UC-212 [Create Comment]:**  
+  Allows an authenticated user to post a textual comment on a movie. The system stores the comment together with the author, target movie, timestamps, and comment status.
+
+- **UC-213 [Update Own Comment]:**  
+  Allows the author of a comment to edit their own contribution. The system validates authorship and updates the comment content and modification timestamp.
+
+- **UC-214 [Delete Own Comment]:**  
+  Allows the author of a comment to remove their own published comment from the platform. The system verifies ownership before deletion.
+
+- **UC-215 [Moderated Comment Editing or Removal]:**  
+  Allows privileged moderators, especially admins, to edit or delete comments when moderation is required. This extends beyond normal self-service comment management and supports enforcement of community standards.
+
+- **UC-216 [Maintain Movie Data Quality]:**  
+  Supports ongoing maintenance of movie metadata by privileged roles. This includes correcting incorrect entries, completing incomplete information, and ensuring movie records remain consistent with domain rules.
+
+---
+
+#### 300 – Reports, Moderation, and Enforcement
+
+- **UC-300 [Moderation and Enforcement Overview]:**  
+  Covers all workflows related to reporting incorrect or inappropriate content, reviewing submitted reports, moderating comments, banning users, and enforcing platform rules. These use cases support quality control, community safety, and traceable administrative intervention.
+
+- **UC-301 [Submit Movie Report]:**  
+  Allows a guest or authenticated user to report incorrect movie information. The report identifies the target movie, includes a reason, may include an optional description, and enters the moderation workflow with an initial pending status.
+
+- **UC-302 [Submit Comment Report]:**  
+  Allows a guest or authenticated user to report a vulgar, abusive, or otherwise inappropriate comment. The system stores the report with the targeted comment reference, reason, optional description, and initial review state.
+
+- **UC-303 [View Report Queue]:**  
+  Allows an **Editor**, **Admin**, or **Superadmin** to retrieve submitted reports for review. The system returns the current set of reports so that privileged users can inspect pending issues and decide on follow-up actions.
+
+- **UC-304 [View Report Details]:**  
+  Allows a privileged reviewer to inspect a specific report in detail, including its target type, target identifier, reason, description, reporter linkage if available, current status, and review metadata.
+
+- **UC-305 [Review and Update Report Status]:**  
+  Allows an **Editor**, **Admin**, or **Superadmin** to process a submitted report by changing its status, for example from **PENDING** to **REVIEWED**, **RESOLVED**, or **REJECTED**. The system records the reviewer and review timestamp to support traceability.
+
+- **UC-306 [Review Reported Movie Information]:**  
+  Allows editors and higher roles to review reports that concern movie metadata. Based on the review result, the reviewer may correct the movie data, mark the report as resolved, or reject the report if it is invalid.
+
+- **UC-307 [Review Reported Comment Content]:**  
+  Allows admins and higher roles to review reports that concern user comments. Based on the outcome, the comment may remain unchanged, be edited in moderation contexts, or be deleted if it violates community rules.
+
+- **UC-308 [Delete Inappropriate Comment]:**  
+  Allows an **Admin** or **Superadmin** to remove a comment that violates platform standards, either after a report or through direct moderation. This use case ensures that offensive or harmful discussion content can be removed from public view.
+
+- **UC-309 [Create User Ban]:**  
+  Allows an **Admin** or **Superadmin** to ban a user who repeatedly violates platform rules or engages in abusive behavior. The system creates a ban record containing the target user, issuing administrator, reason, start date, optional end date, permanence flag, and active status.
+
+- **UC-310 [View Ban Records]:**  
+  Allows an **Admin** or **Superadmin** to retrieve the list of existing user bans. This supports moderation oversight and enforcement tracking.
+
+- **UC-311 [View Ban Details]:**  
+  Allows an **Admin** or **Superadmin** to inspect the details of a specific ban, including who was banned, by whom, for what reason, over what time period, and under what current status.
+
+- **UC-312 [Update or Revoke Ban]:**  
+  Allows an **Admin** or **Superadmin** to modify an existing ban, such as changing the end date, marking the ban as permanent, or revoking it. The system updates the ban record and preserves enforcement history.
+
+- **UC-313 [Enforce Permanent and Temporary Ban Rules]:**  
+  Ensures that ban records remain logically valid. In particular, permanent bans require `is_permanent = true` and do not require an end date, while temporary bans may carry an end date and status transitions such as **ACTIVE**, **EXPIRED**, or **REVOKED**.
+
+- **UC-314 [Maintain Moderation Traceability]:**  
+  Ensures that moderation actions remain auditable by storing reviewer identities, timestamps, issued bans, and report statuses. This supports controlled governance of the platform and aligns with the moderation entities present in the domain design.
 ---
 
 ## Design
@@ -95,60 +231,73 @@ The MoviePulse platform is centered around several core domain entities that ref
 
 For authentication and authorization, the system will rely on Django’s built-in user model and permission framework. Platform-specific user data will be stored in a related profile entity, while role-based access will be represented through a role attribute and synchronized Django permission groups.
 
-* **User** (`id`, `username`, `email`, `password`, `is_active`, `is_staff`, `is_superuser`, `date_joined`, `last_login`)  
-  Represents the built-in Django authentication entity used for login, logout, and access control. It stores the core credentials and authentication-related data of registered users. Guests are not stored as persistent records and are treated as unauthorized visitors.
+### ER Diagram
 
-* **UserProfile** (`profile_id`, `user_id`, `role`, `status`, `created_at`, `updated_at`)  
-  Stores application-specific user information that extends the built-in Django user model. It contains the role of the user within the platform (User, Editor, Admin, Superadmin) and can later be extended with additional profile-related data if needed.
+The ER diagram below reflects the current database structure of the MoviePulse platform.  
+It combines custom application entities with Django’s built-in authentication and authorization entities.
+![ER Diagram](extra_documentation/movie_pulse_EER.drawio.png)
 
-* **Movie** (`movie_id`, `title`, `description`, `release_year`, `created_at`, `updated_at`, `created_by`)  
-  Represents a movie entry in the platform. It stores the core metadata for each movie and acts as the central entity around which ratings, comments, and reports are organized. Relationships to genres and authors are handled through separate junction entities, allowing each movie to have multiple genres and multiple authors.
+* **Django User** (`id`, `username`, `email`, `password`, `is_active`, `is_staff`, `is_superuser`, `date_joined`, `last_login`)  
+  Represents Django’s built-in authentication entity used for login, logout, and access control. It stores the core credentials and authentication-related data of registered users. Guests are not stored as persistent records and are treated as unauthorized visitors.
 
-* **Genre** (`genre_id`, `name`)  
-  Represents a movie genre such as Action, Fantasy, or Horror. A genre can be associated with many movies.
+* **UserProfile** (`id`, `user_id`, `permission_group_id`, `role`, `status`, `created_at`, `updated_at`)  
+  Stores application-specific user information extending Django’s built-in `User` model. It contains platform-specific data such as account status and timestamps. The `permission_group_id` field represents the user’s assigned authorization group in the Django permission system.
 
-* **Author** (`author_id`, `full_name`)  
-  Represents a creator associated with a movie. A movie may have one or more authors, and one author may be linked to multiple movies.
+* **Django Group** (`id`, `name`)  
+  Represents Django’s built-in group model used for role-based authorization. In the application, groups are used to represent permission bundles such as User, Editor, Admin, and Superadmin. This is not a custom domain entity, but a framework-managed authorization structure.
 
-* **MovieGenre** (`movie_id`, `genre_id`)  
-  Junction entity used to implement the many-to-many relationship between movies and genres.
+* **Django Permission** (`id`, `name`, `content_type_id`, `codename`)  
+  Represents Django’s built-in permission model. Permissions define what actions are allowed within the system and are assigned to groups through Django’s authorization framework. This is also a framework-managed entity rather than a custom application entity.
 
-* **MovieAuthor** (`movie_id`, `author_id`)  
-  Junction entity used to implement the many-to-many relationship between movies and authors.
+* **Genre** (`id`, `name`)  
+  Represents a movie genre such as Action, Fantasy, Comedy, or Horror.
 
-* **Rating** (`rating_id`, `user_id`, `movie_id`, `score`, `created_at`, `updated_at`)  
-  Links users to movies through a numeric score. This entity supports the business rule that one registered user may submit only one rating per movie.
+* **Author** (`id`, `full_name`, `date_of_birth`)  
+  Represents an author associated with a movie. It stores the author’s full name and date of birth.
 
-* **Comment** (`comment_id`, `user_id`, `movie_id`, `content`, `created_at`, `updated_at`, `status`)  
-  Stores text-based discussion entries written by users for specific movies. Comments may later be edited by their authors and reviewed or deleted by administrators if they violate platform rules.
+* **Movie** (`id`, `genre_id`, `author_id`, `title`, `description`, `release_year`, `created_at`, `updated_at`, `created_by`)  
+  Represents a movie entry in the platform. It stores the core metadata of the movie and links it to one genre, one author, and the user profile that created the record.
 
-* **Report** (`report_id`, `reporter_id`, `target_type`, `target_id`, `reason`, `description`, `status`, `reviewed_by`, `created_at`, `reviewed_at`)  
-  Represents reports submitted to flag incorrect movie information or vulgar/inappropriate comments. This entity supports the moderation and review workflow of the platform.
+* **Rating** (`id`, `user_id`, `movie_id`, `score`, `created_at`, `updated_at`)  
+  Represents a numeric rating submitted by a user profile for a movie.
 
-* **Ban** (`ban_id`, `user_id`, `admin_id`, `reason`, `start_date`, `end_date`, `is_permanent`, `status`)  
-  Stores administrative bans imposed on users who repeatedly violate platform rules. For permanent bans, `end_date` may remain empty. This entity supports traceable moderation decisions and restriction handling.
+* **Comment** (`id`, `user_id`, `movie_id`, `content`, `created_at`, `updated_at`)  
+  Represents a text comment written by a user profile for a movie.
 
-* **Group / Permission Mapping**  
-  At the application level, Django groups will represent permission bundles such as Editor, Admin, and Superadmin. These groups are linked to Django’s permission system and will be assigned automatically based on the role stored in the `UserProfile` entity. This ensures consistency between the business role of a user and the effective permissions granted by the framework.
+* **Report** (`id`, `user_id`, `movie_id`, `comment_id`, `reason`, `status`, `created_at`, `reviewed_at`, `reviewed_by`)  
+  Represents a moderation report created by a user profile. A report can reference a movie, a comment, or both depending on the use case. It also stores the reason, review status, creation timestamp, review timestamp, and the reviewing user profile.
+
+* **Ban** (`id`, `user_id`, `admin_id`, `reason`, `start_date`, `end_date`, `is_permanent`)  
+  Represents a ban issued against a user profile by another user profile acting with administrative authority. It stores the reason, validity period, and whether the ban is permanent.
 
 #### Main Relationships
 * One **User** has exactly one **UserProfile**.
-* One **User** can create many **Ratings**.
-* One **User** can create many **Comments**.
-* One **User** can create many **Reports**.
-* One **Movie** can have many **Ratings**.
-* One **Movie** can have many **Comments**.
-* One **Movie** can be referenced by many **Reports**.
-* One **Comment** can be referenced by many **Reports**.
-* One **Admin** can review many **Reports**.
-* One **Admin** can issue many **Bans**.
-* One **User** can receive zero or many **Bans**.
-* One **Movie** can have one or many **Genres**.
-* One **Genre** can belong to one or many **Movies**.
-* One **Movie** can have one or many **Authors**.
-* One **Author** can belong to one or many **Movies**.
-* One **UserProfile** role maps to one corresponding Django permission group.
+* One **Django Group** can be assigned to zero or many **UserProfiles**.
+* One **Django Group** can contain zero or many **Django Permissions** through Django’s built-in authorization system.
+* One **Genre** can be linked to zero or many **Movies**.
+* One **Author** can be linked to zero or many **Movies**.
+* One **UserProfile** can create zero or many **Movies**.
+* One **UserProfile** can create zero or many **Ratings**.
+* One **UserProfile** can create zero or many **Comments**.
+* One **UserProfile** can create zero or many **Reports**.
+* One **UserProfile** can review zero or many **Reports**.
+* **UserProfile** connects specific `permission_group_id` with specific `role`
+* One **Movie** can have zero or many **Ratings**.
+* One **Movie** can have zero or many **Comments**.
+* One **Movie** can be referenced by zero or many **Reports**.
+* One **Comment** can be referenced by zero or many **Reports**.
+* One **UserProfile** can receive zero or many **Bans**.
+* One **UserProfile** acting as an administrator can issue zero or many **Bans**.
 
+#### Note on Django Auth Entities
+Although the ER diagram includes authorization-related structures, 
+the project does not implement custom `PermissionGroup` or `Permission` entities. 
+Instead, it relies on Django’s built-in `User`, `Group`, and `Permission` models. 
+These are shown in the model at a conceptual level because they are part of the actual 
+database structure and are required for access control, but they are framework-provided 
+rather than custom MoviePulse domain entities.
+
+### Business Logic
 #### Business Rules Reflected in the Domain
 * A registered user may submit only **one rating per movie**, but may later update or delete their own rating.
 * Guests may browse and report content, but only registered users may rate and comment.
