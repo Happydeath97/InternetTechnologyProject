@@ -4,18 +4,35 @@ from django.views import View
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
 
-from .forms import LoginForm
+from .forms import LoginForm, RegistrationForm
 
 
 class RegistrationView(View):
     http_method_names = ['get', 'post']
 
     def get(self, request, *args, **kwargs):
-        pass
+        if request.user.is_authenticated:
+            return redirect('index')
+
+        form = RegistrationForm()
+        return render(request, 'users/register.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
-        pass
+        if request.user.is_authenticated:
+            return redirect('index')
+
+        form = RegistrationForm(request.POST)
+
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Account created successfully.')
+            return redirect('index')
+
+        messages.error(request, 'Please correct the errors below.')
+        return render(request, 'users/register.html', {'form': form})
 
 
 class LoginView(View):
