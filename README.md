@@ -18,6 +18,7 @@ with role-based access control ranging from guests to superadmins.
 - [Implementation](#implementation)
     - [Backend Technology](#backend-technology)
     - [Frontend Technology](#frontend-technology)
+- [Local Setup and Run](#local-setup-and-run)
 - [Project Management](#project-management)
     - [Roles](#roles)
     - [Milestones](#milestones)
