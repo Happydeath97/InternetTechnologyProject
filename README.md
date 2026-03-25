@@ -235,7 +235,7 @@ For authentication and authorization, the system will rely on Django’s built-i
 
 The ER diagram below reflects the current database structure of the MoviePulse platform.  
 It combines custom application entities with Django’s built-in authentication and authorization entities.
-
+![ER Diagram](extra_documentation/movie_pulse_EER.drawio.png)
 
 * **User** (`id`, `username`, `email`, `password`, `is_active`, `is_staff`, `is_superuser`, `date_joined`, `last_login`)  
   Represents the built-in Django authentication entity used for login, logout, and access control. It stores the core credentials and authentication-related data of registered users. Guests are not stored as persistent records and are treated as unauthorized visitors.
