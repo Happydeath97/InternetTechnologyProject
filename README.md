@@ -289,6 +289,7 @@ For authentication and authorization, the system will rely on Django’s built-i
 * One **Author** can belong to one or many **Movies**.
 * One **UserProfile** role maps to one corresponding Django permission group.
 
+### Business Logic
 #### Business Rules Reflected in the Domain
 * A registered user may submit only **one rating per movie**, but may later update or delete their own rating.
 * Guests may browse and report content, but only registered users may rate and comment.
