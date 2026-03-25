@@ -357,9 +357,10 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 5. Apply database migrations
+### 5. Apply database migrations and run commands
 ```bash
 python manage.py migrate
+python manage.py setup_groups
 ```
 
 ### 6. Create a superuser
