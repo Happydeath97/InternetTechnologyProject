@@ -12,6 +12,12 @@
             <h1 class="detail-title">{{ movie.title }}</h1>
 
             <div class="detail-meta">
+                {% if avg_rating %}
+                    <p><strong>Average rating:</strong> {{ avg_rating|floatformat:1 }}/10</p>
+                {% else %}
+                    <p><strong>Average rating:</strong> No rating available</p>
+                {% endif %}
+
                 {% if movie.release_year %}
                     <p><strong>Release year:</strong> {{ movie.release_year }}</p>
                 {% endif %}
@@ -50,22 +56,36 @@
         {% endif %}
 
         <section class="detail-section">
-            <h2>Ratings</h2>
+            <h2>Comments</h2>
 
-            {% if movie.ratings.all %}
-                <div class="rating-list">
-                    {% for rating in movie.ratings.all %}
-                        <div class="rating-card">
-                            <p><strong>User:</strong> {{ rating.user.username }}</p>
-                            <p><strong>Score:</strong> {{ rating.score }}/10</p>
-                            <p><strong>Created:</strong> {{ rating.created_at|date:"d.m.Y H:i" }}</p>
+            {% if movie.comments.all %}
+                <div class="comments-list">
+                    {% for comment in movie.comments.all %}
+                        <div class="comment-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>User:</strong> {{ comment.user.username }}
+                                </div>
+
+                                <div>
+                                    <strong>
+                                        {% if comment.updated_at != comment.created_at %}Updated:{% else %}Created:{% endif %}
+                                    </strong>
+                                    {% if comment.updated_at != comment.created_at %}
+                                        {{ comment.updated_at|date:"d.m.Y H:i" }}
+                                    {% else %}
+                                        {{ comment.created_at|date:"d.m.Y H:i" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <p><strong>Comment:</strong> {{ comment.content }}</p>
                         </div>
                     {% empty %}
-                        <p>No ratings available.</p>
+                        <p>No comment available.</p>
                     {% endfor %}
                 </div>
             {% else %}
-                <p>No ratings available.</p>
+                <p>No comment available.</p>
             {% endif %}
         </section>
 

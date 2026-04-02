@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
 from .forms import AuthorForm, GenreForm, MovieForm
-from .models import Movie, Genre, Author
+from .models import Movie, Genre, Author, Rating
 
 
 class IndexView(View):
@@ -163,7 +163,9 @@ class MovieDetailView(View):
 
     def get(self, request, pk, *args, **kwargs):
         movie = get_object_or_404(Movie, pk=pk)
-        return render(request, "movies/movie/movie_detail.html", {"movie": movie})
+        avg_rating = Rating.objects.filter(movie=movie).aggregate(avg=Avg("score"))["avg"]
+        context = {"movie": movie, "avg_rating": avg_rating}
+        return render(request, "movies/movie/movie_detail.html", context=context)
 
 
 class MovieUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
