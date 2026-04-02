@@ -11,51 +11,51 @@
 </head>
 <body>
     <header>
-        <nav>
-            <div>
-                <a href="{% url 'index' %}">MoviePulse</a>
-            </div>
+        <nav class="navbar container">
+            <div class="nav-left">
+                <a class="logo" href="{% url 'index' %}">MoviePulse</a>
 
-            <div>
-                <ul>
+                <ul class="nav-links">
                     <li><a href="{% url 'index' %}">Home</a></li>
 
                     {% if user.is_authenticated %}
-                        <li><a href="#">Movies</a></li>
-                        <li><a href="#">Genres</a></li>
-                        <li><a href="#">Authors</a></li>
-                        <li><a href="#">Profile</a></li>
-                    {% else %}
-                        <li><a href="{% url 'login' %}">Login</a></li>
-                        <li><a href="{% url 'register' %}">Register</a></li>
+                        <li><a href="{% url 'movie_list' %}">Movies</a></li>
+                        <li><a href="{% url 'genre_list' %}">Genres</a></li>
+                        <li><a href="{% url 'author_list' %}">Authors</a></li>
                     {% endif %}
                 </ul>
             </div>
 
-            <div>
+            <div class="nav-right">
                 {% if user.is_authenticated %}
-                    <span>Logged in as {{ user.username }}</span>
-                    <form method="post" action="{% url 'logout' %}">
+                    <form method="post" action="{% url 'logout' %}" class="logout-form">
                         {% csrf_token %}
-                        <button type="submit">Logout</button>
+                        <button type="submit" class="btn btn-danger">Logout</button>
                     </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn">Login</a>
+                    <a href="{% url 'register' %}" class="btn">Register</a>
                 {% endif %}
             </div>
         </nav>
     </header>
 
-    <main>
-        <section>
-            {% if messages %}
-                <div>
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </section>
+    <main class="site-main">
+        <div class="main-container">
+            <section class="messages-section">
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <p class="alert">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
 
-        {% block content %}{% endblock %}
+            <section class="content-box">
+                {% block content %}{% endblock %}
+            </section>
+        </div>
     </main>
 
     <footer>

@@ -25,15 +25,15 @@ class Author(models.Model):
 
 
 class Movie(models.Model):
-    genre = models.ForeignKey(
+    genre = models.ManyToManyField(
         Genre,
-        on_delete=models.PROTECT,
-        related_name='movies'
+        related_name='movies',
+        blank=True
     )
-    author = models.ForeignKey(
+    author = models.ManyToManyField(
         Author,
-        on_delete=models.PROTECT,
-        related_name='movies'
+        related_name='movies',
+        blank=True
     )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

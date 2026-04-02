@@ -21,8 +21,8 @@ class MovieAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'title',
-        'genre',
-        'author',
+        'display_genres',
+        'display_authors',
         'created_by',
         'release_year',
         'created_at',
@@ -30,6 +30,15 @@ class MovieAdmin(admin.ModelAdmin):
     list_filter = ('genre', 'author', 'release_year', 'created_at')
     search_fields = ('title', 'description', 'author__full_name', 'genre__name')
     ordering = ('title',)
+    filter_horizontal = ('genre', 'author')
+
+    def display_genres(self, obj):
+        return ", ".join(genre.name for genre in obj.genre.all())
+    display_genres.short_description = 'Genres'
+
+    def display_authors(self, obj):
+        return ", ".join(author.full_name for author in obj.author.all())
+    display_authors.short_description = 'Authors'
 
 
 @admin.register(Rating)

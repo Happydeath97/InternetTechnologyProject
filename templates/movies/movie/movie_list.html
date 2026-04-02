@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Movies | MoviePulse{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/movies/movie_list.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>Movies</h1>
+
+        {% if perms.movies.add_movie %}
+            <div class="entity-actions">
+                <a href="{% url 'movie_create' %}" class="btn">Add Movie</a>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if movies %}
+        <div class="entity-list">
+            {% for movie in movies %}
+                <article class="entity-card">
+                    <h2 class="entity-title">
+                        <a href="{% url 'movie_detail' movie.pk %}">{{ movie.title }}</a>
+                    </h2>
+
+                    {% if movie.release_year %}
+                        <p class="entity-meta">Release year: {{ movie.release_year }}</p>
+                    {% endif %}
+
+                    {% if movie.avg_rating %}
+                        <p class="entity-meta">Rating: {{ movie.avg_rating|floatformat:1 }}/10</p>
+                    {% else %}
+                         <p class="entity-meta">No Rating available</p>
+                    {% endif %}
+
+                    {% if movie.author %}
+                        <p class="entity-meta">Author: {{ movie.author.full_name }}</p>
+                    {% endif %}
+
+                    {% if movie.genres.all %}
+                        <p class="entity-meta">
+                            Genres:
+                            {% for genre in movie.genres.all %}
+                                {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                    {% if movie.description %}
+                        <p>{{ movie.description|truncatewords:25 }}</p>
+                    {% endif %}
+
+                    <div class="entity-actions">
+                        <a href="{% url 'movie_detail' movie.pk %}" class="btn">View detail</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No movies found.</p>
+    {% endif %}
+{% endblock %}

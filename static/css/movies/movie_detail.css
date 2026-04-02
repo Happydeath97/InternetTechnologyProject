@@ -1,0 +1,64 @@
+.detail-page {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.detail-header {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-title {
+    margin: 0 0 1rem 0;
+    font-size: 2rem;
+    color: #111827;
+}
+
+.detail-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: #4b5563;
+}
+
+.detail-meta p {
+    margin: 0;
+}
+
+.detail-section h2 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.25rem;
+    color: #111827;
+}
+
+.detail-section p {
+    margin: 0;
+}
+
+.rating-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.rating-card {
+    padding: 1rem;
+    border: 1px solid #dbe3ec;
+    border-radius: 10px;
+    background: #f9fbfd;
+}
+
+.rating-card p {
+    margin: 0 0 0.35rem 0;
+}
+
+.rating-card p:last-child {
+    margin-bottom: 0;
+}
+
+.delete-form-inline {
+    display: inline-block;
+    margin: 0;
+}

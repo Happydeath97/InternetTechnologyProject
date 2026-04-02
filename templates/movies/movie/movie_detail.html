@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ movie.title }} | MoviePulse{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/movies/movie_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+    <article class="detail-page">
+        <div class="detail-header">
+            <h1 class="detail-title">{{ movie.title }}</h1>
+
+            <div class="detail-meta">
+                {% if movie.release_year %}
+                    <p><strong>Release year:</strong> {{ movie.release_year }}</p>
+                {% endif %}
+
+                <p>
+                    <strong>Authors:</strong>
+                    {% for author in movie.author.all %}
+                        {{ author.full_name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        No authors
+                    {% endfor %}
+                </p>
+
+                <p>
+                    <strong>Genres:</strong>
+                    {% for genre in movie.genre.all %}
+                        {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        No genres
+                    {% endfor %}
+                </p>
+
+                {% if movie.avg_rating %}
+                    <p><strong>Average rating:</strong> {{ movie.avg_rating|floatformat:1 }}/10</p>
+                {% else %}
+                    <p><strong>Average rating:</strong> No rating available</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if movie.description %}
+            <section class="detail-section">
+                <h2>Description</h2>
+                <p>{{ movie.description }}</p>
+            </section>
+        {% endif %}
+
+        <section class="detail-section">
+            <h2>Ratings</h2>
+
+            {% if movie.ratings.all %}
+                <div class="rating-list">
+                    {% for rating in movie.ratings.all %}
+                        <div class="rating-card">
+                            <p><strong>User:</strong> {{ rating.user.username }}</p>
+                            <p><strong>Score:</strong> {{ rating.score }}/10</p>
+                            <p><strong>Created:</strong> {{ rating.created_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                    {% empty %}
+                        <p>No ratings available.</p>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No ratings available.</p>
+            {% endif %}
+        </section>
+
+        <div class="entity-actions">
+            <a href="{% url 'movie_list' %}" class="btn btn-secondary">Back to Movies</a>
+
+            {% if perms.movies.change_movie %}
+                <a href="{% url 'movie_update' movie.pk %}" class="btn">Edit Movie</a>
+            {% endif %}
+
+            {% if perms.movies.delete_movie %}
+                <form method="post" action="{% url 'movie_delete' movie.pk %}" class="delete-form-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete Movie</button>
+                </form>
+            {% endif %}
+        </div>
+    </article>
+{% endblock %}
