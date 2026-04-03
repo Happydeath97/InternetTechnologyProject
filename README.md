@@ -361,9 +361,12 @@ pip install -r requirements.txt
 ```bash
 python manage.py migrate
 python manage.py setup_groups
+python manage.py seed_data
 ```
 
 ### 6. Create a superuser
+Should be created by seed_data username:admin pwd:admin<br>
+If not run this, or run it anyway and create your own.
 ```bash
 python manage.py createsuperuser
 ```
