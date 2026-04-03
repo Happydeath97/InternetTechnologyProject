@@ -39,12 +39,6 @@
                         No genres
                     {% endfor %}
                 </p>
-
-                {% if movie.avg_rating %}
-                    <p><strong>Average rating:</strong> {{ movie.avg_rating|floatformat:1 }}/10</p>
-                {% else %}
-                    <p><strong>Average rating:</strong> No rating available</p>
-                {% endif %}
             </div>
         </div>
 
@@ -58,30 +52,10 @@
         <section class="detail-section">
             <h2>Comments</h2>
 
-            {% if movie.comments.all %}
+            {% if root_comments %}
                 <div class="comments-list">
-                    {% for comment in movie.comments.all %}
-                        <div class="comment-card">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <strong>User:</strong> {{ comment.user.username }}
-                                </div>
-
-                                <div>
-                                    <strong>
-                                        {% if comment.updated_at != comment.created_at %}Updated:{% else %}Created:{% endif %}
-                                    </strong>
-                                    {% if comment.updated_at != comment.created_at %}
-                                        {{ comment.updated_at|date:"d.m.Y H:i" }}
-                                    {% else %}
-                                        {{ comment.created_at|date:"d.m.Y H:i" }}
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <p><strong>Comment:</strong> {{ comment.content }}</p>
-                        </div>
-                    {% empty %}
-                        <p>No comment available.</p>
+                    {% for comment in root_comments %}
+                        {% include "movies/comment/comment_item.html" with comment=comment level=0 %}
                     {% endfor %}
                 </div>
             {% else %}

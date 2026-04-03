@@ -9,6 +9,11 @@ class Genre(models.Model):
     class Meta:
         ordering = ['name']
 
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.strip().lower()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -19,6 +24,12 @@ class Author(models.Model):
 
     class Meta:
         ordering = ['full_name']
+        unique_together = ['full_name', 'date_of_birth']
+
+    def save(self, *args, **kwargs):
+        if self.full_name:
+            self.full_name = self.full_name.strip().lower()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.full_name
@@ -96,12 +107,25 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        related_name='replies',
+        blank=True,
+        null=True
+    )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        if self.parent and self.parent.movie_id != self.movie_id:
+            raise ValidationError('Reply must belong to the same movie as its parent comment.')
 
     def __str__(self):
         return f'Comment by {self.user} on {self.movie}'

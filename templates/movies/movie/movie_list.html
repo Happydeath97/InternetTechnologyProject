@@ -35,9 +35,23 @@
                          <p class="entity-meta">No Rating available</p>
                     {% endif %}
 
-                    {% if movie.author %}
-                        <p class="entity-meta">Author: {{ movie.author.full_name }}</p>
-                    {% endif %}
+                    <p>
+                        Authors:
+                        {% for author in movie.author.all %}
+                            {{ author.full_name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            No authors
+                        {% endfor %}
+                    </p>
+
+                    <p>
+                        Genres:
+                        {% for genre in movie.genre.all %}
+                            {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            No genres
+                        {% endfor %}
+                    </p>
 
                     {% if movie.genres.all %}
                         <p class="entity-meta">

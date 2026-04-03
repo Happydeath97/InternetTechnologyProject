@@ -8,6 +8,8 @@ from django.views.generic import UpdateView
 from .forms import AuthorForm, GenreForm, MovieForm
 from .models import Movie, Genre, Author, Rating
 
+#TODO: go over permissions and make sure it matches the user levels are design
+
 
 class IndexView(View):
     http_method_names = ["get"]
@@ -28,11 +30,12 @@ class AuthorCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
         form = AuthorForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("movie_create")  # change to your url name
+            return redirect("author_list")
         return render(request, "movies/author/author_create.html", {"form": form})
 
 
-class AuthorListView(View):
+class AuthorListView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    # TODO: add filter and pagination
     http_method_names = ["get"]
     permission_required = "movies.view_author"
     raise_exception = True
@@ -84,11 +87,12 @@ class GenreCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
         form = GenreForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("movie_create")  # change to your url name
+            return redirect("genre_list")
         return render(request, "movies/genre/genre_create.html", {"form": form})
 
 
-class GenreListView(View):
+class GenreListView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    #TODO: Filter & pagination
     http_method_names = ["get"]
     permission_required = "movies.view_genre"
     raise_exception = True
@@ -159,12 +163,19 @@ class MovieListView(View):
 
 
 class MovieDetailView(View):
+    #TODO: implement giving a score tot he movie maybe post to another view? or here?
     http_method_names = ["get"]
 
     def get(self, request, pk, *args, **kwargs):
         movie = get_object_or_404(Movie, pk=pk)
         avg_rating = Rating.objects.filter(movie=movie).aggregate(avg=Avg("score"))["avg"]
-        context = {"movie": movie, "avg_rating": avg_rating}
+        root_comments = movie.comments.filter(parent__isnull=True)
+
+        context = {
+            "movie": movie,
+            "avg_rating": avg_rating,
+            "root_comments": root_comments
+        }
         return render(request, "movies/movie/movie_detail.html", context=context)
 
 

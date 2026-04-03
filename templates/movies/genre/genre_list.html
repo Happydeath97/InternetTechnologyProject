@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Genres | MoviePulse{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/genre/genre.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section class="list-page">
+        <div class="list-header">
+            <h1>Genres</h1>
+
+            {% if perms.movies.add_genre %}
+                <a href="{% url 'genre_create' %}" class="btn">Create genre</a>
+            {% endif %}
+        </div>
+
+        {% if genres %}
+            <div class="entity-list">
+                {% for genre in genres %}
+                    <div class="entity-row">
+                        <div class="entity-main">
+                            <strong>{{ genre.name }}</strong>
+                        </div>
+
+                        <div class="entity-actions">
+                            {% if perms.movies.change_genre %}
+                                <a href="{% url 'genre_update' genre.pk %}" class="btn">Update</a>
+                            {% endif %}
+
+                            {% if perms.movies.delete_genre %}
+                                <form method="post" action="{% url 'genre_delete' genre.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No genres found.</p>
+        {% endif %}
+    </section>
+{% endblock %}

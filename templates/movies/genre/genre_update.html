@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Update Genre | MoviePulse{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/genre/genre.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section class="form-page">
+        <h1>Update Genre</h1>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="form-actions">
+                <button type="submit" class="btn">Update</button>
+                <a href="{% url 'genre_list' %}" class="btn">Cancel</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}

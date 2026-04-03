@@ -7,11 +7,19 @@ class GenreForm(forms.ModelForm):
         model = Genre
         fields = ['name']
 
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip().lower()
+        return name
+
 
 class AuthorForm(forms.ModelForm):
     class Meta:
         model = Author
         fields = ['full_name', 'date_of_birth']
+
+    def clean_full_name(self):
+        full_name = self.cleaned_data['full_name'].strip().lower()
+        return full_name
 
 
 class MovieForm(forms.ModelForm):
