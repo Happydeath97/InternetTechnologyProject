@@ -16,3 +16,14 @@
     display: inline-block;
     margin: 0;
 }
+
+.entity-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.author-age {
+    color: #707070;
+    font-size: 0.95rem;
+}

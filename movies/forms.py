@@ -21,6 +21,29 @@ class AuthorForm(forms.ModelForm):
         full_name = self.cleaned_data['full_name'].strip().lower()
         return full_name
 
+    def clean(self):
+        cleaned_data = super().clean()
+        full_name = cleaned_data.get("full_name")
+        date_of_birth = cleaned_data.get("date_of_birth")
+
+        if not full_name:
+            return cleaned_data
+
+        queryset = Author.objects.filter(
+            full_name=full_name,
+            date_of_birth=date_of_birth
+        )
+
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            raise forms.ValidationError(
+                "Author with this full name and date of birth already exists."
+            )
+
+        return cleaned_data
+
 
 class MovieForm(forms.ModelForm):
     class Meta:

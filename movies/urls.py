@@ -1,5 +1,6 @@
 from django.urls import path
 from movies import views as movies_v
+from movies import api_views as movies_api_v
 
 urlpatterns = [
     path("", movies_v.IndexView.as_view(), name="index"),
@@ -12,8 +13,12 @@ urlpatterns = [
     path("genres/create/", movies_v.GenreCreateView.as_view(), name="genre_create"),
     path("genres/<int:pk>/delete/", movies_v.GenreDeleteView.as_view(), name="genre_delete"),
     path("genres/<int:pk>/edit/", movies_v.GenreUpdateView.as_view(), name="genre_update"),
-    path("authors/", movies_v.AuthorListView.as_view(), name="author_list"),
-    path("authors/create/", movies_v.AuthorCreateView.as_view(), name="author_create"),
-    path("authors/<int:pk>/edit/", movies_v.AuthorUpdateView.as_view(), name="author_update"),
-    path("authors/<int:pk>/delete/", movies_v.AuthorDeleteView.as_view(), name="author_delete"),
+    path("authors/", movies_v.AuthorListPageView.as_view(), name="author_list"),
+    path("api/authors/", movies_api_v.AuthorListApiView.as_view(), name="author_list_api"),
+    path("authors/create/", movies_v.AuthorCreatePageView.as_view(), name="author_create"),
+    path("api/authors/create/", movies_api_v.AuthorCreateApiView.as_view(), name="author_create_api"),
+    path("authors/<int:pk>/edit/", movies_v.AuthorUpdatePageView.as_view(), name="author_update"),
+    path("api/authors/<int:pk>/", movies_api_v.AuthorDetailApiView.as_view(), name="author_detail_api"),
+    path("api/authors/<int:pk>/edit/", movies_api_v.AuthorUpdateApiView.as_view(), name="author_update_api"),
+    path("api/authors/<int:pk>/delete/", movies_api_v.AuthorDeleteApiView.as_view(), name="author_delete_api"),
 ]

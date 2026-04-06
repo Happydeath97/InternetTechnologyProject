@@ -17,31 +17,16 @@
             {% endif %}
         </div>
 
-        {% if authors %}
-            <div class="entity-list">
-                {% for author in authors %}
-                    <div class="entity-row">
-                        <div class="entity-main">
-                            <strong>{{ author.full_name }}</strong>
-                        </div>
-
-                        <div class="entity-actions">
-                            {% if perms.movies.change_author %}
-                                <a href="{% url 'author_update' author.pk %}" class="btn">Update</a>
-                            {% endif %}
-
-                            {% if perms.movies.delete_author %}
-                                <form method="post" action="{% url 'author_delete' author.pk %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p>No authors found.</p>
-        {% endif %}
+        <div
+            id="authors-list"
+            class="entity-list"
+            data-can-update="{% if perms.movies.change_author %}true{% else %}false{% endif %}"
+            data-can-delete="{% if perms.movies.delete_author %}true{% else %}false{% endif %}"
+        >
+            <p>Loading authors...</p>
+        </div>
     </section>
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'js/movies/author/author_list.js' %}"></script>
 {% endblock %}

@@ -18,61 +18,31 @@ class IndexView(View):
         return render(request, "movies/index.html")
 
 
-class AuthorCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get", "post"]
+class AuthorCreatePageView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    http_method_names = ["get"]
     permission_required = ["movies.add_author"]
 
     def get(self, request, *args, **kwargs):
-        form = AuthorForm()
-        return render(request, "movies/author/author_create.html", {"form": form})
-
-    def post(self, request, *args, **kwargs):
-        form = AuthorForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("author_list")
-        return render(request, "movies/author/author_create.html", {"form": form})
+        return render(request, "movies/author/author_create.html")
 
 
-class AuthorListView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    # TODO: add filter and pagination
+class AuthorListPageView(LoginRequiredMixin, PermissionRequiredMixin, View):
     http_method_names = ["get"]
     permission_required = "movies.view_author"
     raise_exception = True
 
     def get(self, request, *args, **kwargs):
-        authors = Author.objects.all()
-        return render(request, "movies/author/author_list.html", {"authors": authors})
+        return render(request, "movies/author/author_list.html")
 
 
-class AuthorUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get", "post"]
+class AuthorUpdatePageView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    http_method_names = ["get"]
     permission_required = "movies.change_author"
     raise_exception = True
 
     def get(self, request, pk, *args, **kwargs):
         author = get_object_or_404(Author, pk=pk)
-        form = AuthorForm(instance=author)
-        return render(request, "movies/author/author_update.html", {"form": form, "author": author})
-
-    def post(self, request, pk, *args, **kwargs):
-        author = get_object_or_404(Author, pk=pk)
-        form = AuthorForm(request.POST, instance=author)
-        if form.is_valid():
-            form.save()
-            return redirect("author_list")
-        return render(request, "movies/author/author_update.html", {"form": form, "author": author})
-
-
-class AuthorDeleteView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.delete_author"
-    raise_exception = True
-
-    def post(self, request, pk, *args, **kwargs):
-        author = get_object_or_404(Author, pk=pk)
-        author.delete()
-        return redirect("author_list")
+        return render(request, "movies/author/author_update.html", {"author": author})
 
 
 class GenreCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
