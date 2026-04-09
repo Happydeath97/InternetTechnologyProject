@@ -15,6 +15,7 @@ async function loadAuthors() {
 
         if (!authors || authors.length === 0) {
             container.innerHTML = "<p>No authors found.</p>";
+            document.dispatchEvent(new CustomEvent("authorsLoaded"));
             return;
         }
 
@@ -34,7 +35,6 @@ async function loadAuthors() {
 
                     <div class="entity-actions">
                         ${canUpdate ? `<a href="/authors/${author.id}/edit/" class="btn">Update</a>` : ""}
-
                         ${canDelete ? `
                             <form class="author-delete-form" data-author-id="${author.id}" style="display: inline;">
                                 <button type="submit" class="btn btn-danger">Delete</button>
@@ -46,59 +46,11 @@ async function loadAuthors() {
         }
 
         container.innerHTML = html;
-        setupDeleteForms();
+        document.dispatchEvent(new CustomEvent("authorsLoaded"));
     } catch (error) {
         console.error(error);
         container.innerHTML = "<p>Failed to load authors.</p>";
     }
-}
-
-function setupDeleteForms() {
-    const deleteForms = document.querySelectorAll(".author-delete-form");
-
-    for (const form of deleteForms) {
-        form.addEventListener("submit", submitAuthorDeleteForm);
-    }
-}
-
-async function submitAuthorDeleteForm(event) {
-    event.preventDefault();
-
-    const form = event.currentTarget;
-    const authorId = form.dataset.authorId;
-
-    try {
-        const response = await fetch(`/api/authors/${authorId}/delete/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCsrfToken(),
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to delete author.");
-        }
-
-        await loadAuthors();
-    } catch (error) {
-        console.error(error);
-        alert("Failed to delete author.");
-    }
-}
-
-function getCsrfToken() {
-    const cookieName = "csrftoken";
-    const cookies = document.cookie.split(";");
-
-    for (let cookie of cookies) {
-        cookie = cookie.trim();
-
-        if (cookie.startsWith(cookieName + "=")) {
-            return cookie.substring(cookieName.length + 1);
-        }
-    }
-
-    return "";
 }
 
 document.addEventListener("DOMContentLoaded", loadAuthors);

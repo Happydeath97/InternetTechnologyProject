@@ -112,11 +112,11 @@ class AuthorUpdateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 class AuthorDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
+    http_method_names = ["delete"]
     permission_required = "movies.delete_author"
     raise_exception = True
 
-    def post(self, request, pk, *args, **kwargs):
+    def delete(self, request, pk, *args, **kwargs):
         author = get_object_or_404(Author, pk=pk)
         author.delete()
 

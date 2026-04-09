@@ -133,7 +133,7 @@ class MovieListView(View):
 
 
 class MovieDetailView(View):
-    #TODO: implement giving a score tot he movie maybe post to another view? or here?
+    # TODO: implement giving a score to the movie maybe post to another view? or here?
     http_method_names = ["get"]
 
     def get(self, request, pk, *args, **kwargs):
