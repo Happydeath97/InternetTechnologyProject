@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}Movies | MoviePulse{% endblock %}
+
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/movies/movie_list.css' %}">
 {% endblock %}
@@ -17,62 +18,16 @@
         {% endif %}
     </div>
 
-    {% if movies %}
-        <div class="entity-list">
-            {% for movie in movies %}
-                <article class="entity-card">
-                    <h2 class="entity-title">
-                        <a href="{% url 'movie_detail' movie.pk %}">{{ movie.title }}</a>
-                    </h2>
+    <div
+        class="entity-list"
+        id="movies-list"
+        data-api-url="{% url 'movie_list_api' %}"
+        data-detail-url-template="{% url 'movie_detail' 0 %}"
+    >
+        <p>Loading movies...</p>
+    </div>
+{% endblock %}
 
-                    {% if movie.release_year %}
-                        <p class="entity-meta">Release year: {{ movie.release_year }}</p>
-                    {% endif %}
-
-                    {% if movie.avg_rating %}
-                        <p class="entity-meta">Rating: {{ movie.avg_rating|floatformat:1 }}/10</p>
-                    {% else %}
-                         <p class="entity-meta">No Rating available</p>
-                    {% endif %}
-
-                    <p>
-                        Authors:
-                        {% for author in movie.author.all %}
-                            {{ author.full_name }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            No authors
-                        {% endfor %}
-                    </p>
-
-                    <p>
-                        Genres:
-                        {% for genre in movie.genre.all %}
-                            {{ genre.name }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            No genres
-                        {% endfor %}
-                    </p>
-
-                    {% if movie.genres.all %}
-                        <p class="entity-meta">
-                            Genres:
-                            {% for genre in movie.genres.all %}
-                                {{ genre.name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-
-                    {% if movie.description %}
-                        <p>{{ movie.description|truncatewords:25 }}</p>
-                    {% endif %}
-
-                    <div class="entity-actions">
-                        <a href="{% url 'movie_detail' movie.pk %}" class="btn">View detail</a>
-                    </div>
-                </article>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No movies found.</p>
-    {% endif %}
+{% block extra_js %}
+    <script src="{% static 'js/movies/movie/movie_list.js' %}"></script>
 {% endblock %}

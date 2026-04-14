@@ -103,69 +103,37 @@ class GenreDeleteView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 class MovieCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get", "post"]
-    permission_required = ["movies.add_movie"]
-
-    def get(self, request, *args, **kwargs):
-        form = MovieForm()
-        return render(request, "movies/movie/movie_create.html", {"form": form})
-
-    def post(self, request, *args, **kwargs):
-        form = MovieForm(request.POST)
-        if form.is_valid():
-            movie = form.save(commit=False)
-            movie.created_by = request.user
-            movie.save()
-            return redirect("movie_detail", pk=movie.pk)  # change if needed
-        return render(request, "movies/movie/movie_create.html", {"form": form})
-
-
-class MovieListView(View):
-    # TODO: Add filter and pagination
     http_method_names = ["get"]
-    model = Movie
-    template_name = "movies/movie/movie_list.html"
-    context_object_name = "movies"
+    permission_required = ["movies.add_movie"]
+    raise_exception = True
+    template_name = "movies/movie/movie_create.html"
 
     def get(self, request, *args, **kwargs):
-        movies = Movie.objects.annotate(avg_rating=Avg("ratings__score"))
-        return render(request, "movies/movie/movie_list.html", {"movies": movies})
+        return render(request, self.template_name)
 
 
-class MovieDetailView(View):
-    # TODO: implement giving a score to the movie maybe post to another view? or here?
+class MovieListView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    http_method_names = ["get"]
+    permission_required = "movies.view_movie"
+    raise_exception = True
+    template_name = "movies/movie/movie_list.html"
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+
+class MovieDetailPageView(View):
     http_method_names = ["get"]
 
     def get(self, request, pk, *args, **kwargs):
-        movie = get_object_or_404(Movie, pk=pk)
-        avg_rating = Rating.objects.filter(movie=movie).aggregate(avg=Avg("score"))["avg"]
-        root_comments = movie.comments.filter(parent__isnull=True)
-
-        context = {
-            "movie": movie,
-            "avg_rating": avg_rating,
-            "root_comments": root_comments
-        }
-        return render(request, "movies/movie/movie_detail.html", context=context)
+        return render(request, "movies/movie/movie_detail.html", {"movie_id": pk})
 
 
-class MovieUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    model = Movie
-    form_class = MovieForm
-    template_name = "movies/movie/movie_update.html"
+class MovieUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    http_method_names = ["get"]
     permission_required = "movies.change_movie"
     raise_exception = True
+    template_name = "movies/movie/movie_update.html"
 
-    def get_success_url(self):
-        return reverse_lazy("movie_detail", kwargs={"pk": self.object.pk})
-
-
-class MovieDeletedView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.delete_movie"
-    raise_exception = True
-
-    def post(self, request, pk, *args, **kwargs):
-        movie = get_object_or_404(Movie, pk=pk)
-        movie.delete()
-        return redirect("movie_list")
+    def get(self, request, pk, *args, **kwargs):
+        return render(request, self.template_name, {"movie_id": pk})

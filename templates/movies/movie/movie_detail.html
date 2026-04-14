@@ -1,81 +1,76 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ movie.title }} | MoviePulse{% endblock %}
+
+{% block title %}Movie Detail | MoviePulse{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/movies/movie_detail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/rating/rating_form.css' %}">
 {% endblock %}
 
 {% block content %}
-    <article class="detail-page">
+    <article class="detail-page" id="movie-detail-page" data-movie-id="{{ movie_id }}">
         <div class="detail-header">
-            <h1 class="detail-title">{{ movie.title }}</h1>
+            <h1 class="detail-title" id="movie-title">Loading...</h1>
 
-            <div class="detail-meta">
-                {% if avg_rating %}
-                    <p><strong>Average rating:</strong> {{ avg_rating|floatformat:1 }}/10</p>
-                {% else %}
-                    <p><strong>Average rating:</strong> No rating available</p>
-                {% endif %}
+            <div class="detail-meta" id="movie-meta">
+                <div class="movie-rating-row">
+                    <p class="movie-rating-summary">
+                        <strong>Average rating:</strong>
+                        <span id="movie-avg-rating">Loading...</span>
+                    </p>
 
-                {% if movie.release_year %}
-                    <p><strong>Release year:</strong> {{ movie.release_year }}</p>
-                {% endif %}
-
+                    <div id="movie-rating-form-container"></div>
+                </div>
+                <p id="movie-release-year-row" style="display: none;">
+                    <strong>Release year:</strong> <span id="movie-release-year"></span>
+                </p>
                 <p>
                     <strong>Authors:</strong>
-                    {% for author in movie.author.all %}
-                        {{ author.full_name }}{% if not forloop.last %}, {% endif %}
-                    {% empty %}
-                        No authors
-                    {% endfor %}
+                    <span id="movie-authors">Loading...</span>
                 </p>
-
                 <p>
                     <strong>Genres:</strong>
-                    {% for genre in movie.genre.all %}
-                        {{ genre.name }}{% if not forloop.last %}, {% endif %}
-                    {% empty %}
-                        No genres
-                    {% endfor %}
+                    <span id="movie-genres">Loading...</span>
                 </p>
             </div>
         </div>
 
-        {% if movie.description %}
-            <section class="detail-section">
-                <h2>Description</h2>
-                <p>{{ movie.description }}</p>
-            </section>
-        {% endif %}
+        <section class="detail-section" id="movie-description-section" style="display: none;">
+            <h2>Description</h2>
+            <p id="movie-description"></p>
+        </section>
 
         <section class="detail-section">
             <h2>Comments</h2>
-
-            {% if root_comments %}
-                <div class="comments-list">
-                    {% for comment in root_comments %}
-                        {% include "movies/comment/comment_item.html" with comment=comment level=0 %}
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p>No comment available.</p>
-            {% endif %}
+            <div class="comments-list" id="comments-list">
+                <p>Loading comments...</p>
+            </div>
         </section>
 
-        <div class="entity-actions">
+        <div class="entity-actions" id="movie-actions">
             <a href="{% url 'movie_list' %}" class="btn btn-secondary">Back to Movies</a>
 
-            {% if perms.movies.change_movie %}
-                <a href="{% url 'movie_update' movie.pk %}" class="btn">Edit Movie</a>
-            {% endif %}
+            <a href="#" id="edit-movie-btn" class="btn" style="display: none;">Edit Movie</a>
 
             {% if perms.movies.delete_movie %}
-                <form method="post" action="{% url 'movie_delete' movie.pk %}" class="delete-form-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Delete Movie</button>
-                </form>
+                <button
+                    id="movie-delete-button"
+                    type="button"
+                    data-delete-api-url="{% url 'movie_delete_api' movie_id %}"
+                    data-redirect-url="{% url 'movie_list' %}"
+                    class="btn btn-danger"
+                >
+                    Delete Movie
+                </button>
             {% endif %}
         </div>
     </article>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/movies/movie/movie_detail.js' %}"></script>
+    <script src="{% static 'js/movies/rating/load_avg_rating.js' %}"></script>
+    <script src="{% static 'js/movies/comment/load_comments.js' %}"></script>
+    <script src="{% static 'js/movies/movie/movie_delete.js' %}"></script>
 {% endblock %}
