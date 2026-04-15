@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Authors | MoviePulse{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/author/author.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section class="list-page">
+        <div class="list-header">
+            <h1>Authors</h1>
+
+            {% if perms.movies.add_author %}
+                <a href="{% url 'author_create' %}" class="btn">Create author</a>
+            {% endif %}
+        </div>
+
+        <div
+            id="authors-list"
+            class="entity-list"
+            data-can-update="{% if perms.movies.change_author %}true{% else %}false{% endif %}"
+            data-can-delete="{% if perms.movies.delete_author %}true{% else %}false{% endif %}"
+        >
+            <p>Loading authors...</p>
+        </div>
+    </section>
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'js/movies/author/author_list.js' %}"></script>
+    <script src="{% static 'js/movies/author/author_delete.js' %}"></script>
+{% endblock %}

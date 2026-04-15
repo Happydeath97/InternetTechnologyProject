@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Update Movie | MoviePulse{% endblock %}
+
+{% block content %}
+    <h1>Update Movie</h1>
+
+    <form
+        id="movie-update-form"
+        data-detail-api-url="{% url 'movie_detail_api' movie_id %}"
+        data-update-api-url="{% url 'movie_update_api' movie_id %}"
+    >
+        {% csrf_token %}
+
+        <div>
+            <label for="id_title">Title</label>
+            <input type="text" name="title" id="id_title" required>
+        </div>
+
+        <div>
+            <label for="id_description">Description</label>
+            <textarea name="description" id="id_description"></textarea>
+        </div>
+
+        <div>
+            <label for="id_release_year">Release year</label>
+            <input type="number" name="release_year" id="id_release_year">
+        </div>
+
+        <div>
+            <label for="id_author">Authors</label>
+            <select
+                name="author"
+                id="id_author"
+                multiple
+                data-api-url="{% url 'author_list_api' %}"
+            ></select>
+        </div>
+
+        <div>
+            <label for="id_genre">Genres</label>
+            <select
+                name="genre"
+                id="id_genre"
+                multiple
+                data-api-url="{% url 'genre_list_api' %}"
+            ></select>
+        </div>
+
+        <div id="movie-update-errors"></div>
+
+        <button type="submit">Save changes</button>
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/movies/movie/load_author_options.js' %}"></script>
+    <script src="{% static 'js/movies/movie/load_genre_options.js' %}"></script>
+    <script src="{% static 'js/movies/movie/movie_update.js' %}"></script>
+{% endblock %}

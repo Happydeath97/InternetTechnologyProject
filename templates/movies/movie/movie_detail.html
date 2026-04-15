@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Movie Detail | MoviePulse{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/movies/movie_detail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/rating/rating_form.css' %}">
+{% endblock %}
+
+{% block content %}
+    <article class="detail-page" id="movie-detail-page" data-movie-id="{{ movie_id }}">
+        <div class="detail-header">
+            <h1 class="detail-title" id="movie-title">Loading...</h1>
+
+            <div class="detail-meta" id="movie-meta">
+                <div class="movie-rating-row">
+                    <p class="movie-rating-summary">
+                        <strong>Average rating:</strong>
+                        <span id="movie-avg-rating">Loading...</span>
+                    </p>
+
+                    <div id="movie-rating-form-container"></div>
+                </div>
+                <p id="movie-release-year-row" style="display: none;">
+                    <strong>Release year:</strong> <span id="movie-release-year"></span>
+                </p>
+                <p>
+                    <strong>Authors:</strong>
+                    <span id="movie-authors">Loading...</span>
+                </p>
+                <p>
+                    <strong>Genres:</strong>
+                    <span id="movie-genres">Loading...</span>
+                </p>
+            </div>
+        </div>
+
+        <section class="detail-section" id="movie-description-section" style="display: none;">
+            <h2>Description</h2>
+            <p id="movie-description"></p>
+        </section>
+
+        <section class="detail-section">
+            <h2>Comments</h2>
+            <div class="comments-list" id="comments-list">
+                <p>Loading comments...</p>
+            </div>
+        </section>
+
+        <div class="entity-actions" id="movie-actions">
+            <a href="{% url 'movie_list' %}" class="btn btn-secondary">Back to Movies</a>
+
+            <a href="#" id="edit-movie-btn" class="btn" style="display: none;">Edit Movie</a>
+
+            {% if perms.movies.delete_movie %}
+                <button
+                    id="movie-delete-button"
+                    type="button"
+                    data-delete-api-url="{% url 'movie_delete_api' movie_id %}"
+                    data-redirect-url="{% url 'movie_list' %}"
+                    class="btn btn-danger"
+                >
+                    Delete Movie
+                </button>
+            {% endif %}
+        </div>
+    </article>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/movies/movie/movie_detail.js' %}"></script>
+    <script src="{% static 'js/movies/rating/load_avg_rating.js' %}"></script>
+    <script src="{% static 'js/movies/comment/load_comments.js' %}"></script>
+    <script src="{% static 'js/movies/movie/movie_delete.js' %}"></script>
+{% endblock %}

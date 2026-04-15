@@ -1,0 +1,25 @@
+
+.btn-secondary {
+    background: #6b7280;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-help {
+    display: block;
+    margin-top: 0.35rem;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.form-error {
+    margin-top: 0.35rem;
+    color: #dc2626;
+    font-size: 0.9rem;
+}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Movies | MoviePulse{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/movies/movie_list.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>Movies</h1>
+
+        {% if perms.movies.add_movie %}
+            <div class="entity-actions">
+                <a href="{% url 'movie_create' %}" class="btn">Add Movie</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div
+        class="entity-list"
+        id="movies-list"
+        data-api-url="{% url 'movie_list_api' %}"
+        data-detail-url-template="{% url 'movie_detail' 0 %}"
+    >
+        <p>Loading movies...</p>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/movies/movie/movie_list.js' %}"></script>
+{% endblock %}

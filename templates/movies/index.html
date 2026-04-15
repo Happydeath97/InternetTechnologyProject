@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | MoviePulse{% endblock %}
+
+{% block content %}
+    <section>
+        <h1>Welcome to MoviePulse</h1>
+        <p>This is the main page.</p>
+
+        {% if user.is_authenticated %}
+            <p>You are logged in as {{ user.username }}.</p>
+        {% else %}
+            <p>Please log in or register to access more features.</p>
+            <a href="{% url 'login' %}" class="btn">Login</a>
+            <a href="{% url 'register' %}" class="btn">Register</a>
+        {% endif %}
+    </section>
+{% endblock %}

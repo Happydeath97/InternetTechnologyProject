@@ -1,0 +1,54 @@
+.movie-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.movie-rating-summary {
+    margin: 0;
+    white-space: nowrap;
+}
+
+#movie-rating-form-container {
+    display: flex;
+    align-items: center;
+}
+
+.movie-rating-form {
+    margin: 0;
+}
+
+.movie-rating-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.movie-rating-label {
+    margin: 0;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.movie-rating-select {
+    padding: 6px 10px;
+    min-width: 72px;
+    height: 40px;
+    border: 1px solid #cfcfcf;
+    border-radius: 8px;
+    font: inherit;
+    background: #fff;
+}
+
+.movie-rating-button {
+    height: 40px;
+    padding: 0 14px;
+    white-space: nowrap;
+}
+
+.movie-rating-message {
+    margin: 6px 0 0 0;
+    font-size: 0.95rem;
+}
