@@ -570,7 +570,13 @@ class ReportListApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
         GET /api/reports/?status=&movie=&comment=&user=&reviewed_by=&page=&page_size=&ordering=
         List all reports with filtering and pagination.
         """
-        pass
+        # Get the reports put them in data
+
+        data = {
+            "reports": None
+        }
+
+        return JsonResponse(data=data, status=200)
 
 
 class ReportCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -580,7 +586,7 @@ class ReportCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         """
-        POST /api/reports/
+        POST /api/reports/create
         Create a new report for a movie or a comment.
         """
         pass
@@ -637,3 +643,64 @@ class ReportReviewApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
         Review a report by setting status, reviewed_by, and reviewed_at.
         """
         pass
+
+
+# how to redo the views
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework import status
+# from rest_framework.permissions import IsAuthenticatedOrReadOnly
+# from django.shortcuts import get_object_or_404
+#
+# from .models import Movie
+# from .serializers import MovieSerializer
+
+
+# class MovieApiView(APIView):
+#     permission_classes = [IsAuthenticatedOrReadOnly]
+#
+#     def get(self, request, pk=None):
+#         # GET /api/movies/        -> list
+#         # GET /api/movies/1/      -> detail
+#         if pk is None:
+#             movies = Movie.objects.all()
+#             serializer = MovieSerializer(movies, many=True)
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#
+#         movie = get_object_or_404(Movie, pk=pk)
+#         serializer = MovieSerializer(movie)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#
+#     def post(self, request):
+#         # POST /api/movies/
+#         serializer = MovieSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save(created_by=request.user)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#     def put(self, request, pk):
+#         # PUT /api/movies/1/
+#         movie = get_object_or_404(Movie, pk=pk)
+#         serializer = MovieSerializer(movie, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#     def patch(self, request, pk):
+#         # PATCH /api/movies/1/
+#         movie = get_object_or_404(Movie, pk=pk)
+#         serializer = MovieSerializer(movie, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#     def delete(self, request, pk):
+#         # DELETE /api/movies/1/
+#         movie = get_object_or_404(Movie, pk=pk)
+#         movie.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
