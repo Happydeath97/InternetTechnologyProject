@@ -17,31 +17,19 @@
             {% endif %}
         </div>
 
-        {% if genres %}
-            <div class="entity-list">
-                {% for genre in genres %}
-                    <div class="entity-row">
-                        <div class="entity-main">
-                            <strong>{{ genre.name }}</strong>
-                        </div>
-
-                        <div class="entity-actions">
-                            {% if perms.movies.change_genre %}
-                                <a href="{% url 'genre_update' genre.pk %}" class="btn">Update</a>
-                            {% endif %}
-
-                            {% if perms.movies.delete_genre %}
-                                <form method="post" action="{% url 'genre_delete' genre.pk %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p>No genres found.</p>
-        {% endif %}
+        <div
+            id="genres-list"
+            class="entity-list"
+            data-can-update="{% if perms.movies.change_genre %}true{% else %}false{% endif %}"
+            data-can-delete="{% if perms.movies.delete_genre %}true{% else %}false{% endif %}"
+            data-csrf-token="{{ csrf_token }}"
+        >
+            <p>Loading genres...</p>
+        </div>
     </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/movies/genre/genre_list.js' %}"></script>
+    <script src="{% static 'js/movies/genre/genre_delete.js' %}"></script>
 {% endblock %}

@@ -9,17 +9,38 @@
 
 {% block content %}
     <section class="form-page">
-        <h1>Create Genre</h1>
+        <div class="form-container">
+            <h1>Create Genre</h1>
 
-        <form method="post">
-            {% csrf_token %}
+            <form
+                id="genre-create-form"
+                data-api-url="{% url 'genre_create_api' %}"
+                data-redirect-url="{% url 'genre_list' %}"
+            >
+                {% csrf_token %}
 
-            {{ form.as_p }}
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                    >
+                    <div id="name-errors" class="form-errors"></div>
+                </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn">Create</button>
-                <a href="{% url 'genre_list' %}" class="btn">Cancel</a>
-            </div>
-        </form>
+                <div id="form-errors" class="form-errors"></div>
+
+                <div class="form-actions">
+                    <a href="{% url 'genre_list' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn">Create genre</button>
+                </div>
+            </form>
+        </div>
     </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/movies/genre/genre_create.js' %}"></script>
 {% endblock %}

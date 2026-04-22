@@ -9,6 +9,7 @@ urlpatterns = [
 
     # Home
     path("", movies_v.IndexView.as_view(), name="index"),
+    path("test/", movies_v.TestView.as_view(), name="test"),
 
     # -------------------------
     # Movies
@@ -24,7 +25,6 @@ urlpatterns = [
     path("genres/", movies_v.GenreListView.as_view(), name="genre_list"),
     path("genres/create/", movies_v.GenreCreateView.as_view(), name="genre_create"),
     path("genres/<int:pk>/edit/", movies_v.GenreUpdateView.as_view(), name="genre_update"),
-    path("genres/<int:pk>/delete/", movies_v.GenreDeleteView.as_view(), name="genre_delete"),
 
     # -------------------------
     # Authors
@@ -69,15 +69,13 @@ urlpatterns = [
     # Ratings API
     # -------------------------
     path("api/ratings/", movies_api_v.RatingListApiView.as_view(), name="rating_list_api"),
-    path("api/ratings/create/", movies_api_v.RatingCreateApiView.as_view(), name="rating_create_api"),
+    path("api/movies/<int:pk>/rate/", movies_api_v.RatingCreateApiView.as_view(), name="rating_create_api"),
     path("api/ratings/<int:pk>/", movies_api_v.RatingDetailApiView.as_view(), name="rating_detail_api"),
     path("api/ratings/<int:pk>/edit/", movies_api_v.RatingUpdateApiView.as_view(), name="rating_update_api"),
     path("api/ratings/<int:pk>/delete/", movies_api_v.RatingDeleteApiView.as_view(), name="rating_delete_api"),
 
     # Movie-specific rating helpers
-    path("api/rating/<int:pk>/", movies_api_v.RatingMovieApiView.as_view(), name="avg_rating_api"),
-    path("api/rating/<int:pk>/vote/", movies_api_v.RatingVoteApiView.as_view(), name="rating_vote_api"),
-
+    path("api/movies/<int:pk>/rating/", movies_api_v.RatingMovieApiView.as_view(), name="rating_movie_api"),
     # -------------------------
     # Comments API
     # -------------------------

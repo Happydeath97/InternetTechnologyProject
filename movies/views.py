@@ -9,7 +9,14 @@ from .forms import AuthorForm, GenreForm, MovieForm
 from .models import Movie, Genre, Author, Rating
 
 #TODO: go over permissions and make sure it matches the user levels are design
+# Here i need to connect this class to a url
+class TestView(View):
+    http_method_names = ["get"]
 
+    def get(self, request, *args, **kwargs):
+        # there can be a logic to process data from database bla bla
+        context = {"data": 1}
+        return render(request, "movies/test.html", context=context)
 
 class IndexView(View):
     http_method_names = ["get"]
@@ -46,60 +53,34 @@ class AuthorUpdatePageView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 class GenreCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get", "post"]
-    permission_required = ["movies.add_genre"]
+    http_method_names = ["get"]
+    permission_required = "movies.add_genre"
+    raise_exception = True
 
     def get(self, request, *args, **kwargs):
-        form = GenreForm()
-        return render(request, "movies/genre/genre_create.html", {"form": form})
-
-    def post(self, request, *args, **kwargs):
-        form = GenreForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("genre_list")
-        return render(request, "movies/genre/genre_create.html", {"form": form})
+        return render(request, "movies/genre/genre_create.html")
 
 
 class GenreListView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    #TODO: Filter & pagination
     http_method_names = ["get"]
     permission_required = "movies.view_genre"
     raise_exception = True
 
     def get(self, request, *args, **kwargs):
-        genres = Genre.objects.all()
-        return render(request, "movies/genre/genre_list.html", {"genres": genres})
+        return render(request, "movies/genre/genre_list.html")
 
 
 class GenreUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get", "post"]
+    http_method_names = ["get"]
     permission_required = "movies.change_genre"
     raise_exception = True
 
     def get(self, request, pk, *args, **kwargs):
-        genre = get_object_or_404(Genre, pk=pk)
-        form = GenreForm(instance=genre)
-        return render(request, "movies/genre/genre_update.html", {"form": form, "genre": genre})
-
-    def post(self, request, pk, *args, **kwargs):
-        genre = get_object_or_404(Genre, pk=pk)
-        form = GenreForm(request.POST, instance=genre)
-        if form.is_valid():
-            form.save()
-            return redirect("genre_list")
-        return render(request, "movies/genre/genre_update.html", {"form": form, "genre": genre})
-
-
-class GenreDeleteView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.delete_genre"
-    raise_exception = True
-
-    def post(self, request, pk, *args, **kwargs):
-        genre = get_object_or_404(Genre, pk=pk)
-        genre.delete()
-        return redirect("genre_list")
+        return render(
+            request,
+            "movies/genre/genre_update.html",
+            {"genre_id": pk}
+        )
 
 
 class MovieCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):

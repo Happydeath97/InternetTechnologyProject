@@ -5,17 +5,15 @@ from django.db.models import Avg
 from django.http import JsonResponse
 from django.urls import reverse
 
-from .forms import AuthorForm, GenreForm, MovieForm
+from .forms import AuthorForm, GenreForm, MovieForm, RatingVoteForm
 from .models import Movie, Genre, Author, Rating, Comment
 from .serializers import (
     AuthorSerializer,
     MovieDetailSerializer,
     RatingSerializer,
     RatingVoteSerializer,
-    CommentSerializer, MovieSerializer,
-    # TODO: add/import these when you implement them
-    # GenreSerializer,
-    # MovieSerializer,
+    CommentSerializer,
+    MovieSerializer,
 )
 
 import json
@@ -158,16 +156,30 @@ class GenreListApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 class GenreCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
     http_method_names = ["post"]
-    permission_required = "movies.add_genre"
-    raise_exception = True
+    permission_required = ["movies.add_genre"]
 
     def post(self, request, *args, **kwargs):
-        """
-        POST /api/genres/
-        Create a new genre.
-        """
-        pass
+        form = GenreForm(request.POST)
 
+        if form.is_valid():
+            genre = form.save()
+            return JsonResponse(
+                {
+                    "message": "Genre created successfully.",
+                    "genre": {
+                        "id": genre.id,
+                        "name": genre.name,
+                    }
+                },
+                status=201
+            )
+
+        return JsonResponse(
+            {
+                "errors": form.errors,
+            },
+            status=400
+        )
 
 class GenreDetailApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
     http_method_names = ["get"]
@@ -175,24 +187,47 @@ class GenreDetailApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
     raise_exception = True
 
     def get(self, request, pk, *args, **kwargs):
-        """
-        GET /api/genres/<int:pk>/
-        Read one specific genre.
-        """
-        pass
+        genre = get_object_or_404(Genre, pk=pk)
+
+        return JsonResponse(
+            {
+                "genre": {
+                    "id": genre.id,
+                    "name": genre.name,
+                }
+            },
+            status=200
+        )
 
 
 class GenreUpdateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["patch"]
+    http_method_names = ["post"]
     permission_required = "movies.change_genre"
     raise_exception = True
 
-    def patch(self, request, pk, *args, **kwargs):
-        """
-        PATCH /api/genres/<int:pk>/
-        Update one specific genre.
-        """
-        pass
+    def post(self, request, pk, *args, **kwargs):
+        genre = get_object_or_404(Genre, pk=pk)
+        form = GenreForm(request.POST, instance=genre)
+
+        if form.is_valid():
+            genre = form.save()
+            return JsonResponse(
+                {
+                    "message": "Genre updated successfully.",
+                    "genre": {
+                        "id": genre.id,
+                        "name": genre.name,
+                    }
+                },
+                status=200
+            )
+
+        return JsonResponse(
+            {
+                "errors": form.errors,
+            },
+            status=400
+        )
 
 
 class GenreDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -201,12 +236,20 @@ class GenreDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
     raise_exception = True
 
     def delete(self, request, pk, *args, **kwargs):
-        """
-        DELETE /api/genres/<int:pk>/
-        Delete one specific genre.
-        """
-        pass
+        genre = get_object_or_404(Genre, pk=pk)
+        genre_name = genre.name
+        genre.delete()
 
+        return JsonResponse(
+            {
+                "message": "Genre deleted successfully.",
+                "genre": {
+                    "id": pk,
+                    "name": genre_name,
+                }
+            },
+            status=200
+        )
 
 # =========================
 # MOVIE
@@ -359,12 +402,43 @@ class RatingCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "movies.add_rating"
     raise_exception = True
 
-    def post(self, request, *args, **kwargs):
-        """
-        POST /api/ratings/
-        Create a new rating.
-        """
-        pass
+    def post(self, request, pk, *args, **kwargs):
+        movie = get_object_or_404(Movie, pk=pk)
+
+        if Rating.objects.filter(movie=movie, user=request.user).exists():
+            return JsonResponse(
+                {"errors": {"score": ["You already rated this movie."]}},
+                status=400
+            )
+
+        form = RatingVoteForm(request.POST)
+
+        if form.is_valid():
+            rating = Rating.objects.create(
+                movie=movie,
+                user=request.user,
+                score=form.cleaned_data["score"],
+            )
+
+            return JsonResponse(
+                {
+                    "message": "Rating saved successfully.",
+                    "rating": {
+                        "id": rating.id,
+                        "movie": rating.movie.id,
+                        "user": rating.user.username,
+                        "score": rating.score,
+                    }
+                },
+                status=201
+            )
+
+        return JsonResponse(
+            {
+                "errors": form.errors,
+            },
+            status=400
+        )
 
 
 class RatingDetailApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -381,16 +455,38 @@ class RatingDetailApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 class RatingUpdateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["patch"]
+    http_method_names = ["post"]
     permission_required = "movies.change_rating"
     raise_exception = True
 
-    def patch(self, request, pk, *args, **kwargs):
-        """
-        PATCH /api/ratings/<int:pk>/
-        Update one specific rating.
-        """
-        pass
+    def post(self, request, pk, *args, **kwargs):
+        rating = get_object_or_404(Rating, pk=pk)
+
+        form = RatingVoteForm(request.POST)
+
+        if form.is_valid():
+            rating.score = form.cleaned_data["score"]
+            rating.save()
+
+            return JsonResponse(
+                {
+                    "message": "Rating updated successfully.",
+                    "rating": {
+                        "id": rating.id,
+                        "movie": rating.movie.id,
+                        "user": rating.user.username,
+                        "score": rating.score,
+                    }
+                },
+                status=200
+            )
+
+        return JsonResponse(
+            {
+                "errors": form.errors,
+            },
+            status=400
+        )
 
 
 class RatingDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -399,67 +495,54 @@ class RatingDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
     raise_exception = True
 
     def delete(self, request, pk, *args, **kwargs):
-        """
-        DELETE /api/ratings/<int:pk>/
-        Delete one specific rating.
-        """
-        pass
+        rating = get_object_or_404(Rating, pk=pk)
+
+        rating_data = {
+            "id": rating.id,
+            "movie": rating.movie.id,
+            "user": rating.user.username,
+            "score": rating.score,
+        }
+
+        rating.delete()
+
+        return JsonResponse(
+            {
+                "message": "Rating deleted successfully.",
+                "rating": rating_data,
+            },
+            status=200
+        )
 
 
 class RatingMovieApiView(View):
     http_method_names = ["get"]
 
     def get(self, request, pk, *args, **kwargs):
-        avg_score = Rating.objects.filter(movie_id=pk).aggregate(avg=Avg("score"))
+        movie = get_object_or_404(Movie, pk=pk)
+        ratings = Rating.objects.filter(movie=movie)
+
+        avg_score = ratings.aggregate(avg=Avg("score"))["avg"]
+        rating_count = ratings.count()
+
+        user_rating = None
+        if request.user.is_authenticated:
+            user_rating = ratings.filter(user=request.user).values("id", "score").first()
+
+        can_vote = (
+            request.user.is_authenticated
+            and request.user.has_perm("movies.add_rating")
+            and user_rating is None
+        )
 
         return JsonResponse(
             data={
-                "average_score": avg_score["avg"],
-                "can_vote": request.user.has_perm("movies.add_rating"),
+                "average_score": avg_score,
+                "rating_count": rating_count,
+                "can_vote": can_vote,
+                "user_rating": user_rating,
             },
             status=200
-        )
-
-
-class RatingVoteApiView(View):
-    http_method_names = ["post"]
-
-    def post(self, request, pk, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({"error": "Authentication required."}, status=401)
-
-        if not request.user.has_perm("movies.add_rating"):
-            return JsonResponse({"error": "You cannot vote."}, status=403)
-
-        if Rating.objects.filter(movie_id=pk, user=request.user).exists():
-            return JsonResponse({"error": "You already rated this movie."}, status=400)
-
-        movie = Movie.objects.filter(pk=pk).first()
-        if not movie:
-            return JsonResponse({"error": "Movie not found."}, status=404)
-
-        try:
-            body = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON."}, status=400)
-
-        serializer = RatingVoteSerializer(data=body)
-
-        if not serializer.is_valid():
-            return JsonResponse({"errors": serializer.errors}, status=400)
-
-        rating = Rating.objects.create(
-            movie=movie,
-            user=request.user,
-            score=serializer.validated_data["score"],
-        )
-
-        return JsonResponse(
-            {
-                "message": "Rating saved successfully.",
-                "rating": RatingSerializer(rating).data,
-            },
-            status=201,
         )
 
 
