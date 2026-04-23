@@ -1,722 +1,1008 @@
-from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
-from django.http import JsonResponse
-from django.urls import reverse
+from django.utils import timezone
 
-from .forms import AuthorForm, GenreForm, MovieForm, RatingVoteForm
-from .models import Movie, Genre, Author, Rating, Comment
-from .serializers import (
-    AuthorSerializer,
-    MovieDetailSerializer,
-    RatingSerializer,
-    RatingVoteSerializer,
-    CommentSerializer,
-    MovieSerializer,
-)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.authentication import SessionAuthentication
 
-import json
-
-
-# TODO create serializers for the data instead of doing it in the views
-
+from .models import Movie, Genre, Author, Rating, Comment, Report
+from .permissions import (AuthorApiPermission, GenreApiPermission, MovieApiPermission,
+                          RatingApiPermission, CommentApiPermission, ReportApiPermission)
+from .serializers import (AuthorSerializer, GenreSerializer, RatingSerializer,
+                          CommentSerializer, MovieSerializer, ReportSerializer)
 
 # =========================
 # AUTHOR
 # =========================
 
-class AuthorListApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    # TODO: add filter and pagination
-    http_method_names = ["get"]
-    permission_required = "movies.view_author"
-    raise_exception = True
+class AuthorApiView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [AuthorApiPermission]
 
-    def get(self, request, *args, **kwargs):
-        authors = Author.objects.all()
-        serializer = AuthorSerializer(authors, many=True)
+    def get_author(self, pk):
+        return get_object_or_404(Author, pk=pk)
 
-        data = {
-            "authors": serializer.data
-        }
+    def get(self, request, pk=None):
+        # GET /api/authors/        -> list
+        # GET /api/authors/1/      -> detail
+        if pk is None:
+            full_name = request.query_params.get("full_name")
+            if full_name:
+                authors = Author.objects.filter(full_name__icontains=full_name.strip())
+            else:
+                authors = Author.objects.all()
 
-        return JsonResponse(data, status=200)
+            serializer = AuthorSerializer(authors, many=True)
+            return Response(
+                {"authors": serializer.data},
+                status=status.HTTP_200_OK
+            )
 
+        author = self.get_author(pk)
+        serializer = AuthorSerializer(author)
+        return Response(
+            {"author": serializer.data},
+            status=status.HTTP_200_OK
+        )
 
-class AuthorCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = ["movies.add_author"]
-
-    def post(self, request, *args, **kwargs):
-        form = AuthorForm(request.POST)
-
-        if form.is_valid():
-            author = form.save()
-            return JsonResponse(
+    def post(self, request, pk=None):
+        # POST /api/authors/
+        if pk is not None:
+            return Response(
+                {"error": "POST is not allowed on a specific resource URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        serializer = AuthorSerializer(data=request.data)
+        if serializer.is_valid():
+            author = serializer.save()
+            return Response(
                 {
                     "message": "Author created successfully.",
-                    "author": {
-                        "id": author.id,
-                        "full_name": author.full_name,
-                    }
+                    "author": AuthorSerializer(author).data,
                 },
-                status=201
+                status=status.HTTP_201_CREATED
             )
-
-        return JsonResponse(
-            {
-                "errors": form.errors,
-            },
-            status=400
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
-
-class AuthorDetailApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get"]
-    permission_required = "movies.view_author"
-    raise_exception = True
-
-    def get(self, request, pk, *args, **kwargs):
-        author = get_object_or_404(Author, pk=pk)
-        serializer = AuthorSerializer(author)
-        data = {"author": serializer.data}
-
-        return JsonResponse(data=data, status=200)
-
-
-class AuthorUpdateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.change_author"
-    raise_exception = True
-
-    def post(self, request, pk, *args, **kwargs):
-        author = get_object_or_404(Author, pk=pk)
-        form = AuthorForm(request.POST, instance=author)
-
-        if form.is_valid():
-            updated_author = form.save()
-            return JsonResponse(
+    def put(self, request, pk=None):
+        # PUT /api/authors/1/
+        if pk is None:
+            return Response(
+                {"error": "PUT requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        author = self.get_author(pk)
+        serializer = AuthorSerializer(author, data=request.data)
+        if serializer.is_valid():
+            updated_author = serializer.save()
+            return Response(
                 {
                     "message": "Author updated successfully.",
-                    "author": {
-                        "id": updated_author.id,
-                        "full_name": updated_author.full_name,
-                        "date_of_birth": updated_author.date_of_birth,
-                    }
+                    "author": AuthorSerializer(updated_author).data,
                 },
-                status=200
+                status=status.HTTP_200_OK
             )
-
-        return JsonResponse(
-            {
-                "errors": form.errors,
-            },
-            status=400
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
+    def patch(self, request, pk=None):
+        # PATCH /api/authors/1/
+        if pk is None:
+            return Response(
+                {"error": "PATCH requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        author = self.get_author(pk)
+        serializer = AuthorSerializer(author, data=request.data, partial=True)
+        if serializer.is_valid():
+            updated_author = serializer.save()
+            return Response(
+                {
+                    "message": "Author updated successfully.",
+                    "author": AuthorSerializer(updated_author).data,
+                },
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
-class AuthorDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["delete"]
-    permission_required = "movies.delete_author"
-    raise_exception = True
-
-    def delete(self, request, pk, *args, **kwargs):
-        author = get_object_or_404(Author, pk=pk)
+    def delete(self, request, pk=None):
+        # DELETE /api/authors/1/
+        if pk is None:
+            return Response(
+                {"error": "DELETE requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        author = self.get_author(pk)
+        author_data = AuthorSerializer(author).data
         author.delete()
-
-        return JsonResponse(
-            data={"message": "Author deleted successfully."},
-            status=200
+        return Response(
+            {
+                "message": "Author deleted successfully.",
+                "author": author_data,
+            },
+            status=status.HTTP_200_OK
         )
-
 
 # =========================
 # GENRE
 # =========================
 
-class GenreListApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get"]
-    permission_required = "movies.view_genre"
-    raise_exception = True
+class GenreApiView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [GenreApiPermission]
 
-    def get(self, request, *args, **kwargs):
-        genres = Genre.objects.all()
+    def get_genre(self, pk):
+        return get_object_or_404(Genre, pk=pk)
 
-        data = {
-            "genres": [
-                {
-                    "id": genre.id,
-                    "name": genre.name,
-                }
-                for genre in genres
-            ]
-        }
+    def get(self, request, pk=None):
+        # GET /api/genres/            -> list
+        # GET /api/genres/?name=act   -> filtered list
+        # GET /api/genres/1/          -> detail
 
-        return JsonResponse(data, status=200)
+        if pk is None:
+            genres = Genre.objects.all()
 
-class GenreCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = ["movies.add_genre"]
+            name = request.query_params.get("name")
+            if name:
+                genres = genres.filter(name__icontains=name.strip())
 
-    def post(self, request, *args, **kwargs):
-        form = GenreForm(request.POST)
+            serializer = GenreSerializer(genres, many=True)
+            return Response(
+                {"genres": serializer.data},
+                status=status.HTTP_200_OK
+            )
 
-        if form.is_valid():
-            genre = form.save()
-            return JsonResponse(
+        genre = self.get_genre(pk)
+        serializer = GenreSerializer(genre)
+        return Response(
+            {"genre": serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    def post(self, request, pk=None):
+        # POST /api/genres/
+        if pk is not None:
+            return Response(
+                {"error": "POST is not allowed on a specific resource URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        serializer = GenreSerializer(data=request.data)
+        if serializer.is_valid():
+            genre = serializer.save()
+            return Response(
                 {
                     "message": "Genre created successfully.",
-                    "genre": {
-                        "id": genre.id,
-                        "name": genre.name,
-                    }
+                    "genre": GenreSerializer(genre).data,
                 },
-                status=201
+                status=status.HTTP_201_CREATED
             )
 
-        return JsonResponse(
-            {
-                "errors": form.errors,
-            },
-            status=400
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
-class GenreDetailApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get"]
-    permission_required = "movies.view_genre"
-    raise_exception = True
-
-    def get(self, request, pk, *args, **kwargs):
-        genre = get_object_or_404(Genre, pk=pk)
-
-        return JsonResponse(
-            {
-                "genre": {
-                    "id": genre.id,
-                    "name": genre.name,
-                }
-            },
-            status=200
-        )
-
-
-class GenreUpdateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.change_genre"
-    raise_exception = True
-
-    def post(self, request, pk, *args, **kwargs):
-        genre = get_object_or_404(Genre, pk=pk)
-        form = GenreForm(request.POST, instance=genre)
-
-        if form.is_valid():
-            genre = form.save()
-            return JsonResponse(
+    def put(self, request, pk=None):
+        # PUT /api/genres/1/
+        if pk is None:
+            return Response(
+                {"error": "PUT requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        genre = self.get_genre(pk)
+        serializer = GenreSerializer(genre, data=request.data)
+        if serializer.is_valid():
+            updated_genre = serializer.save()
+            return Response(
                 {
                     "message": "Genre updated successfully.",
-                    "genre": {
-                        "id": genre.id,
-                        "name": genre.name,
-                    }
+                    "genre": GenreSerializer(updated_genre).data,
                 },
-                status=200
+                status=status.HTTP_200_OK
             )
 
-        return JsonResponse(
-            {
-                "errors": form.errors,
-            },
-            status=400
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
+    def patch(self, request, pk=None):
+        # PATCH /api/genres/1/
+        if pk is None:
+            return Response(
+                {"error": "PATCH requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        genre = self.get_genre(pk)
+        serializer = GenreSerializer(genre, data=request.data, partial=True)
+        if serializer.is_valid():
+            updated_genre = serializer.save()
+            return Response(
+                {
+                    "message": "Genre updated successfully.",
+                    "genre": GenreSerializer(updated_genre).data,
+                },
+                status=status.HTTP_200_OK
+            )
 
-class GenreDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["delete"]
-    permission_required = "movies.delete_genre"
-    raise_exception = True
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
-    def delete(self, request, pk, *args, **kwargs):
-        genre = get_object_or_404(Genre, pk=pk)
-        genre_name = genre.name
+    def delete(self, request, pk=None):
+        # DELETE /api/genres/1/
+        if pk is None:
+            return Response(
+                {"error": "DELETE requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        genre = self.get_genre(pk)
+        genre_data = GenreSerializer(genre).data
         genre.delete()
 
-        return JsonResponse(
+        return Response(
             {
                 "message": "Genre deleted successfully.",
-                "genre": {
-                    "id": pk,
-                    "name": genre_name,
-                }
+                "genre": genre_data,
             },
-            status=200
+            status=status.HTTP_200_OK
         )
 
 # =========================
 # MOVIE
 # =========================
 
-class MovieListApiView(LoginRequiredMixin, View):
-    # TODO: add filter and pagination
-    http_method_names = ["get"]
-    raise_exception = True
+class MovieApiView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [MovieApiPermission]
 
-    def get(self, request, *args, **kwargs):
-        movies = (
+    def get_queryset(self):
+        return (
             Movie.objects
-            .prefetch_related("author", "genre")
             .select_related("created_by")
+            .prefetch_related("author", "genre")
             .annotate(avg_rating=Avg("ratings__score"))
         )
 
-        serializer = MovieSerializer(movies, many=True)
+    def get_movie(self, pk):
+        return get_object_or_404(self.get_queryset(), pk=pk)
 
-        data = {
-            "movies": serializer.data
-        }
+    def require_pk(self, pk, method_name):
+        if pk is None:
+            return Response(
+                {"error": f"{method_name} requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
+        return None
 
-        return JsonResponse(data, status=200)
+    def get(self, request, pk=None):
+        # GET /api/movies/                    -> list
+        # GET /api/movies/?title=dune         -> filtered list
+        # GET /api/movies/?author=tolkien     -> filtered list
+        # GET /api/movies/?genre=fantasy      -> filtered list
+        # GET /api/movies/?release_year=2021  -> filtered list
+        # GET /api/movies/1/                  -> detail
 
-class MovieCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.add_movie"
-    raise_exception = True
+        if pk is None:
+            movies = self.get_queryset()
 
-    def post(self, request, *args, **kwargs):
-        form = MovieForm(request.POST)
+            title = request.query_params.get("title")
+            if title:
+                movies = movies.filter(title__icontains=title.strip())
 
-        if form.is_valid():
-            movie = form.save(commit=False)
-            movie.created_by = request.user
-            movie.save()
-            form.save_m2m()
+            author = request.query_params.get("author")
+            if author:
+                movies = movies.filter(author__full_name__icontains=author.strip())
 
-            return JsonResponse(
-                data={
-                    "message": "Movie created successfully.",
-                    "movie": {
-                        "id": movie.id,
-                        "title": movie.title,
-                        "release_year": movie.release_year,
-                    },
-                    "redirect_url": f"/movies/{movie.pk}/",
-                },
-                status=201
+            genre = request.query_params.get("genre")
+            if genre:
+                movies = movies.filter(genre__name__icontains=genre.strip())
+
+            release_year = request.query_params.get("release_year")
+            if release_year:
+                movies = movies.filter(release_year=release_year)
+
+            created_by = request.query_params.get("created_by")
+            if created_by:
+                movies = movies.filter(created_by__username__icontains=created_by.strip())
+
+            movies = movies.distinct()
+
+            serializer = MovieSerializer(movies, many=True, context={"request": request})
+            return Response(
+                {"movies": serializer.data},
+                status=status.HTTP_200_OK,
             )
 
-        return JsonResponse(data={"errors": form.errors}, status=400)
+        movie = self.get_movie(pk)
+        serializer = MovieSerializer(movie, context={"request": request})
 
-
-class MovieDetailApiView(View):
-    # TODO: implement giving a score to the movie maybe post to another view? or here?
-    http_method_names = ["get"]
-
-    def get(self, request, pk, *args, **kwargs):
-        movie = get_object_or_404(
-            Movie.objects.prefetch_related("author", "genre"),
-            pk=pk
-        )
-
-        serializer = MovieDetailSerializer(movie)
-
-        return JsonResponse(
+        return Response(
             {
                 "movie": serializer.data,
                 "permissions": {
-                    "can_edit_movie": request.user.has_perm("movies.change_movie"),
-                    "can_delete_movie": request.user.has_perm("movies.delete_movie"),
+                    "can_edit_movie": (
+                        request.user.is_authenticated
+                        and request.user.has_perm("movies.change_movie")
+                    ),
+                    "can_delete_movie": (
+                        request.user.is_authenticated
+                        and request.user.has_perm("movies.delete_movie")
+                    ),
                 },
             },
-            status=200,
+            status=status.HTTP_200_OK,
         )
 
-
-class MovieUpdateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.change_movie"
-    raise_exception = True
-
-    def post(self, request, pk, *args, **kwargs):
-        movie = get_object_or_404(Movie, pk=pk)
-        form = MovieForm(request.POST, instance=movie)
-
-        if form.is_valid():
-            updated_movie = form.save()
-
-            return JsonResponse(
-                {
-                    "message": "Movie updated successfully.",
-                    "movie": {
-                        "id": updated_movie.id,
-                        "title": updated_movie.title,
-                        "release_year": updated_movie.release_year,
-                    },
-                    "redirect_url": f"/movies/{updated_movie.pk}/",
-                },
-                status=200
+    def post(self, request, pk=None):
+        # POST /api/movies/
+        if pk is not None:
+            return Response(
+                {"error": "POST is not allowed on a specific resource URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
             )
 
-        return JsonResponse(
-            {
-                "errors": form.errors,
-            },
-            status=400
+        serializer = MovieSerializer(data=request.data)
+        if serializer.is_valid():
+            movie = serializer.save(created_by=request.user)
+            return Response(
+                {
+                    "message": "Movie created successfully.",
+                    "movie": MovieSerializer(movie).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
+    def put(self, request, pk=None):
+        # PUT /api/movies/1/
+        error_response = self.require_pk(pk, "PUT")
+        if error_response:
+            return error_response
 
-class MovieDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["delete"]
-    permission_required = "movies.delete_movie"
-    raise_exception = True
+        movie = self.get_movie(pk)
+        serializer = MovieSerializer(movie, data=request.data)
+        if serializer.is_valid():
+            updated_movie = serializer.save()
+            return Response(
+                {
+                    "message": "Movie updated successfully.",
+                    "movie": MovieSerializer(updated_movie).data,
+                },
+                status=status.HTTP_200_OK,
+            )
 
-    def delete(self, request, pk, *args, **kwargs):
-        movie = get_object_or_404(Movie, pk=pk)
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def patch(self, request, pk=None):
+        # PATCH /api/movies/1/
+        error_response = self.require_pk(pk, "PATCH")
+        if error_response:
+            return error_response
+
+        movie = self.get_movie(pk)
+        serializer = MovieSerializer(movie, data=request.data, partial=True)
+        if serializer.is_valid():
+            updated_movie = serializer.save()
+            return Response(
+                {
+                    "message": "Movie updated successfully.",
+                    "movie": MovieSerializer(updated_movie).data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def delete(self, request, pk=None):
+        # DELETE /api/movies/1/
+        error_response = self.require_pk(pk, "DELETE")
+        if error_response:
+            return error_response
+
+        movie = self.get_movie(pk)
+        movie_data = MovieSerializer(movie).data
         movie.delete()
 
-        return JsonResponse(
+        return Response(
             {
                 "message": "Movie deleted successfully.",
-                "redirect_url": reverse("movie_list"),
+                "movie": movie_data,
             },
-            status=200
+            status=status.HTTP_200_OK,
         )
 
 # =========================
 # RATING
 # =========================
 
-class RatingListApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get"]
-    permission_required = "movies.view_rating"
-    raise_exception = True
+class RatingApiView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [RatingApiPermission]
 
-    def get(self, request, *args, **kwargs):
-        """
-        GET /api/ratings/?movie=&user=&score=&page=&page_size=&ordering=
-        List all ratings with filtering and pagination.
-        """
-        pass
+    def get_queryset(self):
+        return Rating.objects.select_related("user", "movie").all()
 
+    def get_rating(self, request, pk):
+        rating = get_object_or_404(self.get_queryset(), pk=pk)
+        self.check_object_permissions(request, rating)
+        return rating
 
-class RatingCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.add_rating"
-    raise_exception = True
+    def require_pk(self, pk, method_name):
+        if pk is None:
+            return Response(
+                {"error": f"{method_name} requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
+        return None
 
-    def post(self, request, pk, *args, **kwargs):
-        movie = get_object_or_404(Movie, pk=pk)
+    def get(self, request, pk=None):
+        # GET /api/ratings/                 -> list
+        # GET /api/ratings/?movie_id=5      -> filtered list
+        # GET /api/ratings/?user_id=3       -> filtered list
+        # GET /api/ratings/?username=alice  -> filtered list
+        # GET /api/ratings/?score=8         -> filtered list
+        # GET /api/ratings/?mine=true       -> current user's ratings
+        # GET /api/ratings/1/               -> detail
 
-        if Rating.objects.filter(movie=movie, user=request.user).exists():
-            return JsonResponse(
-                {"errors": {"score": ["You already rated this movie."]}},
-                status=400
+        if pk is None:
+            ratings = self.get_queryset()
+
+            movie_id = request.query_params.get("movie_id")
+            if movie_id:
+                ratings = ratings.filter(movie_id=movie_id)
+
+            user_id = request.query_params.get("user_id")
+            if user_id:
+                ratings = ratings.filter(user_id=user_id)
+
+            username = request.query_params.get("username")
+            if username:
+                ratings = ratings.filter(user__username__icontains=username.strip())
+
+            score = request.query_params.get("score")
+            if score:
+                ratings = ratings.filter(score=score)
+
+            mine = request.query_params.get("mine")
+            if mine and mine.lower() in {"1", "true", "yes"}:
+                ratings = ratings.filter(user=request.user)
+
+            serializer = RatingSerializer(ratings, many=True)
+            return Response(
+                {"ratings": serializer.data},
+                status=status.HTTP_200_OK,
             )
 
-        form = RatingVoteForm(request.POST)
+        rating = self.get_rating(request, pk)
+        serializer = RatingSerializer(rating)
 
-        if form.is_valid():
-            rating = Rating.objects.create(
-                movie=movie,
-                user=request.user,
-                score=form.cleaned_data["score"],
-            )
-
-            return JsonResponse(
-                {
-                    "message": "Rating saved successfully.",
-                    "rating": {
-                        "id": rating.id,
-                        "movie": rating.movie.id,
-                        "user": rating.user.username,
-                        "score": rating.score,
-                    }
-                },
-                status=201
-            )
-
-        return JsonResponse(
-            {
-                "errors": form.errors,
-            },
-            status=400
+        return Response(
+            {"rating": serializer.data},
+            status=status.HTTP_200_OK,
         )
 
+    def post(self, request, pk=None):
+        # POST /api/ratings/
+        if pk is not None:
+            return Response(
+                {"error": "POST is not allowed on a specific resource URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
 
-class RatingDetailApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get"]
-    permission_required = "movies.view_rating"
-    raise_exception = True
+        serializer = RatingSerializer(
+            data=request.data,
+            context={"request": request},
+        )
 
-    def get(self, request, pk, *args, **kwargs):
-        """
-        GET /api/ratings/<int:pk>/
-        Read one specific rating.
-        """
-        pass
+        if serializer.is_valid():
+            rating = serializer.save(user=request.user)
+            return Response(
+                {
+                    "message": "Rating created successfully.",
+                    "rating": RatingSerializer(rating).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
 
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
-class RatingUpdateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.change_rating"
-    raise_exception = True
+    def put(self, request, pk=None):
+        # PUT /api/ratings/1/
+        error_response = self.require_pk(pk, "PUT")
+        if error_response:
+            return error_response
 
-    def post(self, request, pk, *args, **kwargs):
-        rating = get_object_or_404(Rating, pk=pk)
+        rating = self.get_rating(request, pk)
+        serializer = RatingSerializer(
+            rating,
+            data=request.data,
+            context={"request": request},
+        )
 
-        form = RatingVoteForm(request.POST)
-
-        if form.is_valid():
-            rating.score = form.cleaned_data["score"]
-            rating.save()
-
-            return JsonResponse(
+        if serializer.is_valid():
+            updated_rating = serializer.save()
+            return Response(
                 {
                     "message": "Rating updated successfully.",
-                    "rating": {
-                        "id": rating.id,
-                        "movie": rating.movie.id,
-                        "user": rating.user.username,
-                        "score": rating.score,
-                    }
+                    "rating": RatingSerializer(updated_rating).data,
                 },
-                status=200
+                status=status.HTTP_200_OK,
             )
 
-        return JsonResponse(
-            {
-                "errors": form.errors,
-            },
-            status=400
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
+    def patch(self, request, pk=None):
+        # PATCH /api/ratings/1/
+        error_response = self.require_pk(pk, "PATCH")
+        if error_response:
+            return error_response
 
-class RatingDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["delete"]
-    permission_required = "movies.delete_rating"
-    raise_exception = True
+        rating = self.get_rating(request, pk)
+        serializer = RatingSerializer(
+            rating,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
 
-    def delete(self, request, pk, *args, **kwargs):
-        rating = get_object_or_404(Rating, pk=pk)
+        if serializer.is_valid():
+            updated_rating = serializer.save()
+            return Response(
+                {
+                    "message": "Rating updated successfully.",
+                    "rating": RatingSerializer(updated_rating).data,
+                },
+                status=status.HTTP_200_OK,
+            )
 
-        rating_data = {
-            "id": rating.id,
-            "movie": rating.movie.id,
-            "user": rating.user.username,
-            "score": rating.score,
-        }
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
+    def delete(self, request, pk=None):
+        # DELETE /api/ratings/1/
+        error_response = self.require_pk(pk, "DELETE")
+        if error_response:
+            return error_response
+
+        rating = self.get_rating(request, pk)
+        rating_data = RatingSerializer(rating).data
         rating.delete()
 
-        return JsonResponse(
+        return Response(
             {
                 "message": "Rating deleted successfully.",
                 "rating": rating_data,
             },
-            status=200
+            status=status.HTTP_200_OK,
         )
-
-
-class RatingMovieApiView(View):
-    http_method_names = ["get"]
-
-    def get(self, request, pk, *args, **kwargs):
-        movie = get_object_or_404(Movie, pk=pk)
-        ratings = Rating.objects.filter(movie=movie)
-
-        avg_score = ratings.aggregate(avg=Avg("score"))["avg"]
-        rating_count = ratings.count()
-
-        user_rating = None
-        if request.user.is_authenticated:
-            user_rating = ratings.filter(user=request.user).values("id", "score").first()
-
-        can_vote = (
-            request.user.is_authenticated
-            and request.user.has_perm("movies.add_rating")
-            and user_rating is None
-        )
-
-        return JsonResponse(
-            data={
-                "average_score": avg_score,
-                "rating_count": rating_count,
-                "can_vote": can_vote,
-                "user_rating": user_rating,
-            },
-            status=200
-        )
-
 
 # =========================
 # COMMENT
 # =========================
 
-class CommentListApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get"]
-    permission_required = "movies.view_comment"
-    raise_exception = True
+class CommentApiView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [CommentApiPermission]
 
-    def get(self, request, *args, **kwargs):
-        """
-        GET /api/comments/?movie=&user=&parent=&page=&page_size=&ordering=
-        List all comments with filtering and pagination.
-        """
-        pass
-
-
-class CommentCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.add_comment"
-    raise_exception = True
-
-    def post(self, request, *args, **kwargs):
-        """
-        POST /api/comments/
-        Create a new comment.
-        Can create root comment or reply if parent is provided.
-        """
-        pass
-
-
-class CommentDetailApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get"]
-    permission_required = "movies.view_comment"
-    raise_exception = True
-
-    def get(self, request, pk, *args, **kwargs):
-        """
-        GET /api/comments/<int:pk>/
-        Read one specific comment.
-        """
-        pass
-
-
-class CommentUpdateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["patch"]
-    permission_required = "movies.change_comment"
-    raise_exception = True
-
-    def patch(self, request, pk, *args, **kwargs):
-        """
-        PATCH /api/comments/<int:pk>/
-        Update one specific comment.
-        """
-        pass
-
-
-class CommentDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["delete"]
-    permission_required = "movies.delete_comment"
-    raise_exception = True
-
-    def delete(self, request, pk, *args, **kwargs):
-        """
-        DELETE /api/comments/<int:pk>/
-        Delete one specific comment.
-        """
-        pass
-
-
-class CommentsApiView(View):
-    http_method_names = ["get"]
-
-    def get(self, request, pk, *args, **kwargs):
-        root_comments = (
+    def get_queryset(self):
+        return (
             Comment.objects
-            .filter(movie_id=pk, parent__isnull=True)
-            .select_related("user")
-            .prefetch_related("replies__user", "replies__replies")
-            .order_by("-created_at")
+            .select_related("user", "movie", "parent")
+            .prefetch_related("replies__user", "replies__movie", "replies__parent")
+            .all()
         )
 
-        serializer = CommentSerializer(root_comments, many=True)
+    def get_comment(self, request, pk):
+        comment = get_object_or_404(self.get_queryset(), pk=pk)
+        self.check_object_permissions(request, comment)
+        return comment
 
-        return JsonResponse(
+    def require_pk(self, pk, method_name):
+        if pk is None:
+            return Response(
+                {"error": f"{method_name} requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
+        return None
+
+    def get(self, request, pk=None):
+        # GET /api/comments/                         -> list
+        # GET /api/comments/?movie_id=5             -> filtered list
+        # GET /api/comments/?user_id=3              -> filtered list
+        # GET /api/comments/?username=john          -> filtered list
+        # GET /api/comments/?parent_id=10           -> replies of one comment
+        # GET /api/comments/?root_only=true         -> only top-level comments
+        # GET /api/comments/?mine=true              -> current user's comments
+        # GET /api/comments/1/                      -> detail
+
+        if pk is None:
+            comments = self.get_queryset()
+
+            movie_id = request.query_params.get("movie_id")
+            if movie_id:
+                comments = comments.filter(movie_id=movie_id)
+
+            user_id = request.query_params.get("user_id")
+            if user_id:
+                comments = comments.filter(user_id=user_id)
+
+            username = request.query_params.get("username")
+            if username:
+                comments = comments.filter(user__username__icontains=username.strip())
+
+            parent_id = request.query_params.get("parent_id")
+            if parent_id:
+                comments = comments.filter(parent_id=parent_id)
+
+            root_only = request.query_params.get("root_only")
+            if root_only and root_only.lower() in {"1", "true", "yes"}:
+                comments = comments.filter(parent__isnull=True)
+
+            mine = request.query_params.get("mine")
+            if mine and mine.lower() in {"1", "true", "yes"}:
+                comments = comments.filter(user=request.user)
+
+            serializer = CommentSerializer(
+                comments,
+                many=True,
+                context={"request": request},
+            )
+            return Response(
+                {"comments": serializer.data},
+                status=status.HTTP_200_OK,
+            )
+
+        comment = self.get_comment(request, pk)
+        serializer = CommentSerializer(comment, context={"request": request})
+        return Response(
+            {"comment": serializer.data},
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request, pk=None):
+        # POST /api/comments/
+        if pk is not None:
+            return Response(
+                {"error": "POST is not allowed on a specific resource URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
+
+        serializer = CommentSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+
+        if serializer.is_valid():
+            comment = serializer.save(user=request.user)
+            return Response(
+                {
+                    "message": "Comment created successfully.",
+                    "comment": CommentSerializer(
+                        comment,
+                        context={"request": request},
+                    ).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def put(self, request, pk=None):
+        # PUT /api/comments/1/
+        error_response = self.require_pk(pk, "PUT")
+        if error_response:
+            return error_response
+
+        comment = self.get_comment(request, pk)
+        serializer = CommentSerializer(
+            comment,
+            data=request.data,
+            context={"request": request},
+        )
+
+        if serializer.is_valid():
+            updated_comment = serializer.save()
+            return Response(
+                {
+                    "message": "Comment updated successfully.",
+                    "comment": CommentSerializer(
+                        updated_comment,
+                        context={"request": request},
+                    ).data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def patch(self, request, pk=None):
+        # PATCH /api/comments/1/
+        error_response = self.require_pk(pk, "PATCH")
+        if error_response:
+            return error_response
+
+        comment = self.get_comment(request, pk)
+        serializer = CommentSerializer(
+            comment,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+
+        if serializer.is_valid():
+            updated_comment = serializer.save()
+            return Response(
+                {
+                    "message": "Comment updated successfully.",
+                    "comment": CommentSerializer(
+                        updated_comment,
+                        context={"request": request},
+                    ).data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def delete(self, request, pk=None):
+        # DELETE /api/comments/1/
+        error_response = self.require_pk(pk, "DELETE")
+        if error_response:
+            return error_response
+
+        comment = self.get_comment(request, pk)
+        comment_data = CommentSerializer(comment, context={"request": request}).data
+        comment.delete()
+
+        return Response(
             {
-                "comments": serializer.data,
-                "can_comment": request.user.has_perm("movies.add_comment"),
+                "message": "Comment deleted successfully.",
+                "comment": comment_data,
             },
-            status=200
+            status=status.HTTP_200_OK,
         )
-
 
 # =========================
 # REPORT
 # =========================
 
-class ReportListApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get"]
-    permission_required = "movies.view_report"
-    raise_exception = True
+class ReportApiView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [ReportApiPermission]
 
-    def get(self, request, *args, **kwargs):
-        """
-        GET /api/reports/?status=&movie=&comment=&user=&reviewed_by=&page=&page_size=&ordering=
-        List all reports with filtering and pagination.
-        """
-        pass
+    def get_queryset(self):
+        return (
+            Report.objects
+            .select_related("user", "movie", "comment", "reviewed_by")
+            .all()
+        )
 
+    def get_report(self, request, pk):
+        report = get_object_or_404(self.get_queryset(), pk=pk)
+        self.check_object_permissions(request, report)
+        return report
 
-class ReportCreateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["post"]
-    permission_required = "movies.add_report"
-    raise_exception = True
+    def require_pk(self, pk, method_name):
+        if pk is None:
+            return Response(
+                {"error": f"{method_name} requires a resource id in the URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
+        return None
 
-    def post(self, request, *args, **kwargs):
-        """
-        POST /api/reports/
-        Create a new report for a movie or a comment.
-        """
-        pass
+    def get(self, request, pk=None):
+        # GET /api/reports/                        -> list
+        # GET /api/reports/?status=PENDING         -> filtered list
+        # GET /api/reports/?movie_id=5             -> filtered list
+        # GET /api/reports/?comment_id=12          -> filtered list
+        # GET /api/reports/?user_id=3              -> filtered list
+        # GET /api/reports/?reviewed_by_id=2       -> filtered list
+        # GET /api/reports/?mine=true              -> current user's reports
+        # GET /api/reports/1/                      -> detail
 
+        if pk is None:
+            reports = self.get_queryset()
 
-class ReportDetailApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["get"]
-    permission_required = "movies.view_report"
-    raise_exception = True
+            status_value = request.query_params.get("status")
+            if status_value:
+                reports = reports.filter(status=status_value)
 
-    def get(self, request, pk, *args, **kwargs):
-        """
-        GET /api/reports/<int:pk>/
-        Read one specific report.
-        """
-        pass
+            movie_id = request.query_params.get("movie_id")
+            if movie_id:
+                reports = reports.filter(movie_id=movie_id)
 
+            comment_id = request.query_params.get("comment_id")
+            if comment_id:
+                reports = reports.filter(comment_id=comment_id)
 
-class ReportUpdateApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["patch"]
-    permission_required = "movies.change_report"
-    raise_exception = True
+            user_id = request.query_params.get("user_id")
+            if user_id:
+                reports = reports.filter(user_id=user_id)
 
-    def patch(self, request, pk, *args, **kwargs):
-        """
-        PATCH /api/reports/<int:pk>/
-        Update one specific report.
-        Usually for moderation fields like status or reason.
-        """
-        pass
+            reviewed_by_id = request.query_params.get("reviewed_by_id")
+            if reviewed_by_id:
+                reports = reports.filter(reviewed_by_id=reviewed_by_id)
 
+            mine = request.query_params.get("mine")
+            if mine and mine.lower() in {"1", "true", "yes"}:
+                reports = reports.filter(user=request.user)
 
-class ReportDeleteApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["delete"]
-    permission_required = "movies.delete_report"
-    raise_exception = True
+            serializer = ReportSerializer(
+                reports,
+                many=True,
+                context={"request": request},
+            )
+            return Response(
+                {"reports": serializer.data},
+                status=status.HTTP_200_OK,
+            )
 
-    def delete(self, request, pk, *args, **kwargs):
-        """
-        DELETE /api/reports/<int:pk>/
-        Delete one specific report.
-        """
-        pass
+        report = self.get_report(request, pk)
+        serializer = ReportSerializer(report, context={"request": request})
+        return Response(
+            {"report": serializer.data},
+            status=status.HTTP_200_OK,
+        )
 
+    def post(self, request, pk=None):
+        # POST /api/reports/
+        if pk is not None:
+            return Response(
+                {"error": "POST is not allowed on a specific resource URL."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
 
-class ReportReviewApiView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    http_method_names = ["patch"]
-    permission_required = "movies.change_report"
-    raise_exception = True
+        serializer = ReportSerializer(
+            data=request.data,
+            context={"request": request},
+        )
 
-    def patch(self, request, pk, *args, **kwargs):
-        """
-        PATCH /api/reports/<int:pk>/review/
-        Review a report by setting status, reviewed_by, and reviewed_at.
-        """
-        pass
+        if serializer.is_valid():
+            report = serializer.save(user=request.user)
+            return Response(
+                {
+                    "message": "Report created successfully.",
+                    "report": ReportSerializer(
+                        report,
+                        context={"request": request},
+                    ).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def put(self, request, pk=None):
+        # PUT /api/reports/1/
+        error_response = self.require_pk(pk, "PUT")
+        if error_response:
+            return error_response
+
+        report = self.get_report(request, pk)
+        serializer = ReportSerializer(
+            report,
+            data=request.data,
+            context={"request": request},
+        )
+
+        if serializer.is_valid():
+            updated_report = serializer.save()
+
+            if updated_report.status != Report.Status.PENDING:
+                updated_report.reviewed_by = request.user
+                updated_report.reviewed_at = timezone.now()
+                updated_report.save(update_fields=["reviewed_by", "reviewed_at"])
+
+            return Response(
+                {
+                    "message": "Report updated successfully.",
+                    "report": ReportSerializer(
+                        updated_report,
+                        context={"request": request},
+                    ).data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def patch(self, request, pk=None):
+        # PATCH /api/reports/1/
+        error_response = self.require_pk(pk, "PATCH")
+        if error_response:
+            return error_response
+
+        report = self.get_report(request, pk)
+        serializer = ReportSerializer(
+            report,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+
+        if serializer.is_valid():
+            updated_report = serializer.save()
+
+            if "status" in request.data and updated_report.status != Report.Status.PENDING:
+                updated_report.reviewed_by = request.user
+                updated_report.reviewed_at = timezone.now()
+                updated_report.save(update_fields=["reviewed_by", "reviewed_at"])
+
+            return Response(
+                {
+                    "message": "Report updated successfully.",
+                    "report": ReportSerializer(
+                        updated_report,
+                        context={"request": request},
+                    ).data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def delete(self, request, pk=None):
+        # DELETE /api/reports/1/
+        error_response = self.require_pk(pk, "DELETE")
+        if error_response:
+            return error_response
+
+        report = self.get_report(request, pk)
+        report_data = ReportSerializer(report, context={"request": request}).data
+        report.delete()
+
+        return Response(
+            {
+                "message": "Report deleted successfully.",
+                "report": report_data,
+            },
+            status=status.HTTP_200_OK,
+        )
