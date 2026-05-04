@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 
+from drf_spectacular.utils import extend_schema, extend_schema_view
+
 from .models import Movie, Genre, Author, Rating, Comment, Report
 from .permissions import (AuthorApiPermission, GenreApiPermission, MovieApiPermission,
                           RatingApiPermission, CommentApiPermission, ReportApiPermission)
@@ -20,6 +22,8 @@ from .serializers import (AuthorSerializer, GenreSerializer, RatingSerializer,
 class AuthorApiView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [AuthorApiPermission]
+    serializer_class = AuthorSerializer
+    queryset = Author.objects.all()
 
     def get_author(self, pk):
         return get_object_or_404(Author, pk=pk)
@@ -133,6 +137,24 @@ class AuthorApiView(APIView):
             status=status.HTTP_200_OK
         )
 
+
+@extend_schema_view(
+    get=extend_schema(tags=["authors"], operation_id="listAuthors"),
+    post=extend_schema(tags=["authors"], operation_id="createAuthor"),
+)
+class AuthorListApiView(AuthorApiView):
+    http_method_names = ["get", "post", "head", "options"]
+
+
+@extend_schema_view(
+    get=extend_schema(tags=["authors"], operation_id="getAuthor"),
+    put=extend_schema(tags=["authors"], operation_id="replaceAuthor"),
+    patch=extend_schema(tags=["authors"], operation_id="partialUpdateAuthor"),
+    delete=extend_schema(tags=["authors"], operation_id="deleteAuthor"),
+)
+class AuthorDetailApiView(AuthorApiView):
+    http_method_names = ["get", "put", "patch", "delete", "head", "options"]
+
 # =========================
 # GENRE
 # =========================
@@ -140,6 +162,8 @@ class AuthorApiView(APIView):
 class GenreApiView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [GenreApiPermission]
+    serializer_class = GenreSerializer
+    queryset = Genre.objects.all()
 
     def get_genre(self, pk):
         return get_object_or_404(Genre, pk=pk)
@@ -259,6 +283,25 @@ class GenreApiView(APIView):
             status=status.HTTP_200_OK
         )
 
+
+@extend_schema_view(
+    get=extend_schema(tags=["genres"], operation_id="listGenres"),
+    post=extend_schema(tags=["genres"], operation_id="createGenre"),
+)
+
+class GenreListApiView(GenreApiView):
+    http_method_names = ["get", "post", "head", "options"]
+
+
+@extend_schema_view(
+    get=extend_schema(tags=["genres"], operation_id="getGenre"),
+    put=extend_schema(tags=["genres"], operation_id="replaceGenre"),
+    patch=extend_schema(tags=["genres"], operation_id="partialUpdateGenre"),
+    delete=extend_schema(tags=["genres"], operation_id="deleteGenre"),
+)
+class GenreDetailApiView(GenreApiView):
+    http_method_names = ["get", "put", "patch", "delete", "head", "options"]
+
 # =========================
 # MOVIE
 # =========================
@@ -266,6 +309,8 @@ class GenreApiView(APIView):
 class MovieApiView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [MovieApiPermission]
+    serializer_class = MovieSerializer
+    queryset = Movie.objects.all()
 
     def get_queryset(self):
         return (
@@ -359,7 +404,7 @@ class MovieApiView(APIView):
             return Response(
                 {
                     "message": "Movie created successfully.",
-                    "movie": MovieSerializer(movie).data,
+                    "movie": MovieSerializer(movie, context={"request": request}).data,
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -382,7 +427,7 @@ class MovieApiView(APIView):
             return Response(
                 {
                     "message": "Movie updated successfully.",
-                    "movie": MovieSerializer(updated_movie).data,
+                    "movie": MovieSerializer(updated_movie, context={"request": request}).data,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -405,7 +450,7 @@ class MovieApiView(APIView):
             return Response(
                 {
                     "message": "Movie updated successfully.",
-                    "movie": MovieSerializer(updated_movie).data,
+                    "movie": MovieSerializer(updated_movie, context={"request": request}).data,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -422,7 +467,7 @@ class MovieApiView(APIView):
             return error_response
 
         movie = self.get_movie(pk)
-        movie_data = MovieSerializer(movie).data
+        movie_data = MovieSerializer(movie, context={"request": request}).data
         movie.delete()
 
         return Response(
@@ -433,6 +478,24 @@ class MovieApiView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
+@extend_schema_view(
+    get=extend_schema(tags=["movies"], operation_id="listMovies"),
+    post=extend_schema(tags=["movies"], operation_id="createMovie"),
+)
+class MovieListApiView(MovieApiView):
+    http_method_names = ["get", "post", "head", "options"]
+
+
+@extend_schema_view(
+    get=extend_schema(tags=["movies"], operation_id="getMovie"),
+    put=extend_schema(tags=["movies"], operation_id="replaceMovie"),
+    patch=extend_schema(tags=["movies"], operation_id="partialUpdateMovie"),
+    delete=extend_schema(tags=["movies"], operation_id="deleteMovie"),
+)
+class MovieDetailApiView(MovieApiView):
+    http_method_names = ["get", "put", "patch", "delete", "head", "options"]
+
 # =========================
 # RATING
 # =========================
@@ -440,6 +503,8 @@ class MovieApiView(APIView):
 class RatingApiView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [RatingApiPermission]
+    serializer_class = RatingSerializer
+    queryset = Rating.objects.all()
 
     def get_queryset(self):
         return Rating.objects.select_related("user", "movie").all()
@@ -489,14 +554,14 @@ class RatingApiView(APIView):
             if mine and mine.lower() in {"1", "true", "yes"}:
                 ratings = ratings.filter(user=request.user)
 
-            serializer = RatingSerializer(ratings, many=True)
+            serializer = RatingSerializer(ratings, many=True, context={"request": request})
             return Response(
                 {"ratings": serializer.data},
                 status=status.HTTP_200_OK,
             )
 
         rating = self.get_rating(request, pk)
-        serializer = RatingSerializer(rating)
+        serializer = RatingSerializer(rating, context={"request": request})
 
         return Response(
             {"rating": serializer.data},
@@ -521,7 +586,7 @@ class RatingApiView(APIView):
             return Response(
                 {
                     "message": "Rating created successfully.",
-                    "rating": RatingSerializer(rating).data,
+                    "rating": RatingSerializer(rating, context={"request": request}).data,
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -549,7 +614,7 @@ class RatingApiView(APIView):
             return Response(
                 {
                     "message": "Rating updated successfully.",
-                    "rating": RatingSerializer(updated_rating).data,
+                    "rating": RatingSerializer(updated_rating, context={"request": request}).data,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -578,7 +643,7 @@ class RatingApiView(APIView):
             return Response(
                 {
                     "message": "Rating updated successfully.",
-                    "rating": RatingSerializer(updated_rating).data,
+                    "rating": RatingSerializer(updated_rating, context={"request": request}).data,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -595,7 +660,7 @@ class RatingApiView(APIView):
             return error_response
 
         rating = self.get_rating(request, pk)
-        rating_data = RatingSerializer(rating).data
+        rating_data = RatingSerializer(rating, context={"request": request}).data
         rating.delete()
 
         return Response(
@@ -606,6 +671,24 @@ class RatingApiView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
+@extend_schema_view(
+    get=extend_schema(tags=["ratings"], operation_id="listRatings"),
+    post=extend_schema(tags=["ratings"], operation_id="createRating"),
+)
+class RatingListApiView(RatingApiView):
+    http_method_names = ["get", "post", "head", "options"]
+
+
+@extend_schema_view(
+    get=extend_schema(tags=["ratings"], operation_id="getRating"),
+    put=extend_schema(tags=["ratings"], operation_id="replaceRating"),
+    patch=extend_schema(tags=["ratings"], operation_id="partialUpdateRating"),
+    delete=extend_schema(tags=["ratings"], operation_id="deleteRating"),
+)
+class RatingDetailApiView(RatingApiView):
+    http_method_names = ["get", "put", "patch", "delete", "head", "options"]
+
 # =========================
 # COMMENT
 # =========================
@@ -613,6 +696,8 @@ class RatingApiView(APIView):
 class CommentApiView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [CommentApiPermission]
+    serializer_class = CommentSerializer
+    queryset = Comment.objects.all()
 
     def get_queryset(self):
         return (
@@ -801,6 +886,24 @@ class CommentApiView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
+@extend_schema_view(
+    get=extend_schema(tags=["comments"], operation_id="listComments"),
+    post=extend_schema(tags=["comments"], operation_id="createComment"),
+)
+class CommentListApiView(CommentApiView):
+    http_method_names = ["get", "post", "head", "options"]
+
+
+@extend_schema_view(
+    get=extend_schema(tags=["comments"], operation_id="getComment"),
+    put=extend_schema(tags=["comments"], operation_id="replaceComment"),
+    patch=extend_schema(tags=["comments"], operation_id="partialUpdateComment"),
+    delete=extend_schema(tags=["comments"], operation_id="deleteComment"),
+)
+class CommentDetailApiView(CommentApiView):
+    http_method_names = ["get", "put", "patch", "delete", "head", "options"]
+
 # =========================
 # REPORT
 # =========================
@@ -808,6 +911,8 @@ class CommentApiView(APIView):
 class ReportApiView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [ReportApiPermission]
+    serializer_class = ReportSerializer
+    queryset = Report.objects.all()
 
     def get_queryset(self):
         return (
@@ -1006,3 +1111,21 @@ class ReportApiView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+@extend_schema_view(
+    get=extend_schema(tags=["reports"], operation_id="listReports"),
+    post=extend_schema(tags=["reports"], operation_id="createReport"),
+)
+class ReportListApiView(ReportApiView):
+    http_method_names = ["get", "post", "head", "options"]
+
+
+@extend_schema_view(
+    get=extend_schema(tags=["reports"], operation_id="getReport"),
+    put=extend_schema(tags=["reports"], operation_id="replaceReport"),
+    patch=extend_schema(tags=["reports"], operation_id="partialUpdateReport"),
+    delete=extend_schema(tags=["reports"], operation_id="deleteReport"),
+)
+class ReportDetailApiView(ReportApiView):
+    http_method_names = ["get", "put", "patch", "delete", "head", "options"]

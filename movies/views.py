@@ -8,15 +8,6 @@ from django.views.generic import UpdateView
 from .forms import AuthorForm, GenreForm, MovieForm
 from .models import Movie, Genre, Author, Rating
 
-#TODO: go over permissions and make sure it matches the user levels are design
-# Here i need to connect this class to a url
-class TestView(View):
-    http_method_names = ["get"]
-
-    def get(self, request, *args, **kwargs):
-        # there can be a logic to process data from database bla bla
-        context = {"data": 1}
-        return render(request, "movies/test.html", context=context)
 
 class IndexView(View):
     http_method_names = ["get"]

@@ -9,7 +9,6 @@ urlpatterns = [
 
     # Home
     path("", movies_v.IndexView.as_view(), name="index"),
-    path("test/", movies_v.TestView.as_view(), name="test"),
 
     # -------------------------
     # Movies
@@ -41,36 +40,36 @@ urlpatterns = [
     # -------------------------
     # Authors API
     # -------------------------
-    path("api/authors/", movies_api_v.AuthorApiView.as_view(), name="author_api"),
-    path("api/authors/<int:pk>/", movies_api_v.AuthorApiView.as_view(), name="author_detail_api"),
+    path("api/authors/", movies_api_v.AuthorListApiView.as_view(), name="author_api"),
+    path("api/authors/<int:pk>/", movies_api_v.AuthorDetailApiView.as_view(), name="author_detail_api"),
 
     # -------------------------
     # Genres API
     # -------------------------
-    path("api/genres/", movies_api_v.GenreApiView.as_view(), name="genre_api"),
-    path("api/genres/<int:pk>/", movies_api_v.GenreApiView.as_view(), name="genre_detail_api"),
+    path("api/genres/", movies_api_v.GenreListApiView.as_view(), name="genre_api"),
+    path("api/genres/<int:pk>/", movies_api_v.GenreDetailApiView.as_view(), name="genre_detail_api"),
 
     # -------------------------
     # Movies API
     # -------------------------
-    path("api/movies/", movies_api_v.MovieApiView.as_view(), name="movie_api"),
-    path("api/movies/<int:pk>/", movies_api_v.MovieApiView.as_view(), name="movie_detail_api"),
+    path("api/movies/", movies_api_v.MovieListApiView.as_view(), name="movie_api"),
+    path("api/movies/<int:pk>/", movies_api_v.MovieDetailApiView.as_view(), name="movie_detail_api"),
 
     # -------------------------
     # Ratings API
     # -------------------------
-    path("api/ratings/", movies_api_v.RatingApiView.as_view(), name="rating_api"),
-    path("api/ratings/<int:pk>/", movies_api_v.RatingApiView.as_view(), name="rating_detail_api"),
+    path("api/ratings/", movies_api_v.RatingListApiView.as_view(), name="rating_api"),
+    path("api/ratings/<int:pk>/", movies_api_v.RatingDetailApiView.as_view(), name="rating_detail_api"),
 
     # -------------------------
     # Comments API
     # -------------------------
-    path("api/comments/", movies_api_v.CommentApiView.as_view(), name="comment_api"),
-    path("api/comments/<int:pk>/", movies_api_v.CommentApiView.as_view(), name="comment_detail_api"),
+    path("api/comments/", movies_api_v.CommentListApiView.as_view(), name="comment_api"),
+    path("api/comments/<int:pk>/", movies_api_v.CommentDetailApiView.as_view(), name="comment_detail_api"),
 
     # -------------------------
     # Reports API
     # -------------------------
-    path("api/reports/", movies_api_v.ReportApiView.as_view(), name="report_api"),
-    path("api/reports/<int:pk>/", movies_api_v.ReportApiView.as_view(), name="report_detail_api"),
+    path("api/reports/", movies_api_v.ReportListApiView.as_view(), name="report_api"),
+    path("api/reports/<int:pk>/", movies_api_v.ReportDetailApiView.as_view(), name="report_detail_api"),
 ]

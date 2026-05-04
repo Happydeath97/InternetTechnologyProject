@@ -1,7 +1,6 @@
 from django.urls import path
 from users import views as users_v
-from .api_views import BanApiView
-
+from .api_views import BanListApiView, BanDetailApiView
 
 urlpatterns = [
     # =========================================================
@@ -19,6 +18,6 @@ urlpatterns = [
     # -------------------------
     # Ban API
     # -------------------------
-    path("api/bans/", BanApiView.as_view(), name="api-ban-list"),
-    path("api/bans/<int:pk>/", BanApiView.as_view(), name="api-ban-detail"),
+    path("api/bans/", BanListApiView.as_view(), name="ban_api"),
+    path("api/bans/<int:pk>/", BanDetailApiView.as_view(), name="ban_detail_api"),
 ]

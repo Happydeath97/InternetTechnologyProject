@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 
+from drf_spectacular.utils import extend_schema, extend_schema_view
+
 from .models import Ban
 from .permissions import BanApiPermission
 from .serializers import BanSerializer
@@ -15,6 +17,8 @@ from .serializers import BanSerializer
 class BanApiView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [BanApiPermission]
+    serializer_class = BanSerializer
+    queryset = Ban.objects.all()
 
     def get_queryset(self):
         return (
@@ -228,3 +232,21 @@ class BanApiView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+@extend_schema_view(
+    get=extend_schema(tags=["bans"], operation_id="listBans"),
+    post=extend_schema(tags=["bans"], operation_id="createBan"),
+)
+class BanListApiView(BanApiView):
+    http_method_names = ["get", "post", "head", "options"]
+
+
+@extend_schema_view(
+    get=extend_schema(tags=["bans"], operation_id="getBan"),
+    put=extend_schema(tags=["bans"], operation_id="replaceBan"),
+    patch=extend_schema(tags=["bans"], operation_id="partialUpdateBan"),
+    delete=extend_schema(tags=["bans"], operation_id="deleteBan"),
+)
+class BanDetailApiView(BanApiView):
+    http_method_names = ["get", "put", "patch", "delete", "head", "options"]
