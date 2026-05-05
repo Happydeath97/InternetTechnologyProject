@@ -60,3 +60,7 @@ class MovieForm(forms.ModelForm):
             raise forms.ValidationError("Release year must be 1888 or later.")
 
         return release_year
+
+
+class RatingVoteForm(forms.Form):
+    score = forms.IntegerField(min_value=1, max_value=10)

@@ -9,17 +9,39 @@
 
 {% block content %}
     <section class="form-page">
-        <h1>Update Genre</h1>
+        <div class="form-container">
+            <h1>Update Genre</h1>
 
-        <form method="post">
-            {% csrf_token %}
+            <form
+                id="genre-update-form"
+                data-detail-api-url="{% url 'genre_detail_api' genre_id %}"
+                data-update-api-url="{% url 'genre_update_api' genre_id %}"
+                data-redirect-url="{% url 'genre_list' %}"
+            >
+                {% csrf_token %}
 
-            {{ form.as_p }}
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                    >
+                    <div id="name-errors" class="form-errors"></div>
+                </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn">Update</button>
-                <a href="{% url 'genre_list' %}" class="btn">Cancel</a>
-            </div>
-        </form>
+                <div id="form-errors" class="form-errors"></div>
+
+                <div class="form-actions">
+                    <a href="{% url 'genre_list' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn">Update genre</button>
+                </div>
+            </form>
+        </div>
     </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/movies/genre/genre_update.js' %}"></script>
 {% endblock %}
