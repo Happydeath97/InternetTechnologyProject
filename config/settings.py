@@ -47,6 +47,38 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "MoviePulse API",
+    "DESCRIPTION": (
+        "MoviePulse REST API documentation. "
+        "Includes endpoints for authors, genres, movies, ratings, comments, reports, and bans."
+    ),
+    "VERSION": "0.1.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "LICENSE": {
+        "name": "BSD 3-Clause License",
+        "url": "https://spdx.org/licenses/BSD-3-Clause.html",
+    },
+    "CONTACT": {
+        "name": "MoviePulse Development Team",
+    },
+    "SERVERS": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Local Django development server",
+        }
+    ],
+    "TAGS": [
+        {"name": "authors", "description": "Author listing and management"},
+        {"name": "genres", "description": "Genre listing and management"},
+        {"name": "movies", "description": "Movie browsing and management"},
+        {"name": "ratings", "description": "Movie rating records"},
+        {"name": "comments", "description": "Movie comments and replies"},
+        {"name": "reports", "description": "Reports for movies or comments"},
+        {"name": "bans", "description": "Administrative ban management"},
+    ],
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

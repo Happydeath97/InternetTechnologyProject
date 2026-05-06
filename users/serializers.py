@@ -1,7 +1,10 @@
+from builtins import bool
+
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 
 from .models import Ban
 
@@ -68,22 +71,24 @@ class BanSerializer(serializers.ModelSerializer):
             "can_revoke",
         ]
 
+    @extend_schema_field(serializers.DictField())
     def get_user(self, obj):
         return {
             "id": obj.user.id,
             "username": obj.user.username,
         }
 
+    @extend_schema_field(serializers.DictField())
     def get_admin(self, obj):
         return {
             "id": obj.admin.id,
             "username": obj.admin.username,
         }
 
-    def get_is_active(self, obj):
+    def get_is_active(self, obj) -> bool:
         return obj.is_active_now()
 
-    def get_can_update(self, obj):
+    def get_can_update(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 
@@ -92,7 +97,7 @@ class BanSerializer(serializers.ModelSerializer):
 
         return user.has_perm("users.change_ban")
 
-    def get_can_delete(self, obj):
+    def get_can_delete(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 
@@ -101,7 +106,7 @@ class BanSerializer(serializers.ModelSerializer):
 
         return user.has_perm("users.delete_ban")
 
-    def get_can_revoke(self, obj):
+    def get_can_revoke(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 

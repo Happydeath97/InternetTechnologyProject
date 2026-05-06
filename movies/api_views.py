@@ -288,7 +288,6 @@ class GenreApiView(APIView):
     get=extend_schema(tags=["genres"], operation_id="listGenres"),
     post=extend_schema(tags=["genres"], operation_id="createGenre"),
 )
-
 class GenreListApiView(GenreApiView):
     http_method_names = ["get", "post", "head", "options"]
 

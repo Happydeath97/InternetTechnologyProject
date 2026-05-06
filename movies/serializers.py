@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 
 from django.db.models import Avg
 
@@ -10,7 +11,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = ["id", "full_name", "date_of_birth"]
 
-    def validate_full_name(self, value):
+    def validate_full_name(self, value) -> str:
         value = value.strip().lower()
 
         if not value:
@@ -24,7 +25,7 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         fields = ["id", "name"]
 
-    def validate_name(self, value):
+    def validate_name(self, value) -> str:
         value = value.strip().lower()
 
         if not value:
@@ -82,19 +83,20 @@ class MovieSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-    def validate_title(self, value):
+    def validate_title(self, value) -> str:
         value = value.strip()
         if not value:
             raise serializers.ValidationError("Title cannot be empty.")
         return value
 
-    def validate_description(self, value):
+    def validate_description(self, value) -> str:
         value = value.strip()
         if not value:
             raise serializers.ValidationError("Description cannot be empty.")
         return value
 
-    def get_authors(self, obj):
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    def get_authors(self, obj) -> list[dict]:
         return [
             {
                 "id": author.id,
@@ -103,7 +105,8 @@ class MovieSerializer(serializers.ModelSerializer):
             for author in obj.author.all()
         ]
 
-    def get_genres(self, obj):
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    def get_genres(self, obj) -> list[dict]:
         return [
             {
                 "id": genre.id,
@@ -112,7 +115,7 @@ class MovieSerializer(serializers.ModelSerializer):
             for genre in obj.genre.all()
         ]
 
-    def get_avg_rating(self, obj):
+    def get_avg_rating(self, obj) -> float | None:
         avg = getattr(obj, "avg_rating", None)
 
         if avg is None:
@@ -123,7 +126,7 @@ class MovieSerializer(serializers.ModelSerializer):
 
         return round(float(avg), 1)
 
-    def get_can_report(self, obj):
+    def get_can_report(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 
@@ -132,7 +135,7 @@ class MovieSerializer(serializers.ModelSerializer):
 
         return user.has_perm("movies.add_report")
 
-    def create(self, validated_data):
+    def create(self, validated_data) -> Movie:
         authors = validated_data.pop("author", [])
         genres = validated_data.pop("genre", [])
 
@@ -142,7 +145,7 @@ class MovieSerializer(serializers.ModelSerializer):
 
         return movie
 
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data) -> Movie:
         authors = validated_data.pop("author", None)
         genres = validated_data.pop("genre", None)
 
@@ -191,13 +194,14 @@ class RatingSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-    def get_movie(self, obj):
+    @extend_schema_field(serializers.DictField())
+    def get_movie(self, obj) -> dict:
         return {
             "id": obj.movie.id,
             "title": obj.movie.title,
         }
 
-    def validate_score(self, value):
+    def validate_score(self, value) -> int:
         if value < 1 or value > 10:
             raise serializers.ValidationError("Score must be between 1 and 10.")
         return value
@@ -261,10 +265,10 @@ class CommentSerializer(serializers.ModelSerializer):
             "can_report",
         ]
 
-    def _is_admin_group(self, user):
+    def _is_admin_group(self, user) -> bool:
         return user.is_superuser or user.groups.filter(name="Admin").exists()
 
-    def get_can_edit(self, obj):
+    def get_can_edit(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 
@@ -276,7 +280,7 @@ class CommentSerializer(serializers.ModelSerializer):
             and obj.user_id == user.id
         )
 
-    def get_can_delete(self, obj):
+    def get_can_delete(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 
@@ -291,7 +295,7 @@ class CommentSerializer(serializers.ModelSerializer):
             )
         )
 
-    def get_can_report(self, obj):
+    def get_can_report(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 
@@ -300,7 +304,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
         return user.has_perm("movies.add_report")
 
-    def get_replies(self, obj):
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    def get_replies(self, obj) -> list[dict]:
         replies = obj.replies.all().select_related("user").order_by("created_at")
         return CommentSerializer(replies, many=True, context=self.context).data
 
@@ -365,7 +370,7 @@ class ReportSerializer(serializers.ModelSerializer):
             "can_resolve",
         ]
 
-    def get_movie(self, obj):
+    def get_movie(self, obj) -> dict | None:
         if obj.movie is None:
             return None
 
@@ -374,7 +379,7 @@ class ReportSerializer(serializers.ModelSerializer):
             "title": obj.movie.title,
         }
 
-    def get_comment(self, obj):
+    def get_comment(self, obj) -> dict | None:
         if obj.comment is None:
             return None
 
@@ -384,10 +389,10 @@ class ReportSerializer(serializers.ModelSerializer):
             "movie_id": obj.comment.movie_id,
         }
 
-    def _is_admin_group(self, user):
+    def _is_admin_group(self, user) -> bool:
         return user.is_superuser or user.groups.filter(name="Admin").exists()
 
-    def get_can_update(self, obj):
+    def get_can_update(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 
@@ -396,7 +401,7 @@ class ReportSerializer(serializers.ModelSerializer):
 
         return user.has_perm("movies.change_report")
 
-    def get_can_delete(self, obj):
+    def get_can_delete(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 
@@ -405,7 +410,7 @@ class ReportSerializer(serializers.ModelSerializer):
 
         return user.has_perm("movies.delete_report")
 
-    def get_can_resolve(self, obj):
+    def get_can_resolve(self, obj) -> bool:
         request = self.context.get("request")
         user = getattr(request, "user", None)
 
@@ -414,7 +419,7 @@ class ReportSerializer(serializers.ModelSerializer):
 
         return user.has_perm("movies.change_report")
 
-    def validate_reason(self, value):
+    def validate_reason(self, value) -> str:
         value = value.strip()
 
         if not value:
@@ -422,7 +427,7 @@ class ReportSerializer(serializers.ModelSerializer):
 
         return value
 
-    def validate_status(self, value):
+    def validate_status(self, value) -> str:
         allowed_statuses = {choice[0] for choice in Report.Status.choices}
         if value not in allowed_statuses:
             raise serializers.ValidationError("Invalid report status.")
