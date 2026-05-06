@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     'users',
-    'movies',
+    "movies.apps.MoviesConfig",
 ]
 
 REST_FRAMEWORK = {
@@ -54,10 +54,12 @@ SPECTACULAR_SETTINGS = {
         "Includes endpoints for authors, genres, movies, ratings, comments, reports, and bans."
     ),
     "VERSION": "0.1.0",
-    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SERVE_INCLUDE_SCHEMA": True,
     "LICENSE": {
         "name": "BSD 3-Clause License",
-        "url": "https://spdx.org/licenses/BSD-3-Clause.html",
+        "url": "https://spdx.org/licenses/BSD-3-Clause.html"
+               "",
     },
     "CONTACT": {
         "name": "MoviePulse Development Team",
@@ -156,3 +158,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

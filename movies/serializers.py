@@ -39,6 +39,8 @@ class MovieSerializer(serializers.ModelSerializer):
     genres = serializers.SerializerMethodField(read_only=True)
     avg_rating = serializers.SerializerMethodField(read_only=True)
     can_report = serializers.SerializerMethodField(read_only=True)
+    image_url = serializers.SerializerMethodField(read_only=True)
+    image = serializers.ImageField(required=False, allow_null=True)
 
     author_ids = serializers.PrimaryKeyRelatedField(
         source="author",
@@ -64,6 +66,8 @@ class MovieSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "release_year",
+            "image",
+            "image_url",
             "authors",
             "genres",
             "author_ids",
@@ -79,6 +83,7 @@ class MovieSerializer(serializers.ModelSerializer):
             "created_by",
             "avg_rating",
             "can_report",
+            "image_url",
             "created_at",
             "updated_at",
         ]
@@ -114,6 +119,17 @@ class MovieSerializer(serializers.ModelSerializer):
             }
             for genre in obj.genre.all()
         ]
+
+    def get_image_url(self, obj) -> str | None:
+        request = self.context.get("request")
+
+        if not obj.image:
+            return None
+
+        if request:
+            return request.build_absolute_uri(obj.image.url)
+
+        return obj.image.url
 
     def get_avg_rating(self, obj) -> float | None:
         avg = getattr(obj, "avg_rating", None)

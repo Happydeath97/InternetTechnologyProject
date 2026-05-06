@@ -1,7 +1,11 @@
+import os
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+
+from .utils import movie_image_upload_path
 
 
 class Genre(models.Model):
@@ -52,14 +56,45 @@ class Movie(models.Model):
         on_delete=models.PROTECT,
         related_name='created_movies'
     )
+
     title = models.CharField(max_length=255)
     description = models.TextField()
-    release_year = models.PositiveIntegerField()
+    release_year = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1888),
+            MaxValueValidator(2100),
+        ]
+    )
+
+    image = models.ImageField(
+        upload_to=movie_image_upload_path,
+        blank=True,
+        null=True
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['title']
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.image:
+            ext = self.image.name.split('.')[-1].lower()
+            correct_path = f"movies/movie_picture_{self.id}.{ext}"
+
+            if self.image.name != correct_path:
+                old_path = self.image.path
+                new_path = os.path.join(settings.MEDIA_ROOT, correct_path)
+
+                os.makedirs(os.path.dirname(new_path), exist_ok=True)
+
+                os.rename(old_path, new_path)
+
+                self.image.name = correct_path
+                super().save(update_fields=["image"])
 
     def __str__(self):
         return self.title
