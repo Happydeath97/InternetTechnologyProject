@@ -4,7 +4,8 @@ target/
 !**/src/test/**/target/
 .venv/
 db.sqlite3
-media/
+/media/*
+!/media/.gitkeep
 
 ### STS ###
 .apt_generated
