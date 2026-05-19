@@ -4,13 +4,13 @@ MoviePulse is a centralized web application for movie enthusiasts to discover, r
 The platform is implemented as a database-driven web application using Django and follows a layered architecture
 with role-based access control ranging from guests to superadmins.
 
-[![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://spdx.org/licenses/BSD-3-Clause.html)
 
 #### Contents:
 - [Analysis](#analysis)
     - [Scenario](#scenario)
     - [User Stories](#user-stories)
-    - [Use Case](#use-case)
+    - [Use Cases](#use-cases)
 - [Design](#design)
     - [Domain Design](#domain-design)
     - [ER Diagram](#er-diagram)
@@ -43,7 +43,7 @@ data quality by managing metadata and moderating discussions.
 | **3** | **Admin**      | **Moderator:** Includes all Editor permissions. Can delete inappropriate comments, review reported comments, ban users, and manage movie records with full CRUD functionality when necessary. |
 | **4** | **Superadmin** | **System Owner:** Includes all Admin permissions. Has full CRUD authority over all entities, can manage privileged accounts and permissions, and can access protected administrative views and system-level controls. |
 
-### User Stories (To be extended)
+### User Stories
 1. **As a [Guest]**, I want to access the main page without logging in so that I can immediately use the platform.
 2. **As a [Guest]**, I want to browse a public list of movies so that I can discover available content.
 3. **As a [Guest]**, I want to filter movies by attributes such as title, genre, or year so that I can find specific movies more efficiently.
@@ -392,6 +392,18 @@ If the data model changes, generate and apply new migrations:
 python manage.py makemigrations
 python manage.py migrate
 ```
+
+### 9. Generate API documentation
+
+The OpenAPI API description is generated automatically with `drf-spectacular`. <br>
+The generated API description is stored here: `extra_documentation/API_list.json`
+
+To regenerate the API documentation, run:
+```bash
+python manage.py spectacular --format openapi-json --file extra_documentation/API_list.json --validate
+```
+The Swagger UI is available while the development server is running: http://127.0.0.1:8000/api/docs/ <br>
+The raw schema endpoint is available at: http://127.0.0.1:8000/api/schema/
 
 ### Notes
 - Make sure the virtual environment is activated before running Django commands.

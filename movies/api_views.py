@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
@@ -18,6 +19,7 @@ from .serializers import (AuthorSerializer, GenreSerializer, RatingSerializer,
 # =========================
 # AUTHOR
 # =========================
+
 
 class AuthorApiView(APIView):
     authentication_classes = [SessionAuthentication]
@@ -159,6 +161,7 @@ class AuthorDetailApiView(AuthorApiView):
 # GENRE
 # =========================
 
+
 class GenreApiView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [GenreApiPermission]
@@ -288,7 +291,6 @@ class GenreApiView(APIView):
     get=extend_schema(tags=["genres"], operation_id="listGenres"),
     post=extend_schema(tags=["genres"], operation_id="createGenre"),
 )
-
 class GenreListApiView(GenreApiView):
     http_method_names = ["get", "post", "head", "options"]
 
@@ -306,9 +308,11 @@ class GenreDetailApiView(GenreApiView):
 # MOVIE
 # =========================
 
+
 class MovieApiView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [MovieApiPermission]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = MovieSerializer
     queryset = Movie.objects.all()
 
@@ -398,7 +402,7 @@ class MovieApiView(APIView):
                 status=status.HTTP_405_METHOD_NOT_ALLOWED,
             )
 
-        serializer = MovieSerializer(data=request.data)
+        serializer = MovieSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             movie = serializer.save(created_by=request.user)
             return Response(
@@ -421,7 +425,8 @@ class MovieApiView(APIView):
             return error_response
 
         movie = self.get_movie(pk)
-        serializer = MovieSerializer(movie, data=request.data)
+        serializer = MovieSerializer(movie, data=request.data, context={"request": request})
+
         if serializer.is_valid():
             updated_movie = serializer.save()
             return Response(
@@ -444,7 +449,8 @@ class MovieApiView(APIView):
             return error_response
 
         movie = self.get_movie(pk)
-        serializer = MovieSerializer(movie, data=request.data, partial=True)
+        serializer = MovieSerializer(movie, data=request.data, partial=True, context={"request": request})
+
         if serializer.is_valid():
             updated_movie = serializer.save()
             return Response(
@@ -499,6 +505,7 @@ class MovieDetailApiView(MovieApiView):
 # =========================
 # RATING
 # =========================
+
 
 class RatingApiView(APIView):
     authentication_classes = [SessionAuthentication]
@@ -692,6 +699,7 @@ class RatingDetailApiView(RatingApiView):
 # =========================
 # COMMENT
 # =========================
+
 
 class CommentApiView(APIView):
     authentication_classes = [SessionAuthentication]
@@ -907,6 +915,7 @@ class CommentDetailApiView(CommentApiView):
 # =========================
 # REPORT
 # =========================
+
 
 class ReportApiView(APIView):
     authentication_classes = [SessionAuthentication]
