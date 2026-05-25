@@ -242,6 +242,17 @@
     border: 1px solid #222;
     border-radius: 14px;
     background: #151515;
+
+
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.genre-card:hover {
+    transform: translateY(-6px);
+    color: #ff4b55;
 }
 
 .genre-card span {

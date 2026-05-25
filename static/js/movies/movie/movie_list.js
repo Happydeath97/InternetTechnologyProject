@@ -19,6 +19,9 @@ let selectedMinRating = 0;
 
 
 document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    selectedGenre = params.get("genre") || "";
+
     populateReleaseYears();
     loadGenres();
     loadMovies();
@@ -171,6 +174,11 @@ function renderGenreFilters(genres) {
         button.className = "genre-filter";
         button.dataset.genre = genre.name;
         button.textContent = genre.name;
+
+        if (genre.name === selectedGenre) {
+            button.classList.add("active");
+            document.querySelector('[data-genre=""]').classList.remove("active");
+        }
 
         button.addEventListener("click", () => {
             selectedGenre = genre.name;

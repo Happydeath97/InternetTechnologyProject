@@ -106,11 +106,15 @@
     </div>
 
     <div class="genre-grid">
-        <div class="genre-card"><span></span><h3>Action</h3><p>2 films</p></div>
-        <div class="genre-card"><span></span><h3>Comedy</h3><p>1 films</p></div>
-        <div class="genre-card"><span></span><h3>Drama</h3><p>2 films</p></div>
-        <div class="genre-card"><span></span><h3>Horror</h3><p>1 films</p></div>
-        <div class="genre-card"><span></span><h3>Sci-Fi</h3><p>1 films</p></div>
+        {% for genre in genres %}
+            <a href="{% url 'movie_list' %}?genre={{ genre.name|urlencode }}" class="genre-card">
+                <span></span>
+                <h3>{{ genre.name }}</h3>
+                <p>{{ genre.movie_count }} films</p>
+            </a>
+        {% empty %}
+            <p>No genres available.</p>
+        {% endfor %}
     </div>
 </section>
 
