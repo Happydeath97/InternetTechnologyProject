@@ -1,33 +1,99 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Movies | MoviePulse{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/movies/movie_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/movies/movie_list.css' %}">
 {% endblock %}
 
 {% block content %}
-    <div>
-        <h1>Movies</h1>
 
-        {% if perms.movies.add_movie %}
-            <div class="entity-actions">
-                <a href="{% url 'movie_create' %}" class="btn">Add Movie</a>
+<section class="movie-list-page">
+
+    <div class="movie-list-header">
+        <div>
+            <h1>All Movies</h1>
+            <p><span id="movie-count">0</span> titles in catalogue</p>
+        </div>
+    </div>
+
+    <div class="movie-layout">
+
+        <aside class="filter-panel">
+            <h2>Filters</h2>
+
+            <div class="filter-group">
+                <label for="movie-search">Search</label>
+                <input
+                    type="text"
+                    id="movie-search"
+                    placeholder="Movie title..."
+                >
             </div>
-        {% endif %}
+
+            <div class="filter-group">
+                <label>Genre</label>
+
+                <div class="genre-filter-list" id="genre-filter-list">
+                    <button class="genre-filter active" data-genre="">All Genres</button>
+                    <!-- JS will insert genres here later -->
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label for="release-year">Release Year</label>
+                <select id="release-year">
+                    <option value="">Any year</option>
+                    <!-- JS will insert years later -->
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="min-rating">
+                    Min. Rating: <span id="min-rating-label">Any</span>
+                </label>
+
+                <input
+                    type="range"
+                    id="min-rating"
+                    min="0"
+                    max="10"
+                    step="0.5"
+                    value="0"
+                >
+
+                <div class="range-labels">
+                    <span>0</span>
+                    <span>10</span>
+                </div>
+            </div>
+        </aside>
+
+        <section class="movie-results-section">
+            <div class="movie-results-toolbar">
+                <p><span id="result-count">0</span> results</p>
+
+                <select id="movie-sort">
+                    <option value="title_asc">A–Z</option>
+                    <option value="title_desc">Z–A</option>
+                    <option value="rating_desc">Highest rating</option>
+                    <option value="year_desc">Newest</option>
+                    <option value="year_asc">Oldest</option>
+                </select>
+            </div>
+
+            <div class="movie-results-grid" id="movie-results-grid">
+                <!-- JS will insert movie cards here later -->
+            </div>
+        </section>
+
     </div>
 
-    <div
-        class="entity-list"
-        id="movies-list"
-        data-api-url="{% url 'movie_list_api' %}"
-        data-detail-url-template="{% url 'movie_detail' 0 %}"
-    >
-        <p>Loading movies...</p>
-    </div>
+</section>
+
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/movies/movie/movie_list.js' %}"></script>
+<script src="{% static 'js/movies/movie/movie_list.js' %}"></script>
 {% endblock %}
