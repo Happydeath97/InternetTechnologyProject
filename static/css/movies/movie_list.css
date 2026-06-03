@@ -260,3 +260,56 @@
     font-size: 14px;
     font-weight: 500;
 }
+
+.movie-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.movie-create-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 14px;
+    border: 1px solid #ffffff;
+    background: #ffffff;
+    color: #000000;
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.movie-create-button:hover {
+    background: #f2f2f2;
+    border-color: #f2f2f2;
+    color: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 34px rgba(255, 255, 255, 0.12);
+}
+
+.movie-create-button:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 760px) {
+    .movie-list-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .movie-create-button {
+        width: 100%;
+    }
+}

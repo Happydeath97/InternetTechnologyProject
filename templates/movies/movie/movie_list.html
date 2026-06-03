@@ -12,10 +12,16 @@
 <section class="movie-list-page">
 
     <div class="movie-list-header">
-        <div>
+        <div class="movie-list-title-block">
             <h1>All Movies</h1>
             <p><span id="movie-count">0</span> titles in catalogue</p>
         </div>
+
+        {% if perms.movies.add_movie %}
+            <a href="{% url 'movie_create' %}" class="movie-create-button">
+                + Add Movie
+            </a>
+        {% endif %}
     </div>
 
     <div class="movie-layout">

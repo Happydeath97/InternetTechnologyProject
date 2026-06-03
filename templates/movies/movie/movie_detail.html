@@ -5,72 +5,133 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/movies/movie_detail.css' %}">
-    <link rel="stylesheet" href="{% static 'css/rating/rating_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/movies/movie_detail_discussion.css' %}">
 {% endblock %}
 
 {% block content %}
-    <article class="detail-page" id="movie-detail-page" data-movie-id="{{ movie_id }}">
-        <div class="detail-header">
-            <h1 class="detail-title" id="movie-title">Loading...</h1>
 
-            <div class="detail-meta" id="movie-meta">
-                <div class="movie-rating-row">
-                    <p class="movie-rating-summary">
-                        <strong>Average rating:</strong>
-                        <span id="movie-avg-rating">Loading...</span>
+<article
+    class="movie-detail-page"
+    id="movie-detail-page"
+    data-movie-id="{{ movie_id }}"
+    data-movie-api-url="{% url 'movie_detail_api' movie_id %}"
+    data-ratings-api-url="{% url 'rating_api' %}"
+    data-movie-list-url="{% url 'movie_list' %}"
+    data-movie-edit-url="{% url 'movie_update' movie_id %}"
+    data-can-rate="{% if perms.movies.add_rating %}true{% else %}false{% endif %}"
+    data-can-change-rating="{% if perms.movies.change_rating %}true{% else %}false{% endif %}"
+    data-can-delete-rating="{% if perms.movies.delete_rating %}true{% else %}false{% endif %}"
+    data-comments-api-url="{% url 'comment_api' %}"
+    data-can-comment="{% if perms.movies.add_comment %}true{% else %}false{% endif %}"
+    data-login-url="{% url 'login' %}"
+    data-register-url="{% url 'register' %}"
+    data-reports-api-url="{% url 'report_api' %}"
+>
+    <a href="{% url 'movie_list' %}" class="movie-detail-back-link">
+        ‹ Back to Movies
+    </a>
+
+    <section class="movie-detail-hero">
+        <div class="movie-detail-poster" id="movie-poster">
+            <span id="movie-poster-initials">...</span>
+        </div>
+
+        <div class="movie-detail-content">
+            <div class="movie-detail-pills" id="movie-detail-pills">
+                <!-- JS inserts genre + year pills -->
+            </div>
+
+            <h1 class="movie-detail-title" id="movie-title">
+                Loading...
+            </h1>
+
+            <div class="movie-detail-meta">
+                <span id="movie-release-year-meta">Loading year...</span>
+                <span id="movie-authors-meta">Loading authors...</span>
+            </div>
+
+            <div class="movie-rating-card" id="movie-rating-card">
+                <div class="movie-rating-public">
+                    <div class="movie-rating-main">
+                        <span class="movie-rating-star">★</span>
+                        <span class="movie-rating-score" id="movie-avg-rating">-</span>
+                        <span class="movie-rating-max">/10</span>
+                    </div>
+
+                    <p class="movie-rating-note">
+                        Public average
                     </p>
-
-                    <div id="movie-rating-form-container"></div>
                 </div>
-                <p id="movie-release-year-row" style="display: none;">
-                    <strong>Release year:</strong> <span id="movie-release-year"></span>
-                </p>
-                <p>
-                    <strong>Authors:</strong>
-                    <span id="movie-authors">Loading...</span>
-                </p>
-                <p>
-                    <strong>Genres:</strong>
-                    <span id="movie-genres">Loading...</span>
-                </p>
+
+                <div class="movie-rating-divider" aria-hidden="true"></div>
+
+                <div class="movie-user-rating-panel" id="movie-user-rating-panel">
+                    <!-- JS inserts personal rating form or current user rating -->
+                </div>
             </div>
-        </div>
 
-        <section class="detail-section" id="movie-description-section" style="display: none;">
-            <h2>Description</h2>
-            <p id="movie-description"></p>
-        </section>
+            <p class="movie-detail-description" id="movie-description">
+                Loading description...
+            </p>
 
-        <section class="detail-section">
-            <h2>Comments</h2>
-            <div class="comments-list" id="comments-list">
-                <p>Loading comments...</p>
-            </div>
-        </section>
-
-        <div class="entity-actions" id="movie-actions">
-            <a href="{% url 'movie_list' %}" class="btn btn-secondary">Back to Movies</a>
-
-            <a href="#" id="edit-movie-btn" class="btn" style="display: none;">Edit Movie</a>
-
-            {% if perms.movies.delete_movie %}
+            <div class="movie-detail-actions">
                 <button
-                    id="movie-delete-button"
                     type="button"
-                    data-delete-api-url="{% url 'movie_delete_api' movie_id %}"
-                    data-redirect-url="{% url 'movie_list' %}"
-                    class="btn btn-danger"
+                    class="btn btn-secondary"
+                    id="movie-report-button"
+                    style="display: none;"
                 >
-                    Delete Movie
+                    ⚐ Report Info
                 </button>
-            {% endif %}
+
+                {% if perms.movies.change_movie %}
+                    <a
+                        href="{% url 'movie_update' movie_id %}"
+                        id="edit-movie-btn"
+                        class="btn"
+                    >
+                        Edit Movie
+                    </a>
+                {% endif %}
+
+                {% if perms.movies.delete_movie %}
+                    <button
+                        id="movie-delete-button"
+                        type="button"
+                        data-delete-api-url="{% url 'movie_detail_api' movie_id %}"
+                        data-redirect-url="{% url 'movie_list' %}"
+                        class="btn btn-danger"
+                        style="display: inline-flex;"
+                    >
+                        Delete Movie
+                    </button>
+                {% endif %}
+            </div>
         </div>
-    </article>
+    </section>
+    <section class="movie-discussion-section" id="movie-discussion-section">
+        <div class="movie-discussion-header">
+            <h2>Discussion</h2>
+            <p>
+                <span id="discussion-comment-count">0</span> comments ·
+                <span id="discussion-reply-count">0</span> replies
+            </p>
+        </div>
+
+        <div class="movie-discussion-auth-panel" id="movie-discussion-auth-panel">
+            <!-- JS will insert login/register box or comment form -->
+        </div>
+
+        <div class="movie-comments-list" id="movie-comments-list">
+            <!-- JS will insert comments -->
+        </div>
+    </section>
+</article>
+
 {% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'js/movies/movie/movie_detail.js' %}"></script>
-    <script src="{% static 'js/movies/rating/load_avg_rating.js' %}"></script>
-    <script src="{% static 'js/movies/comment/load_comments.js' %}"></script>
+    <script src="{% static 'js/movies/movie/movie_detail_discussion.js' %}"></script>
     <script src="{% static 'js/movies/movie/movie_delete.js' %}"></script>
 {% endblock %}
