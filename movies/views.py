@@ -95,7 +95,7 @@ class GenreCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 class GenreListView(LoginRequiredMixin, PermissionRequiredMixin, View):
     http_method_names = ["get"]
-    permission_required = "movies.view_genre"
+    permission_required = "movies.change_genre"
     raise_exception = True
 
     def get(self, request, *args, **kwargs):

@@ -31,8 +31,15 @@ class GenreSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("Genre name cannot be empty.")
 
-        return value
+        existing_genre = Genre.objects.filter(name__iexact=value)
 
+        if self.instance:
+            existing_genre = existing_genre.exclude(pk=self.instance.pk)
+
+        if existing_genre.exists():
+            raise serializers.ValidationError("Genre with this name already exists.")
+
+        return value
 
 class MovieSerializer(serializers.ModelSerializer):
     authors = serializers.SerializerMethodField(read_only=True)

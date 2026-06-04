@@ -1,17 +1,69 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Login | MoviePulse{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/users/login.css' %}">
+{% endblock %}
+
 {% block content %}
-    <section>
-        <h1>Login</h1>
+    <section class="auth-page">
+        <div class="auth-shell">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <p class="auth-kicker">Welcome back</p>
+                    <h1>Login</h1>
+                    <p>Sign in to rate movies, join discussions, and manage your MoviePulse account.</p>
+                </div>
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn">Login</button>
-        </form>
+                <form method="post" class="auth-form">
+                    {% csrf_token %}
 
-        <p><a href="{% url 'register' %}">Create account</a></p>
+                    {% if form.non_field_errors %}
+                        <div class="auth-errors">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="auth-form-group">
+                        <label for="{{ form.username.id_for_label }}">Username</label>
+                        {{ form.username }}
+
+                        {% if form.username.errors %}
+                            <div class="auth-field-errors">
+                                {% for error in form.username.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-form-group">
+                        <label for="{{ form.password.id_for_label }}">Password</label>
+                        {{ form.password }}
+
+                        {% if form.password.errors %}
+                            <div class="auth-field-errors">
+                                {% for error in form.password.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="auth-submit">
+                        Login
+                    </button>
+                </form>
+
+                <div class="auth-footer-text">
+                    <span>New to MoviePulse?</span>
+                    <a href="{% url 'register' %}">Create account</a>
+                </div>
+            </div>
+        </div>
     </section>
 {% endblock %}

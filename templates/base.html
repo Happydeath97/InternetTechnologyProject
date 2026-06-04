@@ -21,6 +21,10 @@
         <div class="nav-links">
             <a href="{% url 'index' %}">Home</a>
             <a href="{% url 'movie_list' %}">Movies</a>
+
+            {% if perms.movies.change_genre %}
+                <a href="{% url 'genre_list' %}">Genres</a>
+            {% endif %}
         </div>
 
         <div class="nav-actions">

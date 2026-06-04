@@ -4,40 +4,52 @@
 {% block title %}Update Genre | MoviePulse{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/genre/genre.css' %}">
+    <link rel="stylesheet" href="{% static 'css/genre/genre_update.css' %}">
 {% endblock %}
 
 {% block content %}
-    <section class="form-page">
-        <div class="form-container">
-            <h1>Update Genre</h1>
-
-            <form
-                id="genre-update-form"
-                data-detail-api-url="{% url 'genre_detail_api' genre_id %}"
-                data-update-api-url="{% url 'genre_update_api' genre_id %}"
-                data-redirect-url="{% url 'genre_list' %}"
-            >
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                    >
-                    <div id="name-errors" class="form-errors"></div>
+    <section
+        class="genre-update-page"
+        id="genre-update-page"
+        data-detail-api-url="{% url 'genre_detail_api' genre_id %}"
+        data-update-api-url="{% url 'genre_detail_api' genre_id %}"
+        data-redirect-url="{% url 'genre_list' %}"
+    >
+        <div class="genre-update-shell">
+            <div class="genre-update-card">
+                <div class="genre-update-header">
+                    <p class="genre-update-kicker">Editor panel</p>
+                    <h1>Update Genre</h1>
+                    <p>Edit the genre name used across the MoviePulse catalogue.</p>
                 </div>
 
-                <div id="form-errors" class="form-errors"></div>
+                <form id="genre-update-form" class="genre-update-form">
+                    {% csrf_token %}
 
-                <div class="form-actions">
-                    <a href="{% url 'genre_list' %}" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn">Update genre</button>
-                </div>
-            </form>
+                    <div class="genre-form-group">
+                        <label for="genre-name">Name</label>
+                        <input
+                            type="text"
+                            id="genre-name"
+                            name="name"
+                            class="genre-form-control"
+                            required
+                        >
+                    </div>
+
+                    <div id="genre-update-errors" class="genre-update-errors"></div>
+
+                    <div class="genre-update-actions">
+                        <a href="{% url 'genre_list' %}" class="genre-update-cancel">
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="genre-update-submit">
+                            Save changes
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </section>
 {% endblock %}

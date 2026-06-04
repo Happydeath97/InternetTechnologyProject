@@ -5,38 +5,52 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/genre/genre.css' %}">
+    <link rel="stylesheet" href="{% static 'css/genre/genre_create.css' %}">
 {% endblock %}
 
 {% block content %}
-    <section class="form-page">
-        <div class="form-container">
-            <h1>Create Genre</h1>
+    <section
+        class="genre-form-page"
+        id="genre-create-page"
+        data-create-api-url="{% url 'genre_api' %}"
+        data-redirect-url="{% url 'genre_list' %}"
+    >
+        {% csrf_token %}
 
-            <form
-                id="genre-create-form"
-                data-api-url="{% url 'genre_create_api' %}"
-                data-redirect-url="{% url 'genre_list' %}"
-            >
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                    >
-                    <div id="name-errors" class="form-errors"></div>
+        <div class="genre-form-shell">
+            <div class="genre-form-card">
+                <div class="genre-form-header">
+                    <p class="genre-form-kicker">Editor panel</p>
+                    <h1>Create Genre</h1>
+                    <p>Add a new genre that can be assigned to movies in the catalogue.</p>
                 </div>
 
-                <div id="form-errors" class="form-errors"></div>
+                <form id="genre-create-form" class="genre-form">
+                    <div class="genre-form-group">
+                        <label for="genre-name">Name</label>
+                        <input
+                            type="text"
+                            id="genre-name"
+                            name="name"
+                            class="genre-form-control"
+                            placeholder="Example: thriller"
+                            required
+                        >
+                    </div>
 
-                <div class="form-actions">
-                    <a href="{% url 'genre_list' %}" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn">Create genre</button>
-                </div>
-            </form>
+                    <div id="genre-create-errors" class="genre-form-errors"></div>
+
+                    <div class="genre-form-actions">
+                        <a href="{% url 'genre_list' %}" class="genre-form-cancel">
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="genre-form-submit">
+                            Create genre
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </section>
 {% endblock %}

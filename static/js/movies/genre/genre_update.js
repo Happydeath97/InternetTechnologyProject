@@ -1,87 +1,159 @@
-async function loadGenreDetails() {
+document.addEventListener("DOMContentLoaded", () => {
+    const page = document.getElementById("genre-update-page");
+
+    if (!page) {
+        return;
+    }
+
     const form = document.getElementById("genre-update-form");
-    const detailApiUrl = form.dataset.detailApiUrl;
+    const nameInput = document.getElementById("genre-name");
+    const errorBox = document.getElementById("genre-update-errors");
 
-    try {
-        const response = await fetch(detailApiUrl);
+    const detailApiUrl = page.dataset.detailApiUrl;
+    const updateApiUrl = page.dataset.updateApiUrl;
+    const redirectUrl = page.dataset.redirectUrl;
 
-        if (!response.ok) {
-            throw new Error("Failed to fetch genre details.");
+    initGenreUpdatePage();
+
+    async function initGenreUpdatePage() {
+        clearErrors();
+
+        try {
+            await loadGenreDetails();
+        } catch (error) {
+            showErrorMessage("Could not load genre details.");
+            console.error("Genre detail loading failed:", error);
+            return;
         }
 
-        const data = await response.json();
-        const genre = data.genre;
-
-        document.getElementById("name").value = genre.name ?? "";
-    } catch (error) {
-        console.error(error);
-        document.getElementById("form-errors").innerHTML = "<p>Failed to load genre.</p>";
+        bindGenreUpdateForm();
     }
-}
 
-async function submitGenreUpdateForm(event) {
-    event.preventDefault();
-
-    const form = event.currentTarget;
-    const updateApiUrl = form.dataset.updateApiUrl;
-    const redirectUrl = form.dataset.redirectUrl;
-
-    clearGenreUpdateErrors();
-
-    const formData = new FormData(form);
-
-    try {
-        const response = await fetch(updateApiUrl, {
-            method: "POST",
-            body: formData,
+    async function loadGenreDetails() {
+        const response = await fetch(detailApiUrl, {
+            method: "GET",
+            credentials: "same-origin",
+            headers: {
+                "Accept": "application/json",
+            },
         });
 
-        const data = await response.json();
+        const data = await parseJsonResponse(response);
 
-        if (response.ok) {
-            window.location.href = redirectUrl;
+        if (!response.ok) {
+            throw new Error("Failed to load genre details.");
+        }
+
+        const genre = data && data.genre ? data.genre : data;
+
+        nameInput.value = genre.name || "";
+    }
+
+    function bindGenreUpdateForm() {
+        if (!form) {
             return;
         }
 
-        if (response.status === 400 && data.errors) {
-            renderGenreUpdateErrors(data.errors);
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            clearErrors();
+
+            const payload = {
+                name: nameInput.value.trim(),
+            };
+
+            try {
+                const response = await fetch(updateApiUrl, {
+                    method: "PATCH",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRFToken": getCsrfToken(),
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await parseJsonResponse(response);
+
+                if (!response.ok) {
+                    showApiErrors(data);
+                    return;
+                }
+
+                window.location.href = redirectUrl;
+            } catch (error) {
+                showErrorMessage("Could not update genre.");
+                console.error("Genre update failed:", error);
+            }
+        });
+    }
+
+    async function parseJsonResponse(response) {
+        try {
+            return await response.json();
+        } catch {
+            return null;
+        }
+    }
+
+    function showApiErrors(data) {
+        if (!data) {
+            showErrorMessage("Invalid genre data.");
             return;
         }
 
-        document.getElementById("form-errors").innerHTML = "<p>Failed to update genre.</p>";
-    } catch (error) {
-        console.error(error);
-        document.getElementById("form-errors").innerHTML = "<p>Failed to update genre.</p>";
-    }
-}
+        const errors = data.errors || data.error || data;
 
-function clearGenreUpdateErrors() {
-    document.getElementById("name-errors").innerHTML = "";
-    document.getElementById("form-errors").innerHTML = "";
-}
-
-function renderGenreUpdateErrors(errors) {
-    const nameErrors = document.getElementById("name-errors");
-    const formErrors = document.getElementById("form-errors");
-
-    if (errors.name) {
-        nameErrors.innerHTML = errors.name.map(error => `<p>${error}</p>`).join("");
-    }
-
-    for (const [field, fieldErrors] of Object.entries(errors)) {
-        if (field === "name") {
-            continue;
+        if (typeof errors === "string") {
+            showErrorMessage(errors);
+            return;
         }
 
-        formErrors.innerHTML += fieldErrors.map(error => `<p>${error}</p>`).join("");
+        const messages = [];
+
+        Object.entries(errors).forEach(([field, fieldErrors]) => {
+            if (Array.isArray(fieldErrors)) {
+                messages.push(`${field}: ${fieldErrors.join(" ")}`);
+                return;
+            }
+
+            if (typeof fieldErrors === "object" && fieldErrors !== null) {
+                messages.push(`${field}: ${JSON.stringify(fieldErrors)}`);
+                return;
+            }
+
+            messages.push(`${field}: ${fieldErrors}`);
+        });
+
+        showErrorMessage(messages.join(" "));
     }
-}
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const form = document.getElementById("genre-update-form");
+    function showErrorMessage(message) {
+        if (!errorBox) {
+            return;
+        }
 
-    if (form) {
-        await loadGenreDetails();
-        form.addEventListener("submit", submitGenreUpdateForm);
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+    }
+
+    function clearErrors() {
+        if (!errorBox) {
+            return;
+        }
+
+        errorBox.textContent = "";
+        errorBox.style.display = "none";
+    }
+
+    function getCsrfToken() {
+        const csrfInput = document.querySelector("[name=csrfmiddlewaretoken]");
+
+        if (csrfInput) {
+            return csrfInput.value;
+        }
+
+        return "";
     }
 });

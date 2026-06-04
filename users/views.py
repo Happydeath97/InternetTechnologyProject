@@ -4,6 +4,7 @@ from django.views import View
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
 
 from .forms import LoginForm, RegistrationForm
@@ -27,6 +28,8 @@ class RegistrationView(View):
 
         if form.is_valid():
             user = form.save()
+            user_group = Group.objects.get(name="User")
+            user.groups.add(user_group)
             login(request, user)
             messages.success(request, 'Account created successfully.')
             return redirect('index')
