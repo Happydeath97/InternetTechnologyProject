@@ -25,6 +25,9 @@
             {% if perms.movies.change_genre %}
                 <a href="{% url 'genre_list' %}">Genres</a>
             {% endif %}
+            {% if perms.movies.change_author %}
+                <a href="{% url 'author_list' %}">Authors</a>
+            {% endif %}
         </div>
 
         <div class="nav-actions">

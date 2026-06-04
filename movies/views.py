@@ -67,7 +67,7 @@ class AuthorCreatePageView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 class AuthorListPageView(LoginRequiredMixin, PermissionRequiredMixin, View):
     http_method_names = ["get"]
-    permission_required = "movies.view_author"
+    permission_required = "movies.change_author"
     raise_exception = True
 
     def get(self, request, *args, **kwargs):
