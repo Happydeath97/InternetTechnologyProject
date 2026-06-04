@@ -462,6 +462,9 @@ class ReportSerializer(serializers.ModelSerializer):
             "id": obj.comment.id,
             "content": obj.comment.content,
             "movie_id": obj.comment.movie_id,
+            "user_id": obj.comment.user_id,
+            "user": obj.comment.user.username,
+            "created_at": obj.comment.created_at.strftime("%Y-%m-%d %H:%M"),
         }
 
     def _is_admin_group(self, user) -> bool:

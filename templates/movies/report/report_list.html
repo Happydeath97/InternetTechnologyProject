@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reports | MoviePulse{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/report/report_list.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section
+        class="report-management-page"
+        id="report-management-page"
+        data-reports-api-url="{% url 'report_api' %}"
+        data-report-detail-api-url-template="{% url 'report_detail_api' 0 %}"
+        data-ban-api-url="{% url 'ban_api' %}"
+        data-movie-detail-url-template="{% url 'movie_detail' 0 %}"
+        data-movie-detail-api-url-template="{% url 'movie_detail_api' 0 %}"
+        data-comment-detail-api-url-template="{% url 'comment_detail_api' 0 %}"
+        data-author-api-url="{% url 'author_api' %}"
+        data-genre-api-url="{% url 'genre_api' %}"
+        data-can-change="{% if perms.movies.change_report %}true{% else %}false{% endif %}"
+        data-can-delete="{% if perms.movies.delete_report %}true{% else %}false{% endif %}"
+    >
+        {% csrf_token %}
+
+        <div class="report-management-shell">
+            <div class="report-management-header">
+                <div>
+                    <p class="report-management-kicker">Moderation panel</p>
+                    <h1>Reports</h1>
+                    <p>Review user-submitted reports about movies, comments, wrong information, and inappropriate content.</p>
+                </div>
+            </div>
+
+            <div class="report-management-toolbar report-filter-panel">
+                <div class="report-search-group">
+                    <label for="report-search">Search</label>
+                    <input
+                        type="text"
+                        id="report-search"
+                        class="report-search-input"
+                        placeholder="Search reports..."
+                    >
+                </div>
+
+                <div class="report-filter-group">
+                    <label for="report-type-filter">Target type</label>
+                    <select id="report-type-filter" class="report-filter-select">
+                        <option value="">All reports</option>
+                        <option value="movie">Movie reports</option>
+                        <option value="comment">Comment reports</option>
+                    </select>
+                </div>
+
+                <div class="report-filter-group">
+                    <label for="report-status-filter">Status</label>
+                    <select id="report-status-filter" class="report-filter-select">
+                        <option value="">All statuses</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="REVIEWED">Reviewed</option>
+                        <option value="RESOLVED">Resolved</option>
+                        <option value="REJECTED">Rejected</option>
+                    </select>
+                </div>
+
+                <div class="report-filter-group">
+                    <label for="report-sort">Order by</label>
+                    <select id="report-sort" class="report-filter-select">
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                        <option value="alphabet">Alphabetical</option>
+                    </select>
+                </div>
+
+                <div class="report-filter-group report-time-filter-group">
+                    <label for="report-time-slider">Time range</label>
+                    <input
+                        type="range"
+                        id="report-time-slider"
+                        class="report-time-slider"
+                        min="0"
+                        max="100"
+                        value="0"
+                    >
+                    <p class="report-time-filter-text" id="report-time-filter-text">
+                        From: oldest
+                    </p>
+                </div>
+
+                <p class="report-count-text">
+                    <span id="report-count">0</span> reports
+                </p>
+            </div>
+
+            <div id="report-error-box" class="report-error-box"></div>
+
+            <div class="report-list-card">
+                <div class="report-list-header-row">
+                    <span>Report</span>
+                    <span>Target</span>
+                </div>
+
+                <div id="report-list" class="report-list">
+                    <p class="report-loading-text">Loading reports...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-modal" id="report-modal" aria-hidden="true" hidden>
+            <div class="report-modal-backdrop" id="report-modal-backdrop"></div>
+
+            <div
+                class="report-modal-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="report-modal-title"
+            >
+                <div class="report-modal-header">
+                    <div>
+                        <p class="report-modal-kicker" id="report-modal-type">Report details</p>
+                        <h2 id="report-modal-title">Report</h2>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="report-modal-close-button"
+                        id="report-modal-close-button"
+                        aria-label="Close report modal"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <div class="report-modal-body">
+                    <div class="report-modal-section">
+                        <label for="report-modal-status-select">Report status</label>
+                        <select id="report-modal-status-select" class="report-modal-select">
+                            <option value="PENDING">Pending</option>
+                            <option value="REVIEWED">Reviewed</option>
+                            <option value="RESOLVED">Resolved</option>
+                            <option value="REJECTED">Rejected</option>
+                        </select>
+                    </div>
+
+                    <div class="report-modal-section">
+                        <h3>Reason</h3>
+                        <p id="report-modal-reason" class="report-modal-reason"></p>
+                    </div>
+
+                    <div class="report-modal-section">
+                        <h3>Report metadata</h3>
+                        <p id="report-modal-meta" class="report-modal-meta"></p>
+                    </div>
+
+                    <div class="report-modal-section">
+                        <h3 id="report-modal-target-heading">Target</h3>
+
+                        <div id="report-modal-target-content" class="report-modal-target-content">
+                            <!-- JS inserts comment preview or movie edit form -->
+                        </div>
+                    </div>
+
+                    <div
+                        id="report-modal-comment-actions"
+                        class="report-modal-section report-modal-checkbox-actions"
+                        hidden
+                    >
+                        <label class="report-modal-checkbox-row">
+                            <input type="checkbox" id="report-modal-delete-comment">
+                            <span>Delete reported comment</span>
+                        </label>
+
+                        <label class="report-modal-checkbox-row">
+                            <input type="checkbox" id="report-modal-ban-user">
+                            <span>Ban reported user</span>
+                        </label>
+                    </div>
+
+                    <div id="report-modal-error-box" class="report-modal-error-box"></div>
+                </div>
+
+                <div class="report-modal-footer">
+                    <button type="button" class="report-modal-cancel-button" id="report-modal-cancel-button">
+                        Cancel
+                    </button>
+
+                    <button type="button" class="report-modal-save-button" id="report-modal-save-button">
+                        Apply actions
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/movies/report/report_list.js' %}"></script>
+{% endblock %}

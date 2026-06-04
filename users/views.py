@@ -53,17 +53,30 @@ class LoginView(View):
             return redirect('index')
 
         form = LoginForm(request.POST)
+
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
+
             user = authenticate(request, username=username, password=password)
+
             if user is not None:
+                if self.user_has_active_ban(user):
+                    messages.error(request, 'Your account is currently banned.')
+                    return render(request, 'users/login.html', {'form': form})
+
                 login(request, user)
                 messages.success(request, 'Logged in successfully.')
                 return redirect('index')
             else:
                 messages.error(request, 'Invalid username or password.')
         return render(request, 'users/login.html', {'form': form})
+
+    def user_has_active_ban(self, user):
+        return any(
+            ban.is_active_now()
+            for ban in user.received_bans.all()
+        )
 
 
 class LogoutView(LoginRequiredMixin, View):

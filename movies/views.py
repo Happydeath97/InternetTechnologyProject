@@ -57,6 +57,15 @@ class IndexView(View):
         return render(request, "movies/index.html", context=context)
 
 
+class ReportListPageView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    http_method_names = ["get"]
+    permission_required = ["movies.change_report"]
+    raise_exception = True
+
+    def get(self, request, *args, **kwargs):
+        return render(request, "movies/report/report_list.html")
+
+
 class AuthorCreatePageView(LoginRequiredMixin, PermissionRequiredMixin, View):
     http_method_names = ["get"]
     permission_required = ["movies.add_author"]

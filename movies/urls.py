@@ -32,6 +32,11 @@ urlpatterns = [
     path("authors/create/", movies_v.AuthorCreatePageView.as_view(), name="author_create"),
     path("authors/<int:pk>/edit/", movies_v.AuthorUpdatePageView.as_view(), name="author_update"),
 
+    # -------------------------
+    # Reports
+    # -------------------------
+    path("reports/", movies_v.ReportListPageView.as_view(), name="report_list"),
+
 
     # =========================================================
     # API ENDPOINTS
