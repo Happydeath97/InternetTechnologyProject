@@ -19,26 +19,19 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Group definitions with permission codenames
         user_permissions = [
-            'view_genre', 'view_author', 'view_movie',
-
+            'view_genre', 'view_author', 'view_movie', 'add_report',
             'add_rating', 'change_rating', 'delete_rating', 'view_rating',
-
             'add_comment', 'change_comment', 'delete_comment', 'view_comment',
-
-            'add_report', 'view_report',
         ]
 
         editor_permissions = user_permissions + [
-            'add_genre', 'change_genre',
-
-            'add_author', 'change_author',
-
+            'add_genre', 'change_genre','change_report',
+            'view_report', 'add_author', 'change_author',
             'add_movie', 'change_movie',
         ]
 
         admin_permissions = editor_permissions + [
-            'change_report', 'delete_report', 'delete_author', 'delete_genre',
-
+            'delete_report', 'delete_author', 'delete_genre',
             'view_ban', 'add_ban', 'change_ban', 'delete_ban', 'delete_movie'
         ]
 

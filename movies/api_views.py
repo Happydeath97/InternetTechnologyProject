@@ -943,6 +943,13 @@ class ReportApiView(APIView):
             )
         return None
 
+    def user_can_moderate_comment_reports(self, user):
+        return (
+                user.is_superuser
+                or user.groups.filter(name="Admin").exists()
+                or user.has_perm("movies.delete_report")
+        )
+
     def get(self, request, pk=None):
         # GET /api/reports/                        -> list
         # GET /api/reports/?status=PENDING         -> filtered list
@@ -955,6 +962,8 @@ class ReportApiView(APIView):
 
         if pk is None:
             reports = self.get_queryset()
+            if not self.user_can_moderate_comment_reports(request.user):
+                reports = reports.filter(comment__isnull=True)
 
             status_value = request.query_params.get("status")
             if status_value:

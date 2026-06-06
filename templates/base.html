@@ -28,7 +28,7 @@
             {% if perms.movies.change_author %}
                 <a href="{% url 'author_list' %}">Authors</a>
             {% endif %}
-            {% if perms.movies.change_report %}
+            {% if perms.movies.view_report %}
                 <a href="{% url 'report_list' %}">Reports</a>
             {% endif %}
         </div>

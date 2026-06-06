@@ -59,7 +59,7 @@ class IndexView(View):
 
 class ReportListPageView(LoginRequiredMixin, PermissionRequiredMixin, View):
     http_method_names = ["get"]
-    permission_required = ["movies.change_report"]
+    permission_required = ["movies.view_report"]
     raise_exception = True
 
     def get(self, request, *args, **kwargs):
