@@ -1,4 +1,4 @@
-.movie-create-page {
+.genre-form-page {
     min-height: calc(100vh - 120px);
     padding: 48px 24px;
     background:
@@ -8,13 +8,13 @@
     color: #f5f5f5;
 }
 
-.movie-create-shell {
+.genre-form-shell {
     width: 100%;
-    max-width: 980px;
+    max-width: 720px;
     margin: 0 auto;
 }
 
-.movie-create-card {
+.genre-form-card {
     background: rgba(18, 18, 18, 0.94);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
@@ -23,11 +23,11 @@
     backdrop-filter: blur(10px);
 }
 
-.movie-create-header {
+.genre-form-header {
     margin-bottom: 32px;
 }
 
-.movie-create-kicker {
+.genre-form-kicker {
     margin: 0 0 8px;
     color: #e50914;
     font-size: 0.78rem;
@@ -36,13 +36,14 @@
     text-transform: uppercase;
 }
 
-.movie-create-header h1 {
+.genre-form-header h1 {
     margin: 0;
+    color: #ffffff;
     font-size: clamp(2rem, 4vw, 3.2rem);
     line-height: 1.05;
 }
 
-.movie-create-header p {
+.genre-form-header p {
     margin: 12px 0 0;
     max-width: 620px;
     color: #b8b8b8;
@@ -50,31 +51,25 @@
     line-height: 1.6;
 }
 
-.movie-create-form {
+.genre-form {
     display: flex;
     flex-direction: column;
     gap: 22px;
 }
 
-.movie-form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px;
-}
-
-.movie-form-group {
+.genre-form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.movie-form-group label {
+.genre-form-group label {
     color: #f5f5f5;
     font-size: 0.9rem;
     font-weight: 700;
 }
 
-.movie-form-control {
+.genre-form-control {
     width: 100%;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 14px;
@@ -86,57 +81,17 @@
     transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
 
-.movie-form-control:focus {
+.genre-form-control:focus {
     border-color: rgba(229, 9, 20, 0.75);
     background: rgba(255, 255, 255, 0.09);
     box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.16);
 }
 
-.movie-form-control::placeholder {
+.genre-form-control::placeholder {
     color: #777;
 }
 
-.movie-form-textarea {
-    min-height: 150px;
-    resize: vertical;
-    line-height: 1.6;
-}
-
-.movie-form-select {
-    min-height: 160px;
-    padding: 10px;
-}
-
-.movie-form-select option {
-    padding: 10px 12px;
-    background: #111111;
-    color: #ffffff;
-}
-
-.movie-form-select option:checked {
-    background: linear-gradient(90deg, #e50914, #e50914);
-    color: #ffffff;
-    font-weight: 700;
-}
-
-.movie-form-select:focus option:checked {
-    background: linear-gradient(90deg, #e50914, #e50914);
-    color: #ffffff;
-    font-weight: 700;
-}
-
-.movie-form-select option:hover {
-    background: #2a2a2a;
-    color: #ffffff;
-}
-
-.movie-form-help {
-    margin: 2px 0 0;
-    color: #8f8f8f;
-    font-size: 0.82rem;
-}
-
-.movie-create-errors {
+.genre-form-errors {
     display: none;
     border: 1px solid rgba(229, 9, 20, 0.4);
     border-radius: 14px;
@@ -147,7 +102,7 @@
     line-height: 1.5;
 }
 
-.movie-create-actions {
+.genre-form-actions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -155,8 +110,8 @@
     margin-top: 8px;
 }
 
-.movie-create-cancel,
-.movie-create-submit {
+.genre-form-cancel,
+.genre-form-submit {
     border-radius: 999px;
     padding: 12px 22px;
     font-size: 0.95rem;
@@ -166,50 +121,46 @@
     transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
 
-.movie-create-cancel {
+.genre-form-cancel {
     border: 1px solid rgba(255, 255, 255, 0.16);
     background: transparent;
     color: #f5f5f5;
 }
 
-.movie-create-cancel:hover {
+.genre-form-cancel:hover {
     background: rgba(255, 255, 255, 0.08);
     transform: translateY(-1px);
 }
 
-.movie-create-submit {
+.genre-form-submit {
     border: 1px solid #e50914;
     background: #e50914;
     color: #ffffff;
 }
 
-.movie-create-submit:hover {
+.genre-form-submit:hover {
     background: #f6121d;
     border-color: #f6121d;
     transform: translateY(-1px);
 }
 
 @media (max-width: 760px) {
-    .movie-create-page {
+    .genre-form-page {
         padding: 28px 14px;
     }
 
-    .movie-create-card {
+    .genre-form-card {
         padding: 24px;
         border-radius: 20px;
     }
 
-    .movie-form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .movie-create-actions {
+    .genre-form-actions {
         flex-direction: column-reverse;
         align-items: stretch;
     }
 
-    .movie-create-cancel,
-    .movie-create-submit {
+    .genre-form-cancel,
+    .genre-form-submit {
         width: 100%;
         text-align: center;
     }

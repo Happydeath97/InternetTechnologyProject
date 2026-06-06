@@ -1,19 +1,69 @@
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin,  PermissionRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
-from django.db.models import Avg
-from django.urls import reverse_lazy
-from django.views.generic import UpdateView
+from django.contrib.auth.models import User
+from django.db.models import Avg, Count
 
-from .forms import AuthorForm, GenreForm, MovieForm
-from .models import Movie, Genre, Author, Rating
+from movies.models import Movie, Genre, Rating, Comment, Author
+
+import random
+from datetime import date
 
 
 class IndexView(View):
     http_method_names = ["get"]
 
     def get(self, request, *args, **kwargs):
-        return render(request, "movies/index.html")
+        movie_count = Movie.objects.count()
+        review_count = Rating.objects.count()
+        member_count = User.objects.count()
+        genre_count = Genre.objects.count()
+
+        movie_queryset = (
+            Movie.objects
+            .annotate(avg_rating=Avg("ratings__score"), rating_count=Count("ratings"))
+        )
+
+        featured_movies = list(movie_queryset)
+
+        daily_seed = int(date.today().strftime("%Y%m%d"))
+        random.Random(daily_seed).shuffle(featured_movies)
+
+        featured_movies = featured_movies[:5]
+
+        top_rated_movies = (
+            Movie.objects
+            .annotate(avg_rating=Avg("ratings__score"), rating_count=Count("ratings"))
+            .filter(avg_rating__isnull=False)
+            .order_by("-avg_rating")[:3]
+        )
+
+        genres = (
+            Genre.objects
+            .annotate(movie_count=Count("movies"))
+            .order_by("name")[:5]
+        )
+
+        context = {
+            "movie_count": movie_count,
+            "review_count": review_count,
+            "member_count": member_count,
+            "genre_count": genre_count,
+            "featured_movies": featured_movies,
+            "top_rated_movies": top_rated_movies,
+            "genres": genres,
+        }
+
+        return render(request, "movies/index.html", context=context)
+
+
+class ReportListPageView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    http_method_names = ["get"]
+    permission_required = ["movies.change_report"]
+    raise_exception = True
+
+    def get(self, request, *args, **kwargs):
+        return render(request, "movies/report/report_list.html")
 
 
 class AuthorCreatePageView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -26,7 +76,7 @@ class AuthorCreatePageView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 class AuthorListPageView(LoginRequiredMixin, PermissionRequiredMixin, View):
     http_method_names = ["get"]
-    permission_required = "movies.view_author"
+    permission_required = "movies.change_author"
     raise_exception = True
 
     def get(self, request, *args, **kwargs):
@@ -54,7 +104,7 @@ class GenreCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 class GenreListView(LoginRequiredMixin, PermissionRequiredMixin, View):
     http_method_names = ["get"]
-    permission_required = "movies.view_genre"
+    permission_required = "movies.change_genre"
     raise_exception = True
 
     def get(self, request, *args, **kwargs):

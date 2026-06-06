@@ -8,26 +8,66 @@
 {% endblock %}
 
 {% block content %}
-    <section class="list-page">
-        <div class="list-header">
-            <h1>Authors</h1>
+    <section
+        class="author-management-page"
+        id="author-management-page"
+        data-authors-api-url="{% url 'author_api' %}"
+        data-author-detail-api-url-template="{% url 'author_detail_api' 0 %}"
+        data-author-create-url="{% url 'author_create' %}"
+        data-author-update-url-template="{% url 'author_update' 0 %}"
+        data-can-add="{% if perms.movies.add_author %}true{% else %}false{% endif %}"
+        data-can-change="{% if perms.movies.change_author %}true{% else %}false{% endif %}"
+        data-can-delete="{% if perms.movies.delete_author %}true{% else %}false{% endif %}"
+    >
+        {% csrf_token %}
 
-            {% if perms.movies.add_author %}
-                <a href="{% url 'author_create' %}" class="btn">Create author</a>
-            {% endif %}
-        </div>
+        <div class="author-management-shell">
+            <div class="author-management-header">
+                <div>
+                    <p class="author-management-kicker">Editor panel</p>
+                    <h1>Authors</h1>
+                    <p>Manage directors, writers, and creators linked to movies in the catalogue.</p>
+                </div>
 
-        <div
-            id="authors-list"
-            class="entity-list"
-            data-can-update="{% if perms.movies.change_author %}true{% else %}false{% endif %}"
-            data-can-delete="{% if perms.movies.delete_author %}true{% else %}false{% endif %}"
-        >
-            <p>Loading authors...</p>
+                {% if perms.movies.add_author %}
+                    <a href="{% url 'author_create' %}" class="author-create-button">
+                        + Create Author
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="author-management-toolbar">
+                <div class="author-search-group">
+                    <label for="author-search">Search</label>
+                    <input
+                        type="text"
+                        id="author-search"
+                        class="author-search-input"
+                        placeholder="Search authors..."
+                    >
+                </div>
+
+                <p class="author-count-text">
+                    <span id="author-count">0</span> authors
+                </p>
+            </div>
+
+            <div id="author-error-box" class="author-error-box"></div>
+
+            <div class="author-list-card">
+                <div class="author-list-header-row">
+                    <span>Author</span>
+                    <span>Actions</span>
+                </div>
+
+                <div id="author-list" class="author-list">
+                    <p class="author-loading-text">Loading authors...</p>
+                </div>
+            </div>
         </div>
     </section>
 {% endblock %}
+
 {% block extra_js %}
     <script src="{% static 'js/movies/author/author_list.js' %}"></script>
-    <script src="{% static 'js/movies/author/author_delete.js' %}"></script>
 {% endblock %}

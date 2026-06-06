@@ -31,8 +31,15 @@ class GenreSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("Genre name cannot be empty.")
 
-        return value
+        existing_genre = Genre.objects.filter(name__iexact=value)
 
+        if self.instance:
+            existing_genre = existing_genre.exclude(pk=self.instance.pk)
+
+        if existing_genre.exists():
+            raise serializers.ValidationError("Genre with this name already exists.")
+
+        return value
 
 class MovieSerializer(serializers.ModelSerializer):
     authors = serializers.SerializerMethodField(read_only=True)
@@ -161,14 +168,11 @@ class MovieSerializer(serializers.ModelSerializer):
 
         return movie
 
-    def update(self, instance, validated_data) -> Movie:
+    def update(self, instance, validated_data):
         authors = validated_data.pop("author", None)
         genres = validated_data.pop("genre", None)
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        instance.save()
+        instance = super().update(instance, validated_data)
 
         if authors is not None:
             instance.author.set(authors)
@@ -259,6 +263,22 @@ class RatingSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source="user.username", read_only=True)
+
+    movie_id = serializers.PrimaryKeyRelatedField(
+        source="movie",
+        queryset=Movie.objects.all(),
+        write_only=True,
+        required=False,
+    )
+
+    parent_id = serializers.PrimaryKeyRelatedField(
+        source="parent",
+        queryset=Comment.objects.all(),
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M", read_only=True)
     updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M", read_only=True)
     replies = serializers.SerializerMethodField()
@@ -273,6 +293,8 @@ class CommentSerializer(serializers.ModelSerializer):
             "id",
             "content",
             "user",
+            "movie_id",
+            "parent_id",
             "created_at",
             "updated_at",
             "replies",
@@ -280,6 +302,43 @@ class CommentSerializer(serializers.ModelSerializer):
             "can_delete",
             "can_report",
         ]
+
+    def validate_content(self, value) -> str:
+        value = value.strip()
+
+        if not value:
+            raise serializers.ValidationError("Comment cannot be empty.")
+
+        return value
+
+    def validate(self, attrs):
+        movie = attrs.get("movie")
+        parent = attrs.get("parent")
+
+        if self.instance is None and movie is None:
+            raise serializers.ValidationError(
+                {"movie_id": "This field is required."}
+            )
+
+        if self.instance is not None:
+            if "movie" in attrs and attrs["movie"] != self.instance.movie:
+                raise serializers.ValidationError(
+                    {"movie_id": "Changing the movie of an existing comment is not allowed."}
+                )
+
+            if "parent" in attrs and attrs["parent"] != self.instance.parent:
+                raise serializers.ValidationError(
+                    {"parent_id": "Changing the parent of an existing comment is not allowed."}
+                )
+
+        effective_movie = movie or getattr(self.instance, "movie", None)
+
+        if parent and effective_movie and parent.movie_id != effective_movie.id:
+            raise serializers.ValidationError(
+                {"parent_id": "Reply must belong to the same movie as its parent comment."}
+            )
+
+        return attrs
 
     def _is_admin_group(self, user) -> bool:
         return user.is_superuser or user.groups.filter(name="Admin").exists()
@@ -403,6 +462,9 @@ class ReportSerializer(serializers.ModelSerializer):
             "id": obj.comment.id,
             "content": obj.comment.content,
             "movie_id": obj.comment.movie_id,
+            "user_id": obj.comment.user_id,
+            "user": obj.comment.user.username,
+            "created_at": obj.comment.created_at.strftime("%Y-%m-%d %H:%M"),
         }
 
     def _is_admin_group(self, user) -> bool:

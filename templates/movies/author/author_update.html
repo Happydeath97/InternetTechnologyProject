@@ -4,37 +4,66 @@
 {% block title %}Update Author | MoviePulse{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/author/author.css' %}">
+    <link rel="stylesheet" href="{% static 'css/author/author_update.css' %}">
 {% endblock %}
 
 {% block content %}
-    <section class="form-page">
-        <h1>Update Author</h1>
+    <section
+        class="author-update-page"
+        id="author-update-page"
+        data-detail-api-url="{% url 'author_detail_api' author.id %}"
+        data-update-api-url="{% url 'author_detail_api' author.id %}"
+        data-redirect-url="{% url 'author_list' %}"
+    >
+        <div class="author-update-shell">
+            <div class="author-update-card">
+                <div class="author-update-header">
+                    <p class="author-update-kicker">Editor panel</p>
+                    <h1>Update Author</h1>
+                    <p>Edit the author details used across the MoviePulse catalogue.</p>
+                </div>
 
-        <form id="author-update-form" data-author-id="{{ author.id }}">
-            {% csrf_token %}
+                <form id="author-update-form" class="author-update-form">
+                    {% csrf_token %}
 
-            <div class="form-group">
-                <label for="full_name">Full name</label>
-                <input type="text" id="full_name" name="full_name" required>
-                <div id="full_name-error" class="form-error"></div>
+                    <div class="author-form-group">
+                        <label for="author-full-name">Full name</label>
+                        <input
+                            type="text"
+                            id="author-full-name"
+                            name="full_name"
+                            class="author-form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="author-form-group">
+                        <label for="author-date-of-birth">Birth date</label>
+                        <input
+                            type="date"
+                            id="author-date-of-birth"
+                            name="date_of_birth"
+                            class="author-form-control"
+                        >
+                    </div>
+
+                    <div id="author-update-errors" class="author-update-errors"></div>
+
+                    <div class="author-update-actions">
+                        <a href="{% url 'author_list' %}" class="author-update-cancel">
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="author-update-submit">
+                            Save changes
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <div class="form-group">
-                <label for="date_of_birth">Birth date</label>
-                <input type="date" id="date_of_birth" name="date_of_birth">
-                <div id="date_of_birth-error" class="form-error"></div>
-            </div>
-
-            <div id="form-error" class="form-error"></div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn">Update</button>
-                <a href="{% url 'author_list' %}" class="btn">Cancel</a>
-            </div>
-        </form>
+        </div>
     </section>
 {% endblock %}
+
 {% block extra_js %}
     <script src="{% static 'js/movies/author/author_update.js' %}"></script>
 {% endblock %}

@@ -1,97 +1,131 @@
-function setupAuthorCreateForm() {
+document.addEventListener("DOMContentLoaded", () => {
+    const page = document.getElementById("author-create-page");
+
+    if (!page) {
+        return;
+    }
+
     const form = document.getElementById("author-create-form");
+    const fullNameInput = document.getElementById("author-full-name");
+    const dateOfBirthInput = document.getElementById("author-date-of-birth");
+    const errorBox = document.getElementById("author-create-errors");
+
+    const createApiUrl = page.dataset.createApiUrl;
+    const redirectUrl = page.dataset.redirectUrl;
 
     if (!form) {
         return;
     }
 
-    form.addEventListener("submit", submitAuthorCreateForm);
-}
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        clearErrors();
 
-async function submitAuthorCreateForm(event) {
-    event.preventDefault();
+        const fullName = fullNameInput.value.trim();
 
-    clearAuthorCreateErrors();
+        if (!fullName) {
+            showErrorMessage("Author full name cannot be empty.");
+            return;
+        }
 
-    const fullNameInput = document.getElementById("full_name");
-    const dateOfBirthInput = document.getElementById("date_of_birth");
-    const formError = document.getElementById("form-error");
+        const payload = {
+            full_name: fullName,
+        };
 
-    const formData = new FormData();
-    formData.append("full_name", fullNameInput.value);
-    formData.append("date_of_birth", dateOfBirthInput.value);
+        if (dateOfBirthInput.value) {
+            payload.date_of_birth = dateOfBirthInput.value;
+        }
 
-    try {
-        const response = await fetch("/api/authors/create/", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCsrfToken(),
-            },
-            body: formData,
+        try {
+            const response = await fetch(createApiUrl, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRFToken": getCsrfToken(),
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await parseJsonResponse(response);
+
+            if (!response.ok) {
+                showApiErrors(data);
+                return;
+            }
+
+            window.location.href = redirectUrl;
+        } catch {
+            showErrorMessage("Could not create author.");
+        }
+    });
+
+    async function parseJsonResponse(response) {
+        try {
+            return await response.json();
+        } catch {
+            return null;
+        }
+    }
+
+    function showApiErrors(data) {
+        if (!data) {
+            showErrorMessage("Invalid author data.");
+            return;
+        }
+
+        const errors = data.errors || data.error || data;
+
+        if (typeof errors === "string") {
+            showErrorMessage(errors);
+            return;
+        }
+
+        const messages = [];
+
+        Object.values(errors).forEach((fieldErrors) => {
+            if (Array.isArray(fieldErrors)) {
+                messages.push(fieldErrors.join(" "));
+                return;
+            }
+
+            if (typeof fieldErrors === "object" && fieldErrors !== null) {
+                messages.push(JSON.stringify(fieldErrors));
+                return;
+            }
+
+            messages.push(fieldErrors);
         });
 
-        const data = await response.json();
+        showErrorMessage(messages.join(" "));
+    }
 
-        if (response.ok) {
-            window.location.href = "/authors/";
+    function showErrorMessage(message) {
+        if (!errorBox) {
             return;
         }
 
-        displayAuthorCreateErrors(data);
-    } catch (error) {
-        console.error(error);
-        formError.textContent = "An unexpected error occurred.";
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
     }
-}
 
-function clearAuthorCreateErrors() {
-    document.getElementById("full_name-error").textContent = "";
-    document.getElementById("date_of_birth-error").textContent = "";
-    document.getElementById("form-error").textContent = "";
-}
-
-function displayAuthorCreateErrors(data) {
-    const fullNameError = document.getElementById("full_name-error");
-    const dateOfBirthError = document.getElementById("date_of_birth-error");
-    const formError = document.getElementById("form-error");
-
-    let hasFieldError = false;
-
-    if (data.errors) {
-        if (data.errors.full_name) {
-            fullNameError.textContent = data.errors.full_name.join(" ");
-            hasFieldError = true;
-        }
-
-        if (data.errors.date_of_birth) {
-            dateOfBirthError.textContent = data.errors.date_of_birth.join(" ");
-            hasFieldError = true;
-        }
-
-        if (data.errors.__all__) {
-            formError.textContent = data.errors.__all__.join(" ");
+    function clearErrors() {
+        if (!errorBox) {
             return;
         }
+
+        errorBox.textContent = "";
+        errorBox.style.display = "none";
     }
 
-    if (!hasFieldError) {
-        formError.textContent = "Failed to create author.";
-    }
-}
+    function getCsrfToken() {
+        const csrfInput = document.querySelector("[name=csrfmiddlewaretoken]");
 
-function getCsrfToken() {
-    const cookieName = "csrftoken";
-    const cookies = document.cookie.split(";");
-
-    for (let cookie of cookies) {
-        cookie = cookie.trim();
-
-        if (cookie.startsWith(cookieName + "=")) {
-            return cookie.substring(cookieName.length + 1);
+        if (csrfInput) {
+            return csrfInput.value;
         }
+
+        return "";
     }
-
-    return "";
-}
-
-document.addEventListener("DOMContentLoaded", setupAuthorCreateForm);
+});

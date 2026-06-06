@@ -1,65 +1,168 @@
-async function submitGenreCreateForm(event) {
-    event.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+    const page = document.getElementById("genre-create-page");
 
-    const form = event.currentTarget;
-    const apiUrl = form.dataset.apiUrl;
-    const redirectUrl = form.dataset.redirectUrl;
+    if (!page) {
+        return;
+    }
 
-    clearGenreCreateErrors();
+    const form = document.getElementById("genre-create-form");
+    const nameInput = document.getElementById("genre-name");
+    const errorBox = document.getElementById("genre-create-errors");
 
-    const formData = new FormData(form);
+    const createApiUrl = page.dataset.createApiUrl;
+    const redirectUrl = page.dataset.redirectUrl;
 
-    try {
-        const response = await fetch(apiUrl, {
-            method: "POST",
-            body: formData,
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        clearErrors();
+
+        const genreName = nameInput.value.trim().toLowerCase();
+
+        if (!genreName) {
+            showErrorMessage("Genre name cannot be empty.");
+            return;
+        }
+
+        const genreAlreadyExists = await checkGenreExists(genreName);
+
+        if (genreAlreadyExists) {
+            showErrorMessage("Genre with this name already exists.");
+            return;
+        }
+
+        const payload = {
+            name: genreName,
+        };
+
+        try {
+            const response = await fetch(createApiUrl, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRFToken": getCsrfToken(),
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await parseJsonResponse(response);
+
+            if (!response.ok) {
+                showApiErrors(data);
+                return;
+            }
+
+            window.location.href = redirectUrl;
+        } catch (error) {
+            showErrorMessage("Could not create genre.");
+        }
+    });
+
+    async function checkGenreExists(genreName) {
+        try {
+            const url = new URL(createApiUrl, window.location.origin);
+            url.searchParams.set("name", genreName);
+
+            const response = await fetch(url.toString(), {
+                method: "GET",
+                credentials: "same-origin",
+                headers: {
+                    "Accept": "application/json",
+                },
+            });
+
+            const data = await parseJsonResponse(response);
+
+            if (!response.ok || !data) {
+                return false;
+            }
+
+            const genres = Array.isArray(data.genres) ? data.genres : [];
+
+            return genres.some((genre) => {
+                return normalizeText(genre.name) === normalizeText(genreName);
+            });
+        } catch {
+            return false;
+        }
+    }
+
+    function normalizeText(value) {
+        return String(value || "")
+            .trim()
+            .toLowerCase();
+    }
+
+    async function parseJsonResponse(response) {
+        try {
+            return await response.json();
+        } catch {
+            return null;
+        }
+    }
+
+    function showApiErrors(data) {
+        if (!data) {
+            showErrorMessage("Invalid genre data.");
+            return;
+        }
+
+        const errors = data.errors || data.error || data;
+
+        if (typeof errors === "string") {
+            showErrorMessage(errors);
+            return;
+        }
+
+        const messages = [];
+
+        Object.values(errors).forEach((fieldErrors) => {
+            if (Array.isArray(fieldErrors)) {
+                messages.push(fieldErrors.join(" "));
+                return;
+            }
+
+            if (typeof fieldErrors === "object" && fieldErrors !== null) {
+                messages.push(JSON.stringify(fieldErrors));
+                return;
+            }
+
+            messages.push(fieldErrors);
         });
 
-        const data = await response.json();
+        showErrorMessage(messages.join(" "));
+    }
 
-        if (response.ok) {
-            window.location.href = redirectUrl;
+    function showErrorMessage(message) {
+        if (!errorBox) {
             return;
         }
 
-        if (response.status === 400 && data.errors) {
-            renderGenreCreateErrors(data.errors);
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+    }
+
+    function clearErrors() {
+        if (!errorBox) {
             return;
         }
 
-        document.getElementById("form-errors").innerHTML = "<p>Failed to create genre.</p>";
-    } catch (error) {
-        document.getElementById("form-errors").innerHTML = "<p>Failed to create genre.</p>";
-        console.error(error);
-    }
-}
-
-function clearGenreCreateErrors() {
-    document.getElementById("name-errors").innerHTML = "";
-    document.getElementById("form-errors").innerHTML = "";
-}
-
-function renderGenreCreateErrors(errors) {
-    const nameErrors = document.getElementById("name-errors");
-    const formErrors = document.getElementById("form-errors");
-
-    if (errors.name) {
-        nameErrors.innerHTML = errors.name.map(error => `<p>${error}</p>`).join("");
+        errorBox.textContent = "";
+        errorBox.style.display = "none";
     }
 
-    for (const [field, fieldErrors] of Object.entries(errors)) {
-        if (field === "name") {
-            continue;
+    function getCsrfToken() {
+        const csrfInput = document.querySelector("[name=csrfmiddlewaretoken]");
+
+        if (csrfInput) {
+            return csrfInput.value;
         }
 
-        formErrors.innerHTML += fieldErrors.map(error => `<p>${error}</p>`).join("");
-    }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("genre-create-form");
-
-    if (form) {
-        form.addEventListener("submit", submitGenreCreateForm);
+        return "";
     }
 });

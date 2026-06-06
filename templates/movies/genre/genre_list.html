@@ -8,28 +8,66 @@
 {% endblock %}
 
 {% block content %}
-    <section class="list-page">
-        <div class="list-header">
-            <h1>Genres</h1>
+    <section
+        class="genre-management-page"
+        id="genre-management-page"
+        data-genres-api-url="{% url 'genre_api' %}"
+        data-genre-detail-api-url-template="{% url 'genre_detail_api' 0 %}"
+        data-genre-create-url="{% url 'genre_create' %}"
+        data-genre-update-url-template="{% url 'genre_update' 0 %}"
+        data-can-add="{% if perms.movies.add_genre %}true{% else %}false{% endif %}"
+        data-can-change="{% if perms.movies.change_genre %}true{% else %}false{% endif %}"
+        data-can-delete="{% if perms.movies.delete_genre %}true{% else %}false{% endif %}"
+    >
+        {% csrf_token %}
 
-            {% if perms.movies.add_genre %}
-                <a href="{% url 'genre_create' %}" class="btn">Create genre</a>
-            {% endif %}
-        </div>
+        <div class="genre-management-shell">
+            <div class="genre-management-header">
+                <div>
+                    <p class="genre-management-kicker">Editor panel</p>
+                    <h1>Genres</h1>
+                    <p>Manage the movie genres used across the MoviePulse catalogue.</p>
+                </div>
 
-        <div
-            id="genres-list"
-            class="entity-list"
-            data-can-update="{% if perms.movies.change_genre %}true{% else %}false{% endif %}"
-            data-can-delete="{% if perms.movies.delete_genre %}true{% else %}false{% endif %}"
-            data-csrf-token="{{ csrf_token }}"
-        >
-            <p>Loading genres...</p>
+                {% if perms.movies.add_genre %}
+                    <a href="{% url 'genre_create' %}" class="genre-create-button">
+                        + Create Genre
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="genre-management-toolbar">
+                <div class="genre-search-group">
+                    <label for="genre-search">Search</label>
+                    <input
+                        type="text"
+                        id="genre-search"
+                        class="genre-search-input"
+                        placeholder="Search genres..."
+                    >
+                </div>
+
+                <p class="genre-count-text">
+                    <span id="genre-count">0</span> genres
+                </p>
+            </div>
+
+            <div id="genre-error-box" class="genre-error-box"></div>
+
+            <div class="genre-list-card">
+                <div class="genre-list-header-row">
+                    <span>Name</span>
+                    <span>Actions</span>
+                </div>
+
+                <div id="genre-list" class="genre-list">
+                    <p class="genre-loading-text">Loading genres...</p>
+                </div>
+            </div>
         </div>
     </section>
 {% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'js/movies/genre/genre_list.js' %}"></script>
-    <script src="{% static 'js/movies/genre/genre_delete.js' %}"></script>
 {% endblock %}

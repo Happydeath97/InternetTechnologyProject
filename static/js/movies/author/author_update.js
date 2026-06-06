@@ -1,123 +1,167 @@
-function setupAuthorUpdateForm() {
-    const form = document.getElementById("author-update-form");
+document.addEventListener("DOMContentLoaded", () => {
+    const page = document.getElementById("author-update-page");
 
-    if (!form) {
+    if (!page) {
         return;
     }
 
-    loadAuthorData();
-    form.addEventListener("submit", submitAuthorUpdateForm);
-}
-
-async function loadAuthorData() {
     const form = document.getElementById("author-update-form");
-    const authorId = form.dataset.authorId;
-    const formError = document.getElementById("form-error");
+    const fullNameInput = document.getElementById("author-full-name");
+    const dateOfBirthInput = document.getElementById("author-date-of-birth");
+    const errorBox = document.getElementById("author-update-errors");
 
-    try {
-        const response = await fetch(`/api/authors/${authorId}/`);
+    const detailApiUrl = page.dataset.detailApiUrl;
+    const updateApiUrl = page.dataset.updateApiUrl;
+    const redirectUrl = page.dataset.redirectUrl;
 
-        if (!response.ok) {
-            throw new Error("Failed to load author.");
+    initAuthorUpdatePage();
+
+    async function initAuthorUpdatePage() {
+        clearErrors();
+
+        try {
+            await loadAuthorDetails();
+        } catch {
+            showErrorMessage("Could not load author details.");
+            return;
         }
 
-        const data = await response.json();
-        const author = data.author;
-
-        document.getElementById("full_name").value = author.full_name || "";
-        document.getElementById("date_of_birth").value = author.date_of_birth || "";
-    } catch (error) {
-        console.error(error);
-        formError.textContent = "Failed to load author data.";
+        bindAuthorUpdateForm();
     }
-}
 
-async function submitAuthorUpdateForm(event) {
-    event.preventDefault();
-
-    clearAuthorUpdateErrors();
-
-    const form = document.getElementById("author-update-form");
-    const authorId = form.dataset.authorId;
-    const fullNameInput = document.getElementById("full_name");
-    const dateOfBirthInput = document.getElementById("date_of_birth");
-    const formError = document.getElementById("form-error");
-
-    const formData = new FormData();
-    formData.append("full_name", fullNameInput.value);
-    formData.append("date_of_birth", dateOfBirthInput.value);
-
-    try {
-        const response = await fetch(`/api/authors/${authorId}/edit/`, {
-            method: "POST",
+    async function loadAuthorDetails() {
+        const response = await fetch(detailApiUrl, {
+            method: "GET",
+            credentials: "same-origin",
             headers: {
-                "X-CSRFToken": getCsrfToken(),
+                "Accept": "application/json",
             },
-            body: formData,
         });
 
-        const data = await response.json();
+        const data = await parseJsonResponse(response);
 
-        if (response.ok) {
-            window.location.href = "/authors/";
+        if (!response.ok) {
+            throw new Error("Failed to load author details.");
+        }
+
+        const author = data && data.author ? data.author : data;
+
+        fullNameInput.value = author.full_name || "";
+        dateOfBirthInput.value = author.date_of_birth || "";
+    }
+
+    function bindAuthorUpdateForm() {
+        if (!form) {
             return;
         }
 
-        displayAuthorUpdateErrors(data);
-    } catch (error) {
-        console.error(error);
-        formError.textContent = "An unexpected error occurred.";
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            clearErrors();
+
+            const fullName = fullNameInput.value.trim();
+
+            if (!fullName) {
+                showErrorMessage("Author full name cannot be empty.");
+                return;
+            }
+
+            const payload = {
+                full_name: fullName,
+                date_of_birth: dateOfBirthInput.value || null,
+            };
+
+            try {
+                const response = await fetch(updateApiUrl, {
+                    method: "PATCH",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRFToken": getCsrfToken(),
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await parseJsonResponse(response);
+
+                if (!response.ok) {
+                    showApiErrors(data);
+                    return;
+                }
+
+                window.location.href = redirectUrl;
+            } catch {
+                showErrorMessage("Could not update author.");
+            }
+        });
     }
-}
 
-function clearAuthorUpdateErrors() {
-    document.getElementById("full_name-error").textContent = "";
-    document.getElementById("date_of_birth-error").textContent = "";
-    document.getElementById("form-error").textContent = "";
-}
-
-function displayAuthorUpdateErrors(data) {
-    const fullNameError = document.getElementById("full_name-error");
-    const dateOfBirthError = document.getElementById("date_of_birth-error");
-    const formError = document.getElementById("form-error");
-
-    let hasFieldError = false;
-
-    if (data.errors) {
-        if (data.errors.full_name) {
-            fullNameError.textContent = data.errors.full_name.join(" ");
-            hasFieldError = true;
+    async function parseJsonResponse(response) {
+        try {
+            return await response.json();
+        } catch {
+            return null;
         }
+    }
 
-        if (data.errors.date_of_birth) {
-            dateOfBirthError.textContent = data.errors.date_of_birth.join(" ");
-            hasFieldError = true;
-        }
-
-        if (data.errors.__all__) {
-            formError.textContent = data.errors.__all__.join(" ");
+    function showApiErrors(data) {
+        if (!data) {
+            showErrorMessage("Invalid author data.");
             return;
         }
-    }
 
-    if (!hasFieldError) {
-        formError.textContent = "Failed to update author.";
-    }
-}
+        const errors = data.errors || data.error || data;
 
-function getCsrfToken() {
-    const cookieName = "csrftoken";
-    const cookies = document.cookie.split(";");
-
-    for (let cookie of cookies) {
-        cookie = cookie.trim();
-
-        if (cookie.startsWith(cookieName + "=")) {
-            return cookie.substring(cookieName.length + 1);
+        if (typeof errors === "string") {
+            showErrorMessage(errors);
+            return;
         }
+
+        const messages = [];
+
+        Object.values(errors).forEach((fieldErrors) => {
+            if (Array.isArray(fieldErrors)) {
+                messages.push(fieldErrors.join(" "));
+                return;
+            }
+
+            if (typeof fieldErrors === "object" && fieldErrors !== null) {
+                messages.push(JSON.stringify(fieldErrors));
+                return;
+            }
+
+            messages.push(fieldErrors);
+        });
+
+        showErrorMessage(messages.join(" "));
     }
 
-    return "";
-}
+    function showErrorMessage(message) {
+        if (!errorBox) {
+            return;
+        }
 
-document.addEventListener("DOMContentLoaded", setupAuthorUpdateForm);
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+    }
+
+    function clearErrors() {
+        if (!errorBox) {
+            return;
+        }
+
+        errorBox.textContent = "";
+        errorBox.style.display = "none";
+    }
+
+    function getCsrfToken() {
+        const csrfInput = document.querySelector("[name=csrfmiddlewaretoken]");
+
+        if (csrfInput) {
+            return csrfInput.value;
+        }
+
+        return "";
+    }
+});
