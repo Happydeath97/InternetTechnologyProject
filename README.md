@@ -1,3 +1,23 @@
+# Project Submission Information
+
+This project was developed as part of the **Internet Technology** course for **BITFT 2a & BITPT 3b**.
+
+* **Course number:** 2-25FS.W-B-BIT-040305S1.SN/FT23PT21
+
+* **Supervisor:** Dr. Devid Montecchiari
+
+* **Project group:**
+
+  * Kryštof Vávra
+  * Marc Lantos
+  * Asia Marti
+  * Nils Honegger
+
+* **Project demonstration video:** [YouTube Demo](youtube_link)
+* **Repository:** [GitHub Repository](<repository_link>)
+
+---
+
 # MoviePulse: Tiered Movie Rating & Discussion Platform
 
 MoviePulse is a centralized web application for movie enthusiasts to discover, rate, and discuss films.
@@ -145,7 +165,7 @@ They are grouped by business area to reflect the main responsibilities of the sy
   Allows guests and authenticated users to view ratings associated with a movie. The system retrieves the rating entries and presents the rating information linked to the selected movie.
 
 - **UC-205 [View Comments for a Movie]:**  
-  Allows guests and authenticated users to view the discussion associated with a movie. The system retrieves visible comments connected to the selected movie and displays them as part of the movie community area.
+  Allows authenticated users to view the discussion associated with a movie. The system retrieves visible comments connected to the selected movie and displays them as part of the movie community area.
 
 - **UC-206 [Create Movie Record]:**  
   Allows an **Editor**, **Admin**, or **Superadmin** to create a new movie entry in the platform. The system validates the submitted movie data and stores a new movie record including required metadata such as title, description, release year, genre information, and creator-related data.
@@ -188,10 +208,10 @@ They are grouped by business area to reflect the main responsibilities of the sy
   Covers all workflows related to reporting incorrect or inappropriate content, reviewing submitted reports, moderating comments, banning users, and enforcing platform rules. These use cases support quality control, community safety, and traceable administrative intervention.
 
 - **UC-301 [Submit Movie Report]:**  
-  Allows a guest or authenticated user to report incorrect movie information. The report identifies the target movie, includes a reason, may include an optional description, and enters the moderation workflow with an initial pending status.
+  Allows authenticated user to report incorrect movie information. The report identifies the target movie, includes a reason, may include an optional description, and enters the moderation workflow with an initial pending status.
 
 - **UC-302 [Submit Comment Report]:**  
-  Allows a guest or authenticated user to report a vulgar, abusive, or otherwise inappropriate comment. The system stores the report with the targeted comment reference, reason, optional description, and initial review state.
+  Allows authenticated user to report a vulgar, abusive, or otherwise inappropriate comment. The system stores the report with the targeted comment reference, reason, optional description, and initial review state.
 
 - **UC-303 [View Report Queue]:**  
   Allows an **Editor**, **Admin**, or **Superadmin** to retrieve submitted reports for review. The system returns the current set of reports so that privileged users can inspect pending issues and decide on follow-up actions.
@@ -215,13 +235,13 @@ They are grouped by business area to reflect the main responsibilities of the sy
   Allows an **Admin** or **Superadmin** to ban a user who repeatedly violates platform rules or engages in abusive behavior. The system creates a ban record containing the target user, issuing administrator, reason, start date, optional end date, permanence flag, and active status.
 
 - **UC-310 [View Ban Records]:**  
-  Allows an **Admin** or **Superadmin** to retrieve the list of existing user bans. This supports moderation oversight and enforcement tracking.
+  Allows **Superadmin** to retrieve the list of existing user bans. This supports moderation oversight and enforcement tracking.
 
 - **UC-311 [View Ban Details]:**  
-  Allows an **Admin** or **Superadmin** to inspect the details of a specific ban, including who was banned, by whom, for what reason, over what time period, and under what current status.
+  Allows **Superadmin** to inspect the details of a specific ban, including who was banned, by whom, for what reason, over what time period, and under what current status.
 
 - **UC-312 [Update or Revoke Ban]:**  
-  Allows an **Admin** or **Superadmin** to modify an existing ban, such as changing the end date, marking the ban as permanent, or revoking it. The system updates the ban record and preserves enforcement history.
+  Allows **Superadmin** to modify an existing ban, such as changing the end date, marking the ban as permanent, or revoking it. The system updates the ban record and preserves enforcement history.
 
 - **UC-313 [Enforce Permanent and Temporary Ban Rules]:**  
   Ensures that ban records remain logically valid. In particular, permanent bans require `is_permanent = true` and do not require an end date, while temporary bans may carry an end date and status transitions such as **ACTIVE**, **EXPIRED**, or **REVOKED**.
@@ -312,19 +332,25 @@ The ER diagram includes authorization-related structures as part of the overall 
 ## Implementation
 
 ### Backend Technology
-The backend is implemented using a Python-based web framework:
-- **Django** for the core backend architecture, routing, views, templates, authentication, and administrative functionality.
-- **Django ORM** for object-relational mapping and database interaction.
-- **SQLite** for development and demonstration purposes, with the option to switch to another relational database later if needed.
-- **Django Authentication and Authorization System** for login, user groups, and permission management.
-- **Django Admin** for internal administrative and moderation functionality.
+
+The backend is implemented using a Python-based Django architecture:
+
+* **Django** for the core backend architecture, routing, server-rendered views, templates, authentication, and administrative functionality.
+* **Django REST Framework** for the REST API layer required by the school project. The API exposes structured endpoints for movies, genres, authors, ratings, comments, reports, and moderation workflows.
+* **Django ORM** for object-relational mapping and database interaction.
+* **SQLite** for development and demonstration purposes, with the option to switch to another relational database later if needed.
+* **Django Authentication and Authorization System** for login, logout, user groups, permissions, and role-based access control.
+* **Custom API permission classes** to enforce access rules for guests, users, editors, admins, and superadmins across REST API operations.
+* **Django Admin** for superadmin-level internal administration, entity management, user management, group management, and permission management.
+* **drf-spectacular** for generating OpenAPI documentation and Swagger-compatible API descriptions.
+
 
 ### Frontend Technology
 This application uses a server-rendered web frontend with lightweight client-side enhancements:
 - **HTML, CSS, and JavaScript** for the user interface and interactive behavior.
 - **Django Templates** for dynamic rendering of pages such as movie lists, detail views, forms, and account-related screens.
 - **Responsive Design Principles** to support both desktop and mobile usage.
-- **Form-based interaction:** The frontend communicates with the backend primarily through Django views, forms, and rendered templates.
+- **Frontend-backend interaction:** The frontend communicates with the backend through a combination of Django views, rendered templates, form-based interactions, and vanilla JavaScript requests to the REST API.
 ---
 
 ## Local Setup and Run
@@ -423,32 +449,38 @@ ___
 ## Project Management
 
 ### Roles 
-- **Backend Developer:** Vávra Kryštof (Spring Boot architecture, Security, SQL Integration).
-- **Frontend Developer:** Vávra Kryštof (UI/UX Design, Vanilla JS, Budibase views).
+- **Backend Developer:** Vávra Kryštof, Nils Honegger (Django architecture, Security, SQL Integration (ORM)).
+- **Frontend Developer:** Vávra Kryštof, Marc Lantos, Asia Marti (UI/UX Design, Vanilla JS, CSS, HTML).
 - **Project Lead:** Vávra Kryštof (Documentation, API Design, Milestone tracking).
 
 ### Milestones
 - [x] **1. Decide use case; Team finalized:** Initial scenario ideation.
 - [x] **2. Create project description in Readme:** Analysis and user story definition.
-- [ ] **3. Draft API list:** Definition of endpoints in Swagger.
-- [ ] **4. Initial backend setup:** Spring Boot 3.0 project initialization.
-- [ ] **5. First Web services implemented:** CRUD operations for Movie entity.
-- [ ] **6. Web services implemented:** Rating and Comment logic completion.
-- [ ] **7. Enable Basic Authentication:** Securing API endpoints.
-- [ ] **8. Decide Front-end Strategy:** Finalizing hybrid JS/Low-code approach.
-- [ ] **9. Front-end Implementation:** Prototyping and realizing UI functionality.
-- [ ] **10. Front-end integrated:** Connecting UI to REST APIs.
-- [ ] **11. Project Submission:** 14.06.2026.
+- [x] **3. Draft API list:** Definition of endpoints in Swagger.
+- [x] **4. Initial backend setup:** Python Django project initialization.
+- [x] **5. First Web services implemented:** CRUD operations for Movie entity.
+- [x] **6. Web services implemented:** Rating and Comment logic completion.
+- [x] **7. Enable Basic Authentication:** Securing API endpoints.
+- [x] **8. Decide Front-end Strategy:** Full HTML/CSS/JS vanilla.
+- [x] **9. Front-end Implementation:** Prototyping and realizing UI functionality.
+- [x] **10. Front-end integrated:** Connecting UI to REST APIs.
+- [x] **11. Project Submission:** 14.06.2026.
 
-### Future Implementation steps
-- [ ] **1. Pagination**
-- [ ] **2. Email verification**
-- [ ] **3. Password change/Account info change**
-- [ ] **4. Implement/Improve Responsiveness**
-- [ ] **5. user stories 6 and 13 are not satisfied**
+### Future Implementation Steps
+
+* [ ] **Pagination:** Add pagination for larger movie, report, rating, and comment datasets.
+* [ ] **Email verification:** Add backend email sending so newly registered users can verify their email address.
+* [ ] **Password reset by email:** Implement password reset flow using email-based reset links.
+* [ ] **Account detail updates:** Implement profile update functionality for username, email, and password changes.
+* [ ] **Improve responsiveness:** Refine mobile and tablet layouts across all major pages.
+* [ ] **Complete account-management workflow:** UC-105 and the related account-management user stories are planned for a later implementation step because they require email verification and password-reset support.
+
 
 #### Maintainer
 - Vávra Kryštof
+- Marc Lantos
+- Asia Marti
+- Nils Honegger
 
 #### License
 - [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)
