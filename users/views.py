@@ -10,6 +10,19 @@ from django.urls import reverse_lazy
 from .forms import LoginForm, RegistrationForm
 
 
+class UserProfileView(LoginRequiredMixin, View):
+    login_url = '/login/'
+    redirect_field_name = 'next'
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        context = {
+            'profile_user': request.user,
+        }
+        return render(request, 'users/profile.html', context=context)
+
+
+
 class RegistrationView(View):
     http_method_names = ['get', 'post']
 

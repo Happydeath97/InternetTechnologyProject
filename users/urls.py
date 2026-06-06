@@ -10,6 +10,7 @@ urlpatterns = [
     path("register/", users_v.RegistrationView.as_view(), name="register"),
     path("login/", users_v.LoginView.as_view(), name="login"),
     path("logout/", users_v.LogoutView.as_view(), name="logout"),
+    path("profile/", users_v.UserProfileView.as_view(), name="profile"),
 
     # =========================================================
     # API ENDPOINTS

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile | MoviePulse{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/users/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<section
+    class="profile-page"
+    id="profile-page"
+    data-ratings-api-url="{% url 'rating_api' %}"
+    data-movie-detail-base-url="{% url 'movie_list' %}"
+>
+    <div class="profile-header">
+        <div>
+            <p class="profile-kicker">Account</p>
+            <h1>Your Profile</h1>
+            <p>Manage your account details and review your movie ratings.</p>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <div class="profile-avatar">
+            {{ profile_user.username|slice:":1"|upper }}
+        </div>
+
+        <div class="profile-info">
+            <div class="profile-field">
+                <span>Username</span>
+                <strong>{{ profile_user.username }}</strong>
+            </div>
+
+            <div class="profile-field">
+                <span>Email</span>
+                <strong>
+                    {% if profile_user.email %}
+                        {{ profile_user.email }}
+                    {% else %}
+                        No email set
+                    {% endif %}
+                </strong>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <div class="profile-action-tooltip-wrapper" data-tooltip="To be implemented later">
+                <button type="button" class="profile-action-button" disabled>
+                    Change username
+                </button>
+            </div>
+
+            <div class="profile-action-tooltip-wrapper" data-tooltip="To be implemented later">
+                <button type="button" class="profile-action-button" disabled>
+                    Change email
+                </button>
+            </div>
+
+            <div class="profile-action-tooltip-wrapper" data-tooltip="To be implemented later">
+                <button type="button" class="profile-action-button" disabled>
+                    Change password
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <section class="rated-movies-section">
+        <div class="rated-movies-header">
+            <div>
+                <p class="profile-kicker">Ratings</p>
+                <h2>Your rated movies</h2>
+            </div>
+
+            <p class="rated-count">
+                <span id="rated-movies-count">0</span> movies rated
+            </p>
+        </div>
+
+        <div class="ratings-table-wrapper">
+            <table class="ratings-table">
+                <thead>
+                    <tr>
+                        <th>Movie</th>
+                        <th>Rating</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody id="ratings-table-body">
+                    <tr>
+                        <td colspan="5" class="ratings-empty-cell">
+                            Loading your ratings.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/users/profile.js' %}"></script>
+{% endblock %}

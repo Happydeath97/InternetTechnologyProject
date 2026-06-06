@@ -1,0 +1,432 @@
+.profile-page {
+    min-height: calc(100vh - 120px);
+    padding: 48px 24px;
+    background:
+        radial-gradient(circle at top left, rgba(229, 9, 20, 0.16), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.08), transparent 28rem),
+        #050505;
+    color: #f5f5f5;
+}
+
+.profile-header,
+.profile-card,
+.rated-movies-section {
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-header {
+    margin-bottom: 34px;
+}
+
+.profile-kicker {
+    margin: 0 0 8px;
+    color: #e50914;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.profile-header h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(2.6rem, 6vw, 5rem);
+    line-height: 1.02;
+    letter-spacing: -0.05em;
+}
+
+.profile-header p {
+    margin: 18px 0 0;
+    max-width: 700px;
+    color: #b8b8b8;
+    font-size: 1.05rem;
+    line-height: 1.65;
+}
+
+/* =========================
+   PROFILE CARD
+   ========================= */
+
+.profile-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 28px;
+    align-items: center;
+
+    margin-bottom: 28px;
+    padding: 28px;
+
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 24px;
+    background: rgba(18, 18, 18, 0.95);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(10px);
+}
+
+.profile-avatar {
+    width: 82px;
+    height: 82px;
+    border-radius: 999px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid rgba(229, 9, 20, 0.55);
+    background:
+        radial-gradient(circle at top left, rgba(229, 9, 20, 0.34), transparent 4rem),
+        #0b0f1d;
+    color: #ffffff;
+
+    font-size: 2.3rem;
+    font-weight: 950;
+    line-height: 1;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.38);
+}
+
+.profile-info {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+}
+
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.profile-field span {
+    color: #8f8f8f;
+    font-size: 0.82rem;
+    font-weight: 900;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.profile-field strong {
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 900;
+    word-break: break-word;
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.profile-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    min-width: 180px;
+    padding: 0 18px;
+
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #cfcfcf;
+
+    font-size: 0.92rem;
+    font-weight: 900;
+    cursor: not-allowed;
+
+    opacity: 0.65;
+}
+
+/* =========================
+   RATED MOVIES
+   ========================= */
+
+.rated-movies-section {
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    background: rgba(18, 18, 18, 0.94);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(10px);
+}
+
+.rated-movies-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rated-movies-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+}
+
+.rated-count {
+    margin: 0;
+    color: #a8a8a8;
+    font-size: 1rem;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.ratings-table-wrapper {
+    overflow-x: auto;
+}
+
+.ratings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ratings-table th,
+.ratings-table td {
+    padding: 18px 22px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.ratings-table th {
+    color: #a8a8a8;
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.ratings-table td {
+    color: #d8d8d8;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.ratings-table tbody tr {
+    transition: background 0.18s ease;
+}
+
+.ratings-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.ratings-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.rating-movie-link {
+    color: #ffffff;
+    font-size: 1.02rem;
+    font-weight: 950;
+    text-decoration: none;
+}
+
+.rating-movie-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.rating-score {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 30px;
+    padding: 0 12px;
+
+    border: 1px solid rgba(229, 9, 20, 0.55);
+    border-radius: 999px;
+    background: rgba(229, 9, 20, 0.13);
+    color: #ffb4b8;
+
+    font-size: 0.85rem;
+    font-weight: 950;
+    white-space: nowrap;
+}
+
+.rating-action-cell {
+    text-align: right;
+}
+
+.rating-open-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 40px;
+    padding: 0 18px;
+
+    border: 1px solid #ffffff;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #000000;
+
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-decoration: none;
+
+    transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.rating-open-link:hover {
+    background: #f2f2f2;
+    border-color: #f2f2f2;
+    color: #000000;
+    transform: translateY(-1px);
+}
+
+.ratings-empty-cell {
+    padding: 28px 22px;
+    color: #a8a8a8;
+    font-size: 1rem;
+    font-weight: 750;
+    text-align: center;
+}
+
+.ratings-empty-cell.error {
+    color: #ff9ca1;
+}
+
+.profile-action-tooltip-wrapper {
+    position: relative;
+    display: inline-flex;
+    cursor: not-allowed;
+}
+
+.profile-action-tooltip-wrapper::after {
+    content: attr(data-tooltip);
+
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 10px);
+    z-index: 20;
+
+    min-width: max-content;
+    padding: 8px 12px;
+
+    border: 1px solid rgba(229, 9, 20, 0.45);
+    border-radius: 999px;
+    background: rgba(18, 18, 18, 0.98);
+    color: #ffb4b8;
+
+    font-size: 0.78rem;
+    font-weight: 850;
+    white-space: nowrap;
+
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px);
+
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+
+    transition:
+        opacity 0.16s ease,
+        transform 0.16s ease;
+}
+
+.profile-action-tooltip-wrapper::before {
+    content: "";
+
+    position: absolute;
+    right: 24px;
+    bottom: calc(100% + 4px);
+    z-index: 21;
+
+    width: 10px;
+    height: 10px;
+
+    border-right: 1px solid rgba(229, 9, 20, 0.45);
+    border-bottom: 1px solid rgba(229, 9, 20, 0.45);
+    background: rgba(18, 18, 18, 0.98);
+
+    opacity: 0;
+    pointer-events: none;
+    transform: rotate(45deg) translateY(6px);
+
+    transition:
+        opacity 0.16s ease,
+        transform 0.16s ease;
+}
+
+.profile-action-tooltip-wrapper:hover::after,
+.profile-action-tooltip-wrapper:hover::before {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.profile-action-tooltip-wrapper:hover::before {
+    transform: rotate(45deg) translateY(0);
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 860px) {
+    .profile-page {
+        padding: 32px 16px;
+    }
+
+    .profile-card {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+        padding: 24px;
+    }
+
+    .profile-actions {
+        width: 100%;
+        align-items: stretch;
+    }
+
+    .profile-action-button {
+        width: 100%;
+    }
+
+    .rated-movies-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 22px;
+    }
+
+    .ratings-table th,
+    .ratings-table td {
+        padding: 16px 18px;
+    }
+
+    .profile-action-tooltip-wrapper {
+        width: 100%;
+    }
+}
+
+@media (max-width: 620px) {
+    .profile-card,
+    .rated-movies-section {
+        border-radius: 18px;
+    }
+
+    .profile-avatar {
+        width: 72px;
+        height: 72px;
+        font-size: 2rem;
+    }
+
+    .ratings-table th:nth-child(3),
+    .ratings-table th:nth-child(4),
+    .ratings-table td:nth-child(3),
+    .ratings-table td:nth-child(4) {
+        display: none;
+    }
+}
