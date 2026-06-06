@@ -134,9 +134,8 @@ class MovieCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
         return render(request, self.template_name)
 
 
-class MovieListView(LoginRequiredMixin, PermissionRequiredMixin, View):
+class MovieListView(View):
     http_method_names = ["get"]
-    permission_required = "movies.view_movie"
     raise_exception = True
     template_name = "movies/movie/movie_list.html"
 

@@ -18,28 +18,34 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Group definitions with permission codenames
+        user_permissions = [
+            'view_genre', 'view_author', 'view_movie',
+
+            'add_rating', 'change_rating', 'delete_rating', 'view_rating',
+
+            'add_comment', 'change_comment', 'delete_comment', 'view_comment',
+
+            'add_report', 'view_report',
+        ]
+
+        editor_permissions = user_permissions + [
+            'add_genre', 'change_genre',
+
+            'add_author', 'change_author',
+
+            'add_movie', 'change_movie',
+        ]
+
+        admin_permissions = editor_permissions + [
+            'change_report', 'delete_report', 'delete_author', 'delete_genre',
+
+            'view_ban', 'add_ban', 'change_ban', 'delete_ban', 'delete_movie'
+        ]
+
         group_permissions = {
-            'User': [
-                'view_genre', 'view_author', 'view_movie', 'add_rating',
-                'change_rating', 'delete_rating', 'view_rating',
-                'add_comment', 'change_comment', 'delete_comment',
-                'view_comment', 'add_report', 'view_report',
-            ],
-            'Editor': [
-                'view_genre', 'add_genre', 'change_genre', 'delete_genre',
-                'view_author', 'add_author', 'change_author', 'delete_author',
-                'view_movie', 'add_movie', 'change_movie', 'delete_movie',
-                'view_rating', 'view_comment', 'view_report',
-            ],
-            'Admin': [
-                'view_genre', 'add_genre', 'change_genre', 'delete_genre',
-                'view_author', 'add_author', 'change_author', 'delete_author',
-                'view_movie', 'add_movie', 'change_movie', 'delete_movie',
-                'view_rating', 'change_rating', 'delete_rating',
-                'view_comment', 'change_comment', 'delete_comment',
-                'view_report', 'change_report', 'delete_report',
-                'view_ban', 'add_ban', 'change_ban', 'delete_ban',
-            ],
+            'User': user_permissions,
+            'Editor': editor_permissions,
+            'Admin': admin_permissions,
         }
 
         for group_name, permission_codenames in group_permissions.items():

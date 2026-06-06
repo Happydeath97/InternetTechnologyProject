@@ -41,7 +41,7 @@ class AuthorApiPermission(BasePermission):
 
 
 class GenreApiPermission(BasePermission):
-    allow_anonymous_read = False
+    allow_anonymous_read = True
 
     perms_map = {
         "GET": "movies.view_genre",

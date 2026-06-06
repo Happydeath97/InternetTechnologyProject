@@ -48,34 +48,40 @@ data quality by managing metadata and moderating discussions.
 2. **As a [Guest]**, I want to browse a public list of movies so that I can discover available content.
 3. **As a [Guest]**, I want to filter movies by attributes such as title, genre, or year so that I can find specific movies more efficiently.
 4. **As a [Guest]**, I want to open a movie detail page so that I can view detailed information about a selected movie.
-5. **As a [Guest]**, I want to see ratings and comments for a movie so that I can understand community opinions before deciding to watch it.
-6. **As a [Guest]**, I want to register an account so that I can participate in rating and discussion features.
-7. **As a [Guest]**, I want to report incorrect movie information so that editors or admins can review possible errors.
-8. **As a [Guest]**, I want to report vulgar or inappropriate comments so that the platform remains respectful and useful.
-9. **As a [Guest]**, I want to use the application on desktop and mobile devices so that I can access it comfortably from different devices.
+5. **As a [Guest]**, I want to register an account so that I can participate in rating and discussion features.
+6. **As a [Guest]**, I want to use the application on desktop and mobile devices so that I can access it comfortably from different devices.
 
-10. **As a [User]**, I want to log in securely so that I can access authenticated features.
-11. **As a [User]**, I want to log out so that I can safely end my session on a shared or personal device.
-12. **As a [User]**, I want to rate a movie so that I can express my opinion numerically.
-13. **As a [User]**, I want to comment on a movie so that I can share my thoughts with other users.
-14. **As a [User]**, I want to edit my own comments so that I can correct mistakes or improve my contribution.
-15. **As a [User]**, I want to delete my own comments so that I can remove content I no longer want to publish.
-16. **As a [User]**, I want to edit my account details so that my profile information stays current.
-17. **As a [User]**, I want the system to allow only one rating per movie per account so that ratings remain fair and consistent.
+7. **As a [User]**, I want to log in securely so that I can access authenticated features.
+8. **As a [User]**, I want to log out so that I can safely end my session on a shared or personal device.
+9. **As a [User]**, I want to rate a movie so that I can express my opinion numerically.
+10. **As a [User]**, I want to comment on a movie so that I can share my thoughts with other users.
+11. **As a [User]**, I want to edit my own comments so that I can correct mistakes or improve my contribution.
+12. **As a [User]**, I want to delete my own comments so that I can remove content I no longer want to publish.
+13. **As a [User]**, I want to edit my account details so that my profile information stays current.
+14. **As a [User]**, I want the system to allow only one rating per movie per account so that ratings remain fair and consistent.
+15. **As a [User]**, I want to see ratings and comments for a movie so that I can understand community opinions before deciding to watch it.
+16. **As a [User]**, I want to report incorrect movie information so that editors or admins can review possible errors.
+17. **As a [User]**, I want to report vulgar or inappropriate comments so that the platform remains respectful and useful.
 
 18. **As an [Editor]**, I want to create new movie records so that newly released or missing movies can be added to the platform.
 19. **As an [Editor]**, I want to edit existing movie records so that wrong or incomplete movie information can be corrected.
 20. **As an [Editor]**, I want to review reported movie entries so that flagged content can be checked and improved.
+21. **As an [Editor]**, I want to create new Genre records so that new genres can be attached to movies.
+22. **As an [Editor]**, I want to edit existing Genre records so that any misspell or incomplete names can be corrected.
+23. **As an [Editor]**, I want to create new Author records so that newly emerged authors can be registered in our database.
+24. **As an [Editor]**, I want to edit existing author records so that any mistakes in their names or dates of birth can be corrected.
 
-21. **As an [Admin]**, I want to delete inappropriate comments so that community rules can be enforced.
-22. **As an [Admin]**, I want to review reported comments so that harmful or vulgar discussion content can be moderated.
-23. **As an [Admin]**, I want to ban users who repeatedly violate platform rules so that abuse of the system is reduced.
-24. **As an [Admin]**, I want to manage movie records with full CRUD functionality so that I can maintain content quality when needed.
+25. **As an [Admin]**, I want to delete inappropriate comments so that community rules can be enforced.
+26. **As an [Admin]**, I want to review reported comments so that harmful or vulgar discussion content can be moderated.
+27. **As an [Admin]**, I want to ban users who repeatedly violate platform rules so that abuse of the system is reduced.
+28. **As an [Admin]**, I want to manage movie records with full CRUD functionality so that I can maintain content quality when needed.
+29. **As an [Admin]**, I want to delete existing genre records so that any no longer fitting record can be removed from our database.
+30. **As an [Admin]**, I want to delete existing author records so that any no longer fitting author or if they contact us to ask for removal we can remove them from our database.
 
-25. **As a [Superadmin]**, I want to manage all system entities so that I have full control over the platform.
-26. **As a [Superadmin]**, I want to manage privileged accounts and permissions so that the authorization hierarchy remains secure and correct.
-27. **As a [Superadmin]**, I want to access a protected admin view so that I can supervise platform data and administration functions.
-28. **As a [Superadmin]**, I want the system to enforce role hierarchy rules so that lower-level users cannot perform actions above their authority.
+31. **As a [Superadmin]**, I want to manage all system entities so that I have full control over the platform.
+32. **As a [Superadmin]**, I want to manage privileged accounts and permissions so that the authorization hierarchy remains secure and correct.
+33. **As a [Superadmin]**, I want to access a protected admin view so that I can supervise platform data and administration functions.
+34. **As a [Superadmin]**, I want the system to enforce role hierarchy rules so that lower-level users cannot perform actions above their authority.
 
 ### Use Cases
 
@@ -433,6 +439,13 @@ ___
 - [ ] **9. Front-end Implementation:** Prototyping and realizing UI functionality.
 - [ ] **10. Front-end integrated:** Connecting UI to REST APIs.
 - [ ] **11. Project Submission:** 14.06.2026.
+
+### Future Implementation steps
+- [ ] **1. Pagination**
+- [ ] **2. Email verification**
+- [ ] **3. Password change/Account info change**
+- [ ] **4. Implement/Improve Responsiveness**
+- [ ] **5. user stories 6, 13, 20 are not satisfied**
 
 #### Maintainer
 - Vávra Kryštof
