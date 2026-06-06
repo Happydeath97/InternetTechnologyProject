@@ -55,13 +55,13 @@ data quality by managing metadata and moderating discussions.
 
 ### User Levels
 
-| Level | Role Name      | Permissions & Capabilities |
-| :---: | :------------- | :--- |
-| **0** | **Guest**      | **Unauthorized:** Can access the main page, browse a public subset of the movie library, use filters, open movie detail pages, read ratings and comments, register an account, and report incorrect movie information or inappropriate comments. |
-| **1** | **User**       | **Authenticated:** Includes all Guest permissions. Can log in and log out, rate movies, add comments, edit or delete own comments, and update account details. Limited to one rating per movie. |
-| **2** | **Editor**     | **Content Curator:** Includes all User permissions. Can create new movie records, edit existing movie records, and review reported movie information to maintain data quality. |
-| **3** | **Admin**      | **Moderator:** Includes all Editor permissions. Can delete inappropriate comments, review reported comments, ban users, and manage movie records with full CRUD functionality when necessary. |
-| **4** | **Superadmin** | **System Owner:** Includes all Admin permissions. Has full CRUD authority over all entities, can manage privileged accounts and permissions, and can access protected administrative views and system-level controls. |
+| Level | Role Name      | Permissions & Capabilities                                                                                                                                                                                                                                                                                                                             |
+| :---: | :------------- |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **0** | **Guest**      | **Unauthorized:** Can access the main page, browse a public subset of the movie library, use filters, open movie detail pages, read rating, register an account.                                                                                                                                                                                       |
+| **1** | **User**       | **Authenticated:** Includes all Guest permissions. Can log in and log out, view ratings and authenticated discussion content, rate movies, add comments, edit or delete own comments, and report incorrect movie information or inappropriate comments. Limited to one rating per movie. Account detail updates are planned for future implementation. |
+| **2** | **Editor**     | **Content Curator:** Includes all User permissions. Can create new movie records, edit existing movie records, and review reported movie information to maintain data quality.                                                                                                                                                                         |
+| **3** | **Admin**      | **Moderator:** Includes all Editor permissions. Can delete inappropriate comments, review reported comments, ban users, and manage movie records with full CRUD functionality when necessary.                                                                                                                                                          |
+| **4** | **Superadmin** | **System Owner:** Includes all Admin permissions. Has full CRUD authority over all entities, can manage privileged accounts and permissions, and can access protected administrative views and system-level controls.                                                                                                                                  |
 
 ### User Stories
 1. **As a [Guest]**, I want to access the main page without logging in so that I can immediately use the platform.
