@@ -445,7 +445,7 @@ ___
 - [ ] **2. Email verification**
 - [ ] **3. Password change/Account info change**
 - [ ] **4. Implement/Improve Responsiveness**
-- [ ] **5. user stories 6, 13, 20 are not satisfied**
+- [ ] **5. user stories 6 and 13 are not satisfied**
 
 #### Maintainer
 - Vávra Kryštof

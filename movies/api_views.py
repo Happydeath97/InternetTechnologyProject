@@ -999,6 +999,12 @@ class ReportApiView(APIView):
                 status=status.HTTP_200_OK,
             )
 
+        if not self.user_can_moderate_comment_reports(request.user):
+            # you cannot see the report you dont have access
+            return Response(
+                {"detail": "You do not have permission to access comment reports."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         report = self.get_report(request, pk)
         serializer = ReportSerializer(report, context={"request": request})
         return Response(
