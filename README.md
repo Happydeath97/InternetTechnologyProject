@@ -13,8 +13,8 @@ This project was developed as part of the **Internet Technology** course for **B
   * Asia Marti
   * Nils Honegger
 
-* **Project demonstration video:** [YouTube Demo](youtube_link)
-* **Repository:** [GitHub Repository](<repository_link>)
+* **Project demonstration video:** [YouTube Demo](https://youtu.be/fuUJjRUeq-k)
+* **Repository:** [GitHub Repository](https://github.com/Happydeath97/InternetTechnologyProject)
 
 ---
 
