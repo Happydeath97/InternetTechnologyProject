@@ -13,8 +13,10 @@ This project was developed as part of the **Internet Technology** course for **B
   * Asia Marti
   * Nils Honegger
 
-* **Project demonstration video:** [YouTube Demo](https://youtu.be/fuUJjRUeq-k)
+* **Project demonstration video (SHORT 11min):** [YouTube Demo Short](https://youtu.be/533SJbfatMQ)
+* **Project demonstration video (LONG 36min):** [YouTube Demo Long](https://youtu.be/fuUJjRUeq-k)
 * **Repository:** [GitHub Repository](https://github.com/Happydeath97/InternetTechnologyProject)
+* The **Swagger** UI is available while the development server is running: http://127.0.0.1:8000/api/docs/ <br>
 
 ---
 
@@ -330,6 +332,25 @@ The ER diagram includes authorization-related structures as part of the overall 
 ---
 
 ## Implementation
+
+### Architecture
+
+MoviePulse follows a layered web application architecture with a clear separation between presentation, business logic, API, and data access responsibilities.
+
+#### Presentation Layer
+The presentation layer is implemented with Django templates, HTML, CSS, and vanilla JavaScript. It provides the visible user interface, including the home page, movie list, movie detail page, authentication pages, editor forms, and report dashboard.
+
+#### API and Controller Layer
+Django views and Django REST Framework viewsets handle incoming requests, route user actions, validate permissions, and expose REST endpoints for movies, genres, authors, ratings, comments, reports, and bans.
+
+#### Business Logic Layer
+The business logic is implemented through Django views, serializers, permission classes, model constraints, and service-like application logic. This layer enforces rules such as one rating per user per movie, role-based access control, report review workflows, comment ownership, and ban restrictions.
+
+#### Data Access Layer
+The data access layer is handled by the Django ORM. Application entities such as Movie, Genre, Author, Rating, Comment, Report, and Ban are stored in a relational SQLite database for development and demonstration purposes.
+
+#### Two-Tier Deployment View
+The application runs as a web application with a browser-based frontend and a Django backend. The frontend consumes server-rendered pages and REST API endpoints exposed by the backend.
 
 ### Backend Technology
 
