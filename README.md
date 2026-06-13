@@ -16,6 +16,7 @@ This project was developed as part of the **Internet Technology** course for **B
 * **Project demonstration video (SHORT 11min):** [YouTube Demo Short](https://youtu.be/533SJbfatMQ)
 * **Project demonstration video (LONG 36min):** [YouTube Demo Long](https://youtu.be/fuUJjRUeq-k)
 * **Repository:** [GitHub Repository](https://github.com/Happydeath97/InternetTechnologyProject)
+* **GitHub Codespaces note:** The project is configured for GitHub Codespaces. However, due to Django's CSRF protection and the dynamic Codespaces forwarding URL, login functionality may not work reliably in the Codespaces environment. For full application testing, we recommend running the project locally by following the [Local Setup and Run](#local-setup-and-run) instructions.
 * The **Swagger** UI is available while the development server is running: http://127.0.0.1:8000/api/docs/ <br>
 
 ---
@@ -386,7 +387,7 @@ cd <your-project-folder>
 ### 2. Create a virtual environment
 On Windows:
 ```bash
-py -m venv .venv
+python -m venv .venv
 ```
 
 On macOS/Linux:
