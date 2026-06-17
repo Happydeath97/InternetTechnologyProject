@@ -377,6 +377,7 @@ This application uses a server-rendered web frontend with lightweight client-sid
 
 ## Local Setup and Run
 
+Built on Python 3.12.2
 Follow these steps to run the MoviePulse project locally.
 
 ### 1. Clone the repository
