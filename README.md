@@ -425,6 +425,14 @@ If not run this, or run it anyway and create your own.
 python manage.py createsuperuser
 ```
 
+Now there are following accounts for testing accessible:
+| Level | Username | Password |
+| :------------: | :-------------------: | :-------------------: |
+| **User** | user_demo| admin |
+| **Editor** | editor_demo | admin |
+| **Admin** | admin_demo | admin |
+| **Superadmin** | setup yourself step 6 | setup yourself step 6 |
+
 ### 7. Run the development server
 ```bash
 python manage.py runserver
